@@ -1,5 +1,5 @@
 <sounding>
-  <h3>This is my plugin (not official Windy's graph)</h3>
+  <h3>Sounding forecast</h3>
   <div id="sounding-chart"></div>
   <section>
     <span data-ref="tcon"></span>
@@ -67,14 +67,7 @@
         }).addTo(map);
       }
 
-      // Load d3 library from external source
-      if (!("d3" in window)) {
-        _.loadScript("https://unpkg.com/d3@5.7.0/dist/d3.min.js").then(() =>
-          initAndLoad(lat, lon)
-        );
-      } else {
-        initAndLoad(lat, lon);
-      }
+      initAndLoad(lat, lon);
 
       this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
         ev.stopPropagation();
@@ -89,8 +82,11 @@
 
       graph.init(this.refs);
 
-      load("airData", dataOptions).then(airData => {
-        graph.load(lat, lon, airData.data);
+      Promise.all([
+        load("forecast", dataOptions),
+        load("airData", dataOptions),
+      ]).then(([forecast, airData]) => {
+        graph.load(lat, lon, airData.data, forecast.data);
       });
     };
 

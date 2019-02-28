@@ -7,7 +7,9 @@
     "start": "node ./compiler.js --build --watch --prompt --serve --transpile",
     "start-dev": "node ./compiler.js --build --watch --serve --transpile",
     "prepublishOnly": "node ./test/prepublish.js",
-    "test": "node ./test/prepublish.js"
+    "test": "node ./test/prepublish.js",
+    "lint": "npx eslint examples/**/*.{js,mjs,html} --fix",
+    "format": "npx prettier examples/**/*.{js,mjs,html} --write"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "ucfirst": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.3.0",
     "eslint": "^5.14.1",
     "eslint-plugin-html": "^5.0.3",
     "prettier": "1.16.4"

@@ -201,6 +201,7 @@ async function build() {
     c.info("Transpiling with babel");
     let res = await babel.transformAsync(output, {
       presets: ["@babel/preset-env"],
+      plugins: ["@babel/plugin-transform-react-jsx"]
     }); // => Promise<{ code, map, ast }>
     output = res.code;
   }

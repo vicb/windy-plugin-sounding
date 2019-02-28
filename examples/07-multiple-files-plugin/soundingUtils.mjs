@@ -101,17 +101,15 @@ function dataIntersection(line, polyline, getPoint) {
 }
 
 // Inspired by airgram.mjs:windMark()
-function addWindBarb(g, x, y, dir, speed) {
+function drawWindArrow(g, x, y, dir, speed) {
   const scale = 20;
   const windBarb = g
     .append("g")
     .attr("class", "windbarb")
     .attr("transform", `translate(${x}, ${y})rotate(${dir})`);
 
-  // Convert to 5-knots multimple
-  let knots5 = Math.round(speed * 0.388768);
-
-  if (knots5 > 0) {
+  // TODO(berchet): unit
+  if (speed > 2) {
     windBarb
       .append("line")
       .attr("stroke", "black")
@@ -120,39 +118,13 @@ function addWindBarb(g, x, y, dir, speed) {
       .attr("y1", 0)
       .attr("y2", -scale);
 
-    const d = 0.15 * scale;
-    var dy = -scale;
-
-    // Shift 5 kn barb
-    if (knots5 == 1) {
-      dy += d;
-    }
-
-    // Flags
-    if (knots5 >= 10) {
-      while (knots5 >= 10) {
-        windBarb
-          .append("polygon")
-          .attr("points", `0 ${dy}, ${2.5 * d} ${dy + d / 2}, 0 ${dy + d}`)
-          .style("stroke", "black");
-        knots5 -= 10;
-        dy += d;
-      }
-      dy += d;
-    }
-
-    // Small barbs
-    while (knots5 > 0) {
-      windBarb
-        .append("line")
-        .attr("x1", 0)
-        .attr("x2", knots5 > 1 ? 2.5 * d : 1.25 * d) // Short or normal barb
-        .attr("y1", dy)
-        .attr("y2", dy - 0.25 * d)
-        .style("stroke", "black");
-      knots5 -= 2;
-      dy += d;
-    }
+    const arrow = Math.round(scale / 4);
+    windBarb
+      .append("polyline")
+      .attr("stroke", "black")
+      .attr("fill", "none")
+      .attr("points", `-${arrow / 2},-${arrow} 0,0 ${arrow / 2},-${arrow}`)
+      .attr("stroke-linejoin", "round");
   } else {
     // No wind
     // Outline circle
@@ -181,5 +153,5 @@ export default {
   interpolatePoint,
   intersection,
   dataIntersection,
-  addWindBarb,
+  drawWindArrow,
 };

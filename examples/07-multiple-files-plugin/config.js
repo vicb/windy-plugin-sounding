@@ -7,7 +7,10 @@ module.exports = {
   hook: "contextmenu",
 
   // External dependencies
-  dependencies: ["https://unpkg.com/d3@5.7.0/dist/d3.min.js"],
+  dependencies: [
+    "https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js",
+    "https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js",
+  ],
 
   // Class name applied to your plugin element
   className: "drop-down-window ",
