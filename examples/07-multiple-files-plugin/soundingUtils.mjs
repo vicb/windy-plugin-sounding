@@ -12,42 +12,23 @@ function validateData(data) {
   }
 }
 
-// Use when float inaccuracy may occur
-const almostEqual = (a, b) => Math.abs(a - b) < 0.000001;
-
 // Bilinear interpolation between two data arrays
 function interpolateArray(data1, data2, w) {
-  if (almostEqual(w, 0)) {
-    return _.clone(data1);
-  }
-  if (almostEqual(w, 1)) {
-    return _.clone(data2);
-  }
-
   const data = [];
-  for (let lev = 0; lev < data1.length; ++lev) {
-    // Some levels may be missing (corrupted data) except ground level
-    let d2 = lev == 0 ? data2[0] : data2.find(d => d.level == data1[lev].level);
-    if (!d2) {
-      continue;
+  data1.forEach((d1, i) => {
+    const pressure1 = d1.pressure;
+    const d2 = i == 0 ? data2[0] : data2.find(d2 => d2.pressure == pressure1);
+    if (d2) {
+      data.push(interpolatePoint(d1, d2, w));
     }
-    data.push(interpolatePoint(data1[lev], d2, w));
-  }
-
+  });
   return data;
 }
 
 // Bilinear interpolation between two data points
 function interpolatePoint(point1, point2, w) {
-  if (almostEqual(w, 0)) {
-    return _.clone(point1);
-  }
-  if (almostEqual(w, 1)) {
-    return _.clone(point2);
-  }
-
   const interp = {};
-  const keys = Object.keys(point1);
+  const keys = Object.getOwnPropertyNames(point1);
   keys.forEach(key => {
     interp[key] = (1 - w) * point1[key] + w * point2[key];
   });
@@ -148,7 +129,6 @@ function drawWindArrow(g, x, y, dir, speed) {
 
 export default {
   validateData,
-  almostEqual,
   interpolateArray,
   interpolatePoint,
   intersection,

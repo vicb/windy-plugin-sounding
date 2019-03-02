@@ -27,6 +27,8 @@ const pointData = {
   lon: 0,
   elevation: 0,
   modelElevation: 0,
+  tempRange: [0, 0],
+  pressureRange: [0, 0],
   data: {},
 };
 
@@ -97,6 +99,8 @@ const init = () => {
               stroke-linecap="round"
               stroke-width="1.5"
               d={tempLine(data)}
+              transform-origin={`${xScale(data[0].temp)} ${yScale(data[0].gh)}`}
+              transform="rotate(45)"
             />
             <path
               class="dewpoint chart"
@@ -106,6 +110,19 @@ const init = () => {
               stroke-linecap="round"
               stroke-width="1.5"
               d={dewPointLine(data)}
+              transform-origin={`${xScale(data[0].dewpoint)} ${yScale(
+                data[0].gh
+              )}`}
+              transform="rotate(0)"
+            />
+            <path
+              fill="none"
+              stroke="gray"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="1"
+              d={`M0,0V${chartHeight}`}
+              transform={`rotate(45)translate(${xScale(273)},${chartHeight})`}
             />
           </g>
         ) : (
@@ -124,33 +141,46 @@ const init = () => {
 function updateScales() {
   let minTemp = Number.MAX_VALUE;
   let maxTemp = Number.MIN_VALUE;
+  let minGh = Number.MAX_VALUE;
+  let maxGh = Number.MIN_VALUE;
   let minPressure = Number.MAX_VALUE;
   let maxPressure = Number.MIN_VALUE;
 
-  for (let hour in pointData.data) {
-    pointData.data[hour].forEach(d => {
+  for (let ts in pointData.data) {
+    const tsData = pointData.data[ts];
+    tsData.forEach((d, index) => {
+      if (index == 0) {
+        minGh = Math.min(minGh, d.gh);
+        maxPressure = Math.max(maxPressure, d.pressure);
+      }
+      if (index == tsData.length - 1) {
+        maxGh = Math.max(maxGh, d.gh);
+        minPressure = Math.min(minPressure, d.pressure);
+      }
       // pt.dewpoint <= pt.temp
       minTemp = Math.min(minTemp, d.dewpoint);
       maxTemp = Math.max(maxTemp, d.temp);
-      minPressure = Math.min(minPressure, d.gh);
-      maxPressure = Math.max(maxPressure, d.gh);
     });
   }
+
+  // TODO
+  minTemp = -30 + 273;
+  maxTemp = 30 + 273;
 
   xScale.domain([minTemp, maxTemp]);
   xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
 
-  yScale.domain([minPressure, maxPressure]);
-  yAxisScale.domain([convertAlt(minPressure), convertAlt(maxPressure)]);
+  yScale.domain([minGh, maxGh]);
+  yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
 }
 
-// Return the value of the parameter `name` at `level` for the given `hourIdx`
-function ExtractParamAtLevel(airData, name, level, hourIdx) {
+// Return the value of the parameter `name` at `level` for the given `tsIndex`
+function GetParam(airData, name, level, tsIndex) {
   if (name === "gh" && level == "surface") {
     return airData.header.modelElevation;
   }
 
-  return airData.data[`${name}-${level}`][hourIdx];
+  return airData.data[`${name}-${level}`][tsIndex];
 }
 
 // Handler for data request
@@ -158,12 +188,11 @@ const load = (lat, lon, airData, forecastData) => {
   pointData.lat = lat;
   pointData.lon = lon;
 
-  // Create a flat array of forecast data
-  const forecasts = [];
+  // Create a lookup for forecast
+  const forecastsByTs = {};
   for (let d in forecastData.data) {
-    forecasts.push(...forecastData.data[d]);
+    forecastData.data[d].forEach(f => (forecastsByTs[f.origTs] = f));
   }
-  forecasts.sort((a, b) => (Number(a.ts) < Number(b.ts) ? -1 : 1));
 
   // Re-arrange the airData
   // from
@@ -182,7 +211,7 @@ const load = (lat, lon, airData, forecastData) => {
   //      level: ,
   //    }, ...
   // }
-  const hours = airData.data.hours;
+  const timestamps = airData.data.hours;
   const elevation = airData.header.elevation;
   const modelElevation = airData.header.modelElevation;
   const paramNames = new Set();
@@ -201,39 +230,46 @@ const load = (lat, lon, airData, forecastData) => {
   const levels = [
     -1,
     ...Array.from(paramLevels)
-      .filter(l => l > 300)
+      //.filter(l => l > 400)
       .sort((a, b) => (Number(a) < Number(b) ? 1 : -1)),
   ];
 
   const levelDataByTs = {};
-  hours.forEach((h, hIdx) => {
-    levelDataByTs[h] = [];
+  timestamps.forEach((ts, index) => {
+    levelDataByTs[ts] = [];
     levels.forEach(level => {
       let LevelName = level < 0 ? "surface" : `${level}h`;
-      const gh = ExtractParamAtLevel(airData, "gh", LevelName, hIdx);
+      const gh = GetParam(airData, "gh", LevelName, index);
       if (gh >= modelElevation) {
         // Precompute the wind object
-        const windU = ExtractParamAtLevel(airData, "wind_u", LevelName, hIdx);
-        const windV = ExtractParamAtLevel(airData, "wind_v", LevelName, hIdx);
+        const windU = GetParam(airData, "wind_u", LevelName, index);
+        const windV = GetParam(airData, "wind_v", LevelName, index);
         const wind = _.wind2obj([windU, windV]);
 
-        levelDataByTs[h].push({
-          temp: ExtractParamAtLevel(airData, "temp", LevelName, hIdx),
-          dewpoint: ExtractParamAtLevel(airData, "dewpoint", LevelName, hIdx),
-          gh: ExtractParamAtLevel(airData, "gh", LevelName, hIdx),
+        // Forecasts have the pressure in Pa - we want hPa.
+        const pressure =
+          level < 0 ? Math.round(forecastsByTs[ts].pressure / 100) : level;
+
+        levelDataByTs[ts].push({
+          temp: GetParam(airData, "temp", LevelName, index),
+          dewpoint: GetParam(airData, "dewpoint", LevelName, index),
+          gh: GetParam(airData, "gh", LevelName, index),
           wind: wind.wind,
           wind_dir: wind.dir,
-          level: level < 0 ? undefined : level,
+          pressure,
+          forecast: forecastsByTs[ts],
         });
       }
     });
   });
 
+  console.log(levelDataByTs);
+
   pointData.data = levelDataByTs;
   pointData.elevation = elevation;
   pointData.modelElevation = modelElevation;
 
-  updateScales();
+  updateScales(pointData);
 
   store.on("timestamp", redraw);
   redraw();
