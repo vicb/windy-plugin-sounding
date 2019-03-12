@@ -64,244 +64,278 @@ const init = () => {
   yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
   xWindAxis = d3.axisBottom(xWindAxisScale).ticks(4, "d");
 
-tempLine = d3
-  .line()
-  .x(d => xScale(d.temp) + skew * (chartHeight - yScale(d.pressure)))
-  .y(d => yScale(d.pressure));
-
-dewPointLine = d3
-  .line()
-  .x(d => xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure)))
-  .y(d => yScale(d.pressure));
-
-windLine = d3
-  .line()
-  .x(d => xWindScale(d.wind))
-  .y(d => yScale(d.pressure));
-
-let IsoTemp = ({ temp }) => {
-  if (skew == 0) {
-    return null;
-  }
-  const x1 = xScale(temp + 273);
-  const y2 = chartHeight - (chartWidth - x1) / skew;
-  return <line x1={x1} y1={chartHeight} x2={chartWidth} y2={y2}
-    stroke="darkred"
-    stroke-width="0.2"
-  />;
-};
-
-let IsoHume = ({ q }) => {
-  const points = [];
-  const step = chartHeight / 6;
-  for (let y = chartHeight; y > -step; y -= step) {
-    const p = yScale.invert(y);
-    const es = (p * q) / (q + 622.0);
-    const logthing = Math.pow(Math.log(es / 6.11), -1.0);
-    const t = 273 + Math.pow((17.269 / 237.3) * (logthing - (1.0 / 17.269)), -1.0);
-    points.push({ t, p });
-  }
-  const ad = d3
+  tempLine = d3
     .line()
-    .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-    .y(d => yScale(d.p));
-  return <path
-    fill="none"
-    stroke="blue"
-    stroke-width="0.3"
-    stroke-dasharray="2"
-    d={ad(points)}
-  />
+    .x(d => xScale(d.temp) + skew * (chartHeight - yScale(d.pressure)))
+    .y(d => yScale(d.pressure));
 
-};
-
-let DryAdiabatic = ({ temp }) => {
-  const points = [];
-  let t0 = temp + 273;
-  const p0 = yScale.domain()[0];
-  const CP = 1.03e3
-  const RD = 287.0
-  const step = chartHeight / 15;
-  for (let y = chartHeight; y > -step; y -= step) {
-    const p = yScale.invert(y);
-    const t = t0 * Math.pow(p0 / p, -RD / CP);
-    points.push({ t, p });
-  }
-  const ad = d3
+  dewPointLine = d3
     .line()
-    .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-    .y(d => yScale(d.p));
-  return <path
-    fill="none"
-    stroke="green"
-    stroke-width="0.3"
-    d={ad(points)}
-  />
-};
+    .x(d => xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure)))
+    .y(d => yScale(d.pressure));
 
-let MoistAdiabatic = ({ temp }) => {
-  const points = [];
-  let t0 = temp + 273;
-  const p0 = yScale.domain()[0];
-
-  const CP = 1.03e3;
-  const K = 0.286;
-  const L = 2.5e6;
-  const MA = 300.0;
-  const RD = 287.0;
-  const RV = 461.0;
-  const KELVIN = 273;
-
-  var gradi = 0;
-  let t = t0;
-  let previousP = p0;
-  const step = chartHeight / 15;
-  for (let y = chartHeight; y > -step; y -= step) {
-    const pressure = yScale.invert(y);
-    var lsbc = (L / RV) * ((1.0 / KELVIN) - (1.0 / t));
-    var rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
-    var lrwbt = (L * rw) / (RD * t);
-    var nume = ((RD * t) / (CP * pressure)) * (1.0 + lrwbt);
-    var deno = 1.0 + (lrwbt * ((0.622 * L) / (CP * t)));
-    var gradi = nume / deno;
-    t = t - gradi * (previousP - pressure);
-    previousP = pressure;
-    points.push({ t, p: pressure });
-  }
-  const ad = d3
+  windLine = d3
     .line()
-    .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-    .y(d => yScale(d.p));
-  return <path
-    fill="none"
-    stroke="green"
-    stroke-width="0.3"
-    stroke-dasharray="3 5"
-    d={ad(points)}
-  />
-};
+    .x(d => xWindScale(d.wind))
+    .y(d => yScale(d.pressure));
 
-let WindArrow = ({speed, dir, y }) => {
-  return <g>
-  {
-    speed > 1 ?
-    <g transform={`translate(0,${y}) rotate(${dir})`} stroke="black" fill="none">
-      <line y2="-30" />
-      <polyline points="-5,-10 0,0 5,-10" stroke-linejoin="round" />
-    </g>
-    :
-    <g transform={`translate(0,${y})`} stroke="black" fill="none">
-      <circle r="5" />
-      <circle r="1" />
-    </g>
-  }
-  </g>;
-}
+  let IsoTemp = ({ temp }) => {
+    if (skew == 0) {
+      return null;
+    }
+    const x1 = xScale(temp + 273);
+    const y2 = chartHeight - (chartWidth - x1) / skew;
+    return (
+      <line
+        x1={x1}
+        y1={chartHeight}
+        x2={chartWidth}
+        y2={y2}
+        stroke="darkred"
+        stroke-width="0.2"
+      />
+    );
+  };
 
-Sounding = ({ data } = {}) => {
-  return (
-    <svg id="sounding">
-      <defs>
-        <clipPath id="clip-chart">
-          <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
-        </clipPath>
-      </defs>
-      {data ? (
-        <g>
-          <g class="wind">
-            <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
-              <g
-                class="x axis"
-                transform={`translate(0,${chartHeight})`}
-                ref={g => d3.select(g).call(xWindAxis)}
-              />
-              <line y1={chartHeight} y2="0"
-                stroke="black"
-                stroke-width="0.2"
-                stroke-dasharray="3"
-              />
-              <line y1={chartHeight} x1={xWindScale(15 / 3.6)} y2="0" x2={xWindScale(15 / 3.6)}
-                stroke="black"
-                stroke-width="0.2"
-                stroke-dasharray="3"
-              />
-              <rect x={chartWindWidth / 2} width={chartWindWidth / 2} height={chartHeight} fill="red" opacity="0.1"/>
-              <g class="chartArea" clip-path="url(#clip-chart)">
-                <path
-                  class="temperature chart"
-                  fill="none"
-                  stroke="purple"
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                  stroke-width="1.5"
-                  d={windLine(data)}
+  let IsoHume = ({ q }) => {
+    const points = [];
+    const step = chartHeight / 6;
+    for (let y = chartHeight; y > -step; y -= step) {
+      const p = yScale.invert(y);
+      const es = (p * q) / (q + 622.0);
+      const logthing = Math.pow(Math.log(es / 6.11), -1.0);
+      const t =
+        273 + Math.pow((17.269 / 237.3) * (logthing - 1.0 / 17.269), -1.0);
+      points.push({ t, p });
+    }
+    const ad = d3
+      .line()
+      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
+      .y(d => yScale(d.p));
+    return (
+      <path
+        fill="none"
+        stroke="blue"
+        stroke-width="0.3"
+        stroke-dasharray="2"
+        d={ad(points)}
+      />
+    );
+  };
+
+  let DryAdiabatic = ({ temp }) => {
+    const points = [];
+    let t0 = temp + 273;
+    const p0 = yScale.domain()[0];
+    const CP = 1.03e3;
+    const RD = 287.0;
+    const step = chartHeight / 15;
+    for (let y = chartHeight; y > -step; y -= step) {
+      const p = yScale.invert(y);
+      const t = t0 * Math.pow(p0 / p, -RD / CP);
+      points.push({ t, p });
+    }
+    const ad = d3
+      .line()
+      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
+      .y(d => yScale(d.p));
+    return (
+      <path fill="none" stroke="green" stroke-width="0.3" d={ad(points)} />
+    );
+  };
+
+  let MoistAdiabatic = ({ temp }) => {
+    const points = [];
+    let t0 = temp + 273;
+    const p0 = yScale.domain()[0];
+    const CP = 1.03e3;
+    const L = 2.5e6;
+    const RD = 287.0;
+    const RV = 461.0;
+    const KELVIN = 273;
+
+    var gradi = 0;
+    let t = t0;
+    let previousP = p0;
+    const step = chartHeight / 15;
+    for (let y = chartHeight; y > -step; y -= step) {
+      const pressure = yScale.invert(y);
+      var lsbc = (L / RV) * (1.0 / KELVIN - 1.0 / t);
+      var rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
+      var lrwbt = (L * rw) / (RD * t);
+      var nume = ((RD * t) / (CP * pressure)) * (1.0 + lrwbt);
+      var deno = 1.0 + lrwbt * ((0.622 * L) / (CP * t));
+      var gradi = nume / deno;
+      t = t - gradi * (previousP - pressure);
+      previousP = pressure;
+      points.push({ t, p: pressure });
+    }
+    const ad = d3
+      .line()
+      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
+      .y(d => yScale(d.p));
+    return (
+      <path
+        fill="none"
+        stroke="green"
+        stroke-width="0.3"
+        stroke-dasharray="3 5"
+        d={ad(points)}
+      />
+    );
+  };
+
+  let WindArrow = ({ speed, dir, y }) => {
+    return (
+      <g>
+        {speed > 1 ? (
+          <g
+            transform={`translate(0,${y}) rotate(${dir})`}
+            stroke="black"
+            fill="none"
+          >
+            <line y2="-30" />
+            <polyline points="-5,-10 0,0 5,-10" stroke-linejoin="round" />
+          </g>
+        ) : (
+          <g transform={`translate(0,${y})`} stroke="black" fill="none">
+            <circle r="8" />
+            <circle r="2" fill="black" />
+          </g>
+        )}
+      </g>
+    );
+  };
+
+  Sounding = ({ data } = {}) => {
+    return (
+      <svg id="sounding">
+        <defs>
+          <clipPath id="clip-chart">
+            <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
+          </clipPath>
+        </defs>
+        {data ? (
+          <g>
+            <g class="wind">
+              <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
+                <g
+                  class="x axis"
+                  transform={`translate(0,${chartHeight})`}
+                  ref={g => d3.select(g).call(xWindAxis)}
                 />
-                <g transform={`translate(${chartWindWidth / 2},0)`}>
-                  {
-                    data.map(d => <WindArrow speed={d.wind} dir={d.wind_dir} y={yScale(d.pressure)} />)
-                  }
+                <line
+                  y1={chartHeight}
+                  y2="0"
+                  stroke="black"
+                  stroke-width="0.2"
+                  stroke-dasharray="3"
+                />
+                <line
+                  y1={chartHeight}
+                  x1={xWindScale(15 / 3.6)}
+                  y2="0"
+                  x2={xWindScale(15 / 3.6)}
+                  stroke="black"
+                  stroke-width="0.2"
+                  stroke-dasharray="3"
+                />
+                <rect
+                  x={chartWindWidth / 2}
+                  width={chartWindWidth / 2}
+                  height={chartHeight}
+                  fill="red"
+                  opacity="0.1"
+                />
+                <g class="chartArea" clip-path="url(#clip-chart)">
+                  <path
+                    class="temperature chart"
+                    fill="none"
+                    stroke="purple"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    stroke-width="1.5"
+                    d={windLine(data)}
+                  />
+                  <g transform={`translate(${chartWindWidth / 2},0)`}>
+                    {data.map(d => (
+                      <WindArrow
+                        speed={d.wind}
+                        dir={d.wind_dir}
+                        y={yScale(d.pressure)}
+                      />
+                    ))}
+                  </g>
                 </g>
               </g>
             </g>
-          </g>
-          <g class="chart" transform="translate(10,0)">
-            <g class="axis">
+            <g class="chart" transform="translate(10,0)">
+              <g class="axis">
+                <g
+                  class="x axis"
+                  transform={`translate(0,${chartHeight})`}
+                  ref={g => d3.select(g).call(xAxis)}
+                />
+                <g
+                  class="y axis"
+                  y={chartHeight + 16}
+                  ref={g => d3.select(g).call(yAxis)}
+                />
+              </g>
               <g
-                class="x axis"
-                transform={`translate(0,${chartHeight})`}
-                ref={g => d3.select(g).call(xAxis)}
-              />
-              <g
-                class="y axis"
-                y={chartHeight + 16}
-                ref={g => d3.select(g).call(yAxis)}
-              />
-            </g>
-            <g class="chartArea" clip-path="url(#clip-chart)" stroke-linejoin="round" stroke-linecap="round">
-              <text class="y label" opacity="0.75" x="0" y="-4" />
-              <rect
-                class="overlay"
-                width={chartWidth}
-                height={chartHeight}
-                opacity="0"
-              />
-              <path
-                class="temperature chart"
-                fill="none"
-                stroke="red"
-                stroke-width="1.5"
-                d={tempLine(data)}
-              />
-              <path
-                class="dewpoint chart"
-                fill="none"
-                stroke="steelblue"
-                stroke-width="1.5"
-                d={dewPointLine(data)}
-              />
-              {
-                [-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => <IsoTemp temp={t} />)
-              }
-              {
-                [-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(t => <DryAdiabatic temp={t} />)
-              }
-              {
-                [-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => <MoistAdiabatic temp={t} />)
-              }
-              {
-                [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(q => <IsoHume q={q} />)
-              }
+                class="chartArea"
+                clip-path="url(#clip-chart)"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+              >
+                <text class="y label" opacity="0.75" x="0" y="-4" />
+                <rect
+                  class="overlay"
+                  width={chartWidth}
+                  height={chartHeight}
+                  opacity="0"
+                />
+                <path
+                  class="temperature chart"
+                  fill="none"
+                  stroke="red"
+                  stroke-width="1.5"
+                  d={tempLine(data)}
+                />
+                <path
+                  class="dewpoint chart"
+                  fill="none"
+                  stroke="steelblue"
+                  stroke-width="1.5"
+                  d={dewPointLine(data)}
+                />
+                {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
+                  <IsoTemp temp={t} />
+                ))}
+                {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(
+                  t => (
+                    <DryAdiabatic temp={t} />
+                  )
+                )}
+                {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
+                  <MoistAdiabatic temp={t} />
+                ))}
+                {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(
+                  q => (
+                    <IsoHume q={q} />
+                  )
+                )}
+              </g>
             </g>
           </g>
-        </g>
-      ) : (
+        ) : (
           <text x="50%" y="50%" text-anchor="middle">
             No Data
-        </text>
+          </text>
         )}
-    </svg>
-  );
-};
+      </svg>
+    );
+  };
 
   root = render(<Sounding display="block" />, containerEl, root);
 };
@@ -341,10 +375,10 @@ function updateScales() {
   xScale.domain([minTemp, maxTemp]);
   xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
 
-  xWindScale.domain([0, 30/3.6, maxWind]);
-  xWindScale.range([0, chartWindWidth/2, chartWindWidth]);
+  xWindScale.domain([0, 30 / 3.6, maxWind]);
+  xWindScale.range([0, chartWindWidth / 2, chartWindWidth]);
   xWindAxisScale.domain([0, 30, convertWind(maxWind)]);
-  xWindAxisScale.range([0, chartWindWidth/2, chartWindWidth]);
+  xWindAxisScale.range([0, chartWindWidth / 2, chartWindWidth]);
 
   yScale.domain([maxPressure, minPressure]);
   yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);

@@ -23,15 +23,15 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 W.loadPlugin(
 /* Mounting options */
 {
-  "name": "windy-plugin-examples",
-  "version": "0.4.0",
-  "author": "Windyty, S.E.",
+  "name": "windy-plugin-sounding",
+  "version": "0.1.0",
+  "author": "Victor Berchet",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windycom/windy-plugins"
+    "url": "git+https://github.com/vicb/windy-plugins"
   },
-  "description": "Windy plugin system enables anyone, with basic knowledge of Javascript to enhance Windy with new functionality (default desc).",
-  "displayName": "Graph as a plugin",
+  "description": "Soundings for paraglider pilots.",
+  "displayName": "Better Sounding",
   "hook": "contextmenu",
   "dependencies": ["https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js", "https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js"],
   "className": "drop-down-window ",
@@ -42,12 +42,12 @@ W.loadPlugin(
 /* HTML */
 '<h3>Sounding forecast</h3> <div id="sounding-chart"></div>',
 /* CSS */
-'#windy-plugin-examples{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:600px;height:650px;margin-left:-10px}#windy-plugin-examples h3{margin:0 0 .3em .6em}#windy-plugin-examples .closing-x{display:block}#windy-plugin-examples section{margin-left:10px;line-height:1.5}#windy-plugin-examples section span:not(:first-child){margin-left:1em}#windy-plugin-examples section:first-of-type{color:black}#windy-plugin-examples section:last-of-type{font-size:.9em}#windy-plugin-examples section [data-ref="modelAlt"].red{color:red}#windy-plugin-examples [data-ref="zoom"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-examples{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-examples .axis path,#windy-plugin-examples .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-examples #sounding-chart{height:600px;position:relative}#windy-plugin-examples #sounding-chart svg{width:100%;height:100%}#windy-plugin-examples #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-examples #sounding-chart .infoLine .temp{fill:red}#windy-plugin-examples #sounding-chart .zoomButton{cursor:pointer}',
+'#windy-plugin-sounding{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:600px;height:650px;margin-left:-10px}#windy-plugin-sounding h3{margin:0 0 .3em .6em}#windy-plugin-sounding .closing-x{display:block}#windy-plugin-sounding section{margin-left:10px;line-height:1.5}#windy-plugin-sounding section span:not(:first-child){margin-left:1em}#windy-plugin-sounding section:first-of-type{color:black}#windy-plugin-sounding section:last-of-type{font-size:.9em}#windy-plugin-sounding section [data-ref="modelAlt"].red{color:red}#windy-plugin-sounding [data-ref="zoom"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-sounding{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-sounding .axis path,#windy-plugin-sounding .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-sounding #sounding-chart{height:600px;position:relative}#windy-plugin-sounding #sounding-chart svg{width:100%;height:100%}#windy-plugin-sounding #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-sounding #sounding-chart .infoLine .temp{fill:red}#windy-plugin-sounding #sounding-chart .zoomButton{cursor:pointer}',
 /* Constructor */
 function () {
   var _this = this;
 
-  var graph = W.require('windy-plugin-examples/soundingGraph');
+  var graph = W.require('windy-plugin-sounding/soundingGraph');
 
   var _ = W.require('utils');
 
@@ -136,9 +136,9 @@ function () {
   };
 });
 /*! */
-// This page was transpiled automatically from examples/07-multiple-files-plugin/soundingGraph.mjs
+// This page was transpiled automatically from src/soundingGraph.mjs
 
-W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'utils', 'windy-plugin-examples/soundingUtils'], function (overlays, store, $, _, sUtils) {
+W.define('windy-plugin-sounding/soundingGraph', ['overlays', 'store', '$', 'utils', 'windy-plugin-sounding/soundingUtils'], function (overlays, store, $, _, sUtils) {
   ;
   ;
   ;
@@ -298,9 +298,7 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
       var t0 = temp + 273;
       var p0 = yScale.domain()[0];
       var CP = 1.03e3;
-      var K = 0.286;
       var L = 2.5e6;
-      var MA = 300.0;
       var RD = 287.0;
       var RV = 461.0;
       var KELVIN = 273;
@@ -357,9 +355,10 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
         stroke: "black",
         fill: "none"
       }, h("circle", {
-        r: "5"
+        r: "8"
       }), h("circle", {
-        r: "1"
+        r: "2",
+        fill: "black"
       })));
     };
 
@@ -682,9 +681,9 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
   };
 });
 /*! */
-// This page was transpiled automatically from examples/07-multiple-files-plugin/soundingUtils.mjs
+// This page was transpiled automatically from src/soundingUtils.mjs
 
-W.define('windy-plugin-examples/soundingUtils', ['utils'], function (_) {
+W.define('windy-plugin-sounding/soundingUtils', ['utils'], function (_) {
   ; // Remove data points with some null values
 
   function validateData(data) {

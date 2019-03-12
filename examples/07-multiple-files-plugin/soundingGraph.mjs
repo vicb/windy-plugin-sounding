@@ -111,7 +111,7 @@ let IsoHume = ({ q }) => {
     stroke-width="0.3"
     stroke-dasharray="2"
     d={ad(points)}
-  />
+  />;
 
 };
 
@@ -119,8 +119,8 @@ let DryAdiabatic = ({ temp }) => {
   const points = [];
   let t0 = temp + 273;
   const p0 = yScale.domain()[0];
-  const CP = 1.03e3
-  const RD = 287.0
+  const CP = 1.03e3;
+  const RD = 287.0;
   const step = chartHeight / 15;
   for (let y = chartHeight; y > -step; y -= step) {
     const p = yScale.invert(y);
@@ -136,7 +136,7 @@ let DryAdiabatic = ({ temp }) => {
     stroke="green"
     stroke-width="0.3"
     d={ad(points)}
-  />
+  />;
 };
 
 let MoistAdiabatic = ({ temp }) => {
@@ -178,7 +178,7 @@ let MoistAdiabatic = ({ temp }) => {
     stroke-width="0.3"
     stroke-dasharray="3 5"
     d={ad(points)}
-  />
+  />;
 };
 
 let WindArrow = ({speed, dir, y }) => {
@@ -196,7 +196,7 @@ let WindArrow = ({speed, dir, y }) => {
     </g>
   }
   </g>;
-}
+};
 
 Sounding = ({ data } = {}) => {
   return (

@@ -2,7 +2,7 @@
 	This is configuration file for your plugin
 */
 module.exports = {
-  displayName: "Graph as a plugin",
+  displayName: "Better Sounding",
 
   hook: "contextmenu",
 

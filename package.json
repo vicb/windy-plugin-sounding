@@ -8,8 +8,8 @@
     "start-dev": "node ./compiler.js --build --watch --serve --transpile",
     "prepublishOnly": "node ./test/prepublish.js",
     "test": "node ./test/prepublish.js",
-    "lint": "npx eslint examples/**/*.{js,mjs,html} --fix",
-    "format": "npx prettier examples/**/*.{js,mjs,html} --write"
+    "lint": "npx eslint src/**/*.{js,mjs,html} --fix",
+    "format": "npx prettier src/**/*.{js,mjs,html} --write"
   },
   "repository": {
     "type": "git",
