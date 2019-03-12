@@ -205,7 +205,6 @@ async function build() {
         "minify",
       ],
       plugins: ["@babel/plugin-transform-react-jsx"],
-      minified: true,
       comments: false,
     }); // => Promise<{ code, map, ast }>
     output = res.code;
