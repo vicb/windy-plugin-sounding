@@ -1,5 +1,3 @@
-import _ from "@windy/utils";
-
 // Remove data points with some null values
 function validateData(data) {
   for (let i = 0; i < data.length; ) {
@@ -81,57 +79,10 @@ function dataIntersection(line, polyline, getPoint) {
   return null;
 }
 
-// Inspired by airgram.mjs:windMark()
-function drawWindArrow(g, x, y, dir, speed) {
-  const scale = 20;
-  const windBarb = g
-    .append("g")
-    .attr("class", "windbarb")
-    .attr("transform", `translate(${x}, ${y})rotate(${dir})`);
-
-  // TODO(berchet): unit
-  if (speed > 2) {
-    windBarb
-      .append("line")
-      .attr("stroke", "black")
-      .attr("x1", 0)
-      .attr("x2", 0)
-      .attr("y1", 0)
-      .attr("y2", -scale);
-
-    const arrow = Math.round(scale / 4);
-    windBarb
-      .append("polyline")
-      .attr("stroke", "black")
-      .attr("fill", "none")
-      .attr("points", `-${arrow / 2},-${arrow} 0,0 ${arrow / 2},-${arrow}`)
-      .attr("stroke-linejoin", "round");
-  } else {
-    // No wind
-    // Outline circle
-    windBarb
-      .append("circle")
-      .style("stroke", "black")
-      .style("fill", "none")
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("r", 0.25 * scale);
-
-    // Central dot
-    windBarb
-      .append("circle")
-      .style("stroke", "black")
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("r", 0.05 * scale);
-  }
-}
-
 export default {
   validateData,
   interpolateArray,
   interpolatePoint,
   intersection,
   dataIntersection,
-  drawWindArrow,
 };

@@ -76,10 +76,10 @@ const init = () => {
 
   windLine = d3
     .line()
-    .x(d => xWindScale(d.wind))
+    .x(d => xWindScale(_.wind2obj([d.wind_u, d.wind_v]).wind))
     .y(d => yScale(d.pressure));
 
-  let IsoTemp = ({ temp }) => {
+  const IsoTemp = ({ temp }) => {
     if (skew == 0) {
       return null;
     }
@@ -97,7 +97,7 @@ const init = () => {
     );
   };
 
-  let IsoHume = ({ q }) => {
+  const IsoHume = ({ q }) => {
     const points = [];
     const step = chartHeight / 6;
     for (let y = chartHeight; y > -step; y -= step) {
@@ -123,7 +123,7 @@ const init = () => {
     );
   };
 
-  let DryAdiabatic = ({ temp }) => {
+  const DryAdiabatic = ({ temp }) => {
     const points = [];
     let t0 = temp + 273;
     const p0 = yScale.domain()[0];
@@ -144,7 +144,7 @@ const init = () => {
     );
   };
 
-  let MoistAdiabatic = ({ temp }) => {
+  const MoistAdiabatic = ({ temp }) => {
     const points = [];
     let t0 = temp + 273;
     const p0 = yScale.domain()[0];
@@ -154,18 +154,17 @@ const init = () => {
     const RV = 461.0;
     const KELVIN = 273;
 
-    var gradi = 0;
     let t = t0;
     let previousP = p0;
     const step = chartHeight / 15;
     for (let y = chartHeight; y > -step; y -= step) {
       const pressure = yScale.invert(y);
-      var lsbc = (L / RV) * (1.0 / KELVIN - 1.0 / t);
-      var rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
-      var lrwbt = (L * rw) / (RD * t);
-      var nume = ((RD * t) / (CP * pressure)) * (1.0 + lrwbt);
-      var deno = 1.0 + lrwbt * ((0.622 * L) / (CP * t));
-      var gradi = nume / deno;
+      const lsbc = (L / RV) * (1.0 / KELVIN - 1.0 / t);
+      const rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
+      const lrwbt = (L * rw) / (RD * t);
+      const nume = ((RD * t) / (CP * pressure)) * (1.0 + lrwbt);
+      const deno = 1.0 + lrwbt * ((0.622 * L) / (CP * t));
+      const gradi = nume / deno;
       t = t - gradi * (previousP - pressure);
       previousP = pressure;
       points.push({ t, p: pressure });
@@ -185,12 +184,13 @@ const init = () => {
     );
   };
 
-  let WindArrow = ({ speed, dir, y }) => {
+  const WindArrow = ({ wind_u, wind_v, y }) => {
+    const w = _.wind2obj([wind_u, wind_v]);
     return (
       <g>
-        {speed > 1 ? (
+        {w.wind > 1 ? (
           <g
-            transform={`translate(0,${y}) rotate(${dir})`}
+            transform={`translate(0,${y}) rotate(${w.dir})`}
             stroke="black"
             fill="none"
           >
@@ -199,8 +199,8 @@ const init = () => {
           </g>
         ) : (
           <g transform={`translate(0,${y})`} stroke="black" fill="none">
-            <circle r="8" />
-            <circle r="2" fill="black" />
+            <circle r="6" />
+            <circle r="1" />
           </g>
         )}
       </g>
@@ -260,8 +260,8 @@ const init = () => {
                   <g transform={`translate(${chartWindWidth / 2},0)`}>
                     {data.map(d => (
                       <WindArrow
-                        speed={d.wind}
-                        dir={d.wind_dir}
+                        wind_u={d.wind_u}
+                        wind_v={d.wind_v}
                         y={yScale(d.pressure)}
                       />
                     ))}
@@ -364,7 +364,8 @@ function updateScales() {
       // pt.dewpoint <= pt.temp
       minTemp = Math.min(minTemp, d.dewpoint);
       maxTemp = Math.max(maxTemp, d.temp);
-      maxWind = Math.max(maxWind, d.wind);
+      const wind = _.wind2obj([d.wind_u, d.wind_v]).wind;
+      maxWind = Math.max(maxWind, wind);
     });
   }
 
@@ -416,8 +417,8 @@ const load = (lat, lon, airData, forecastData) => {
   // {
   //    [timestamp0]: {
   //      temp: ,
-  //      wind: ,
-  //      wind_dir: ,
+  //      wind_u: ,
+  //      wind_v: ,
   //      level: ,
   //    }, ...
   // }
@@ -444,8 +445,6 @@ const load = (lat, lon, airData, forecastData) => {
       .sort((a, b) => (Number(a) < Number(b) ? 1 : -1)),
   ];
 
-  console.log(levels);
-
   const levelDataByTs = {};
   timestamps.forEach((ts, index) => {
     levelDataByTs[ts] = [];
@@ -453,11 +452,6 @@ const load = (lat, lon, airData, forecastData) => {
       let LevelName = level < 0 ? "surface" : `${level}h`;
       const gh = GetParam(airData, "gh", LevelName, index);
       if (gh >= modelElevation) {
-        // Precompute the wind object
-        const windU = GetParam(airData, "wind_u", LevelName, index);
-        const windV = GetParam(airData, "wind_v", LevelName, index);
-        const wind = _.wind2obj([windU, windV]);
-
         // Forecasts have the pressure in Pa - we want hPa.
         const pressure =
           level < 0 ? Math.round(forecastsByTs[ts].pressure / 100) : level;
@@ -466,8 +460,8 @@ const load = (lat, lon, airData, forecastData) => {
           temp: GetParam(airData, "temp", LevelName, index),
           dewpoint: GetParam(airData, "dewpoint", LevelName, index),
           gh: GetParam(airData, "gh", LevelName, index),
-          wind: wind.wind,
-          wind_dir: wind.dir,
+          wind_u: GetParam(airData, "wind_u", LevelName, index),
+          wind_v: GetParam(airData, "wind_v", LevelName, index),
           pressure,
           forecast: forecastsByTs[ts],
         });
