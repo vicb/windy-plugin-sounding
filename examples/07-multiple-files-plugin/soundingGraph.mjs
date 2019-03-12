@@ -59,14 +59,20 @@ const init = () => {
   xAxis = d3.axisBottom(xAxisScale).ticks(5, "-d");
   yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
 
-  tempLine = d3
+
+  let refTemp = d3
     .line()
     .x(d => xScale(d.temp))
     .y(d => yScale(d.gh));
 
+  tempLine = d3
+    .line()
+    .x(d => xScale(d.temp) + chartHeight - yScale(d.gh))
+    .y(d => yScale(d.gh));
+
   dewPointLine = d3
     .line()
-    .x(d => xScale(d.dewpoint))
+    .x(d => xScale(d.dewpoint) + chartHeight - yScale(d.gh))
     .y(d => yScale(d.gh));
 
   Sounding = ({ data } = {}) => {
@@ -99,8 +105,6 @@ const init = () => {
               stroke-linecap="round"
               stroke-width="1.5"
               d={tempLine(data)}
-              transform-origin={`${xScale(data[0].temp)} ${yScale(data[0].gh)}`}
-              transform="rotate(45)"
             />
             <path
               class="dewpoint chart"
@@ -110,20 +114,21 @@ const init = () => {
               stroke-linecap="round"
               stroke-width="1.5"
               d={dewPointLine(data)}
-              transform-origin={`${xScale(data[0].dewpoint)} ${yScale(
-                data[0].gh
-              )}`}
-              transform="rotate(0)"
             />
             <path
+              class="ref chart"
               fill="none"
-              stroke="gray"
+              stroke="pink"
               stroke-linejoin="round"
               stroke-linecap="round"
-              stroke-width="1"
-              d={`M0,0V${chartHeight}`}
-              transform={`rotate(45)translate(${xScale(273)},${chartHeight})`}
+              stroke-width="1.5"
+              d={refTemp(data)}
+              transform-origin={`${xScale(data[0].temp)} ${yScale(
+                  data[0].gh
+              )}`}
+              transform="rotate(45)"
             />
+
           </g>
         ) : (
           <text x="50%" y="50%" text-anchor="middle">
@@ -230,7 +235,7 @@ const load = (lat, lon, airData, forecastData) => {
   const levels = [
     -1,
     ...Array.from(paramLevels)
-      //.filter(l => l > 400)
+     // .filter(l => l > 400)
       .sort((a, b) => (Number(a) < Number(b) ? 1 : -1)),
   ];
 
