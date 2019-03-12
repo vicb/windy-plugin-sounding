@@ -1,11 +1,91 @@
-<plugin>
-  <b>This plugin will rock</b>
+<sounding>
+  <h3>Sounding forecast</h3>
+  <div id="sounding-chart"></div>
 
-  <script>
-    console.log("I am mounted to the page");
+<script>
+    // Windy's core modules
+    import rs from "@windy/rootScope";
+    import map from "@windy/map";
+    import pluginDataLoader from "@windy/pluginDataLoader";
+    import _ from "@windy/utils";
 
-    this.onopen = () => console.log("I am opened");
+    // Our own modules
+    import graph from "./soundingGraph.mjs";
 
-    this.onclose = () => console.log("I am being closed");
+    const options = {
+      key: "RxcwkWO2XWsfEbdidcsskbyWqhToAwLx",
+      plugin: "windy-plugin-examples",
+    };
+
+    const load = pluginDataLoader(options);
+
+    var marker = null;
+
+    // Called when opened
+    this.onopen = latLonObject => {
+      let lat, lon;
+
+      // Opening from other location than contextmenu
+      if (!latLonObject) {
+        const c = map.getCenter();
+        lat = c.lat;
+        lon = c.lng;
+      } else {
+        lat = latLonObject.lat;
+        lon = latLonObject.lon;
+      }
+
+      const leafletCoords = { lng: lon, lat },
+        { x, y } = map.latLngToLayerPoint(leafletCoords);
+
+      if (!rs.isMobile) {
+        this.node.style.position = "absolute";
+        this.node.style.left = `${x - 15}px`;
+        this.node.style.top = `${y + 15}px`;
+      } else {
+        let height = this.node.clientHeight;
+
+        map.center({ lat, lon }, false).panBy([0, -0.5 * height + 50]);
+      }
+
+      if (marker) {
+        marker.setLatLng(leafletCoords);
+      } else {
+        marker = L.marker(leafletCoords, {
+          icon: map.myMarkers.pulsatingIcon,
+          zIndexOffset: -300,
+        }).addTo(map);
+      }
+
+      initAndLoad(lat, lon);
+
+      this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
+        ev.stopPropagation();
+    };
+
+    const initAndLoad = (lat, lon) => {
+      const dataOptions = {
+        model: "ecmwf",
+        lat,
+        lon,
+      };
+
+      graph.init(this.refs);
+
+      Promise.all([
+        load("forecast", dataOptions),
+        load("airData", dataOptions),
+      ]).then(([forecast, airData]) => {
+        graph.load(lat, lon, airData.data, forecast.data);
+      });
+    };
+
+    // Called when closed
+    this.onclose = () => {
+      if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+      }
+    };
   </script>
-</plugin>
+</sounding>

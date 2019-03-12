@@ -1,30 +1,24 @@
+/*
+	This is configuration file for your plugin
+*/
 module.exports = {
-  // Display name of your plugin, as it will appear in the menu
-  displayName: "My super plugin",
+  displayName: "Graph as a plugin",
 
-  // Place, where opening link to your plugin will appear. So far only
-  // Allowed: 'contextmenu', 'menu'
-  hook: "menu",
+  hook: "contextmenu",
 
-  // List of external libraries, taht should be loade before
-  // your plugin is even mounted to the page
-  // dependencies: ['https://unpkg.com/d3@5.7.0/dist/d3.min.js']
+  // External dependencies
+  dependencies: [
+    "https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js",
+    "https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js",
+  ],
 
-  // List of classnames that will be attached to your plugin upon mounting
-  // className: 'plugin-lhpane plugin-mobile-fullscreen',
+  // Class name applied to your plugin element
+  className: "drop-down-window ",
+  classNameMobile: "drop-down-window down", // for mobile devices
 
-  // If you want to apply different set of classes on mobile devices
-  // classNameMobile: 'this-is-other-class',
-
-  // Forcess all other window panes, with same pane to be closed
-  // Allowed: 'lhpane', 'rhpane' and 'all'
-  // exclusive: 'lhpane',
-
-  // The place in page, where your plugin element will be mounted
-  // to the page. By default all the plugins are attached to
-  // #plugins div
-  // attachPoint: '#map_container .leaflet-popup-pane',
-
-  // If you want to apply different mounting point on mobile devices
-  // attachPointMobile: '#plugins'
+  // The place in page, where your plugin element
+  // will be mounted to the page. By default all the plugins
+  // are attached to #plugins element
+  attachPoint: ".leaflet-popup-pane",
+  attachPointMobile: "#plugins", // for mobile devices
 };

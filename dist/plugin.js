@@ -40,9 +40,9 @@ W.loadPlugin(
   "attachPointMobile": "#plugins"
 },
 /* HTML */
-'<h3>Sounding forecast</h3> <div id="sounding-chart"></div> <section> <span data-ref="tcon"></span> <span data-ref="ccl"></span> <span data-ref="lcl"></span> </section> <section> <span data-ref="model"></span> <span data-ref="alt"></span> <span data-ref="modelAlt"></span> </section> <div class="iconfont clickable-size" data-ref="zoom">&#xe03d;</div>',
+'<h3>Sounding forecast</h3> <div id="sounding-chart"></div>',
 /* CSS */
-'#windy-plugin-examples{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:360px;height:440px;margin-left:-10px}#windy-plugin-examples h3{margin:0 0 .3em .6em}#windy-plugin-examples .closing-x{display:block}#windy-plugin-examples section{margin-left:10px;line-height:1.5}#windy-plugin-examples section span:not(:first-child){margin-left:1em}#windy-plugin-examples section:first-of-type{color:black}#windy-plugin-examples section:last-of-type{font-size:.9em}#windy-plugin-examples section [data-ref="modelAlt"].red{color:red}#windy-plugin-examples [data-ref="zoom"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-examples{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-examples .axis path,#windy-plugin-examples .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-examples #sounding-chart{height:360px;position:relative}#windy-plugin-examples #sounding-chart svg{width:100%;height:100%}#windy-plugin-examples #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-examples #sounding-chart .infoLine .temp{fill:red}#windy-plugin-examples #sounding-chart .zoomButton{cursor:pointer}',
+'#windy-plugin-examples{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:600px;height:650px;margin-left:-10px}#windy-plugin-examples h3{margin:0 0 .3em .6em}#windy-plugin-examples .closing-x{display:block}#windy-plugin-examples section{margin-left:10px;line-height:1.5}#windy-plugin-examples section span:not(:first-child){margin-left:1em}#windy-plugin-examples section:first-of-type{color:black}#windy-plugin-examples section:last-of-type{font-size:.9em}#windy-plugin-examples section [data-ref="modelAlt"].red{color:red}#windy-plugin-examples [data-ref="zoom"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-examples{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-examples .axis path,#windy-plugin-examples .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-examples #sounding-chart{height:600px;position:relative}#windy-plugin-examples #sounding-chart svg{width:100%;height:100%}#windy-plugin-examples #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-examples #sounding-chart .infoLine .temp{fill:red}#windy-plugin-examples #sounding-chart .zoomButton{cursor:pointer}',
 /* Constructor */
 function () {
   var _this = this;
@@ -145,19 +145,20 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
   ;
   ;
   var containerEl = $("#sounding-chart");
-  var chartWidth = containerEl.clientWidth - 80;
-  var chartHeight = containerEl.clientHeight - 40;
+  var chartWindWidth = 100;
+  var chartWidth = containerEl.clientWidth - 100 - 20 - 15;
+  var chartHeight = containerEl.clientHeight - 20;
   /** @jsx h */
 
   var _preact = preact,
       h = _preact.h,
       render = _preact.render; // Scale for chart
 
-  var xScale, yScale;
-  var xAxisScale, yAxisScale;
-  var xAxis, yAxis;
-  var tempLine;
-  var dewPointLine;
+  var xScale, yScale, xWindScale;
+  var xAxisScale, xWindAxisScale, yAxisScale;
+  var xAxis, xWindAxis, yAxis;
+  var skew = 0.4;
+  var tempLine, dewPointLine, windLine;
   var Sounding;
   var root;
   var pointData = {
@@ -186,37 +187,250 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
 
 
     xScale = d3.scaleLinear().range([0, chartWidth]);
-    yScale = d3.scaleLinear().range([chartHeight, 0]); // Scale for axis is different, because it can display custom units
+    xWindScale = d3.scaleLinear().range([0, chartWindWidth]);
+    yScale = d3.scaleLog().range([chartHeight, 0]); // Scale for axis is different, because it can display custom units
 
     xAxisScale = d3.scaleLinear().range([0, chartWidth]);
     yAxisScale = d3.scaleLinear().range([chartHeight, 0]);
+    xWindAxisScale = d3.scaleLinear().range([0, chartWindWidth]);
     xAxis = d3.axisBottom(xAxisScale).ticks(5, "-d");
     yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
-    var refTemp = d3.line().x(function (d) {
-      return xScale(d.temp);
-    }).y(function (d) {
-      return yScale(d.gh);
-    });
+    xWindAxis = d3.axisBottom(xWindAxisScale).ticks(4, "d");
     tempLine = d3.line().x(function (d) {
-      return xScale(d.temp) + chartHeight - yScale(d.gh);
+      return xScale(d.temp) + skew * (chartHeight - yScale(d.pressure));
     }).y(function (d) {
-      return yScale(d.gh);
+      return yScale(d.pressure);
     });
     dewPointLine = d3.line().x(function (d) {
-      return xScale(d.dewpoint) + chartHeight - yScale(d.gh);
+      return xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure));
     }).y(function (d) {
-      return yScale(d.gh);
+      return yScale(d.pressure);
+    });
+    windLine = d3.line().x(function (d) {
+      return xWindScale(d.wind);
+    }).y(function (d) {
+      return yScale(d.pressure);
     });
 
+    var IsoTemp = function IsoTemp(_ref3) {
+      var temp = _ref3.temp;
+
+      if (skew == 0) {
+        return null;
+      }
+
+      var x1 = xScale(temp + 273);
+      var y2 = chartHeight - (chartWidth - x1) / skew;
+      return h("line", {
+        x1: x1,
+        y1: chartHeight,
+        x2: chartWidth,
+        y2: y2,
+        stroke: "darkred",
+        "stroke-width": "0.2"
+      });
+    };
+
+    var IsoHume = function IsoHume(_ref4) {
+      var q = _ref4.q;
+      var points = [];
+      var step = chartHeight / 6;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var p = yScale.invert(y);
+        var es = p * q / (q + 622.0);
+        var logthing = Math.pow(Math.log(es / 6.11), -1.0);
+        var t = 273 + Math.pow(17.269 / 237.3 * (logthing - 1.0 / 17.269), -1.0);
+        points.push({
+          t: t,
+          p: p
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "blue",
+        "stroke-width": "0.3",
+        "stroke-dasharray": "2",
+        d: ad(points)
+      });
+    };
+
+    var DryAdiabatic = function DryAdiabatic(_ref5) {
+      var temp = _ref5.temp;
+      var points = [];
+      var t0 = temp + 273;
+      var p0 = yScale.domain()[0];
+      var CP = 1.03e3;
+      var RD = 287.0;
+      var step = chartHeight / 15;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var p = yScale.invert(y);
+        var t = t0 * Math.pow(p0 / p, -RD / CP);
+        points.push({
+          t: t,
+          p: p
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "green",
+        "stroke-width": "0.3",
+        d: ad(points)
+      });
+    };
+
+    var MoistAdiabatic = function MoistAdiabatic(_ref6) {
+      var temp = _ref6.temp;
+      var points = [];
+      var t0 = temp + 273;
+      var p0 = yScale.domain()[0];
+      var CP = 1.03e3;
+      var K = 0.286;
+      var L = 2.5e6;
+      var MA = 300.0;
+      var RD = 287.0;
+      var RV = 461.0;
+      var KELVIN = 273;
+      var gradi = 0;
+      var t = t0;
+      var previousP = p0;
+      var step = chartHeight / 15;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var pressure = yScale.invert(y);
+        var lsbc = L / RV * (1.0 / KELVIN - 1.0 / t);
+        var rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
+        var lrwbt = L * rw / (RD * t);
+        var nume = RD * t / (CP * pressure) * (1.0 + lrwbt);
+        var deno = 1.0 + lrwbt * (0.622 * L / (CP * t));
+        var gradi = nume / deno;
+        t = t - gradi * (previousP - pressure);
+        previousP = pressure;
+        points.push({
+          t: t,
+          p: pressure
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "green",
+        "stroke-width": "0.3",
+        "stroke-dasharray": "3 5",
+        d: ad(points)
+      });
+    };
+
+    var WindArrow = function WindArrow(_ref7) {
+      var speed = _ref7.speed,
+          dir = _ref7.dir,
+          y = _ref7.y;
+      return h("g", null, speed > 1 ? h("g", {
+        transform: "translate(0,".concat(y, ") rotate(").concat(dir, ")"),
+        stroke: "black",
+        fill: "none"
+      }, h("line", {
+        y2: "-30"
+      }), h("polyline", {
+        points: "-5,-10 0,0 5,-10",
+        "stroke-linejoin": "round"
+      })) : h("g", {
+        transform: "translate(0,".concat(y, ")"),
+        stroke: "black",
+        fill: "none"
+      }, h("circle", {
+        r: "5"
+      }), h("circle", {
+        r: "1"
+      })));
+    };
+
     Sounding = function Sounding() {
-      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          data = _ref3.data;
+      var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          data = _ref8.data;
 
       return h("svg", {
         id: "sounding"
-      }, data ? h("g", {
+      }, h("defs", null, h("clipPath", {
+        id: "clip-chart"
+      }, h("rect", {
+        x: "0",
+        y: "0",
+        width: chartWidth,
+        height: chartHeight + 20
+      }))), data ? h("g", null, h("g", {
+        class: "wind"
+      }, h("g", {
+        class: "chart",
+        transform: "translate(".concat(chartWidth + 30, ",0)")
+      }, h("g", {
+        class: "x axis",
+        transform: "translate(0,".concat(chartHeight, ")"),
+        ref: function ref(g) {
+          return d3.select(g).call(xWindAxis);
+        }
+      }), h("line", {
+        y1: chartHeight,
+        y2: "0",
+        stroke: "black",
+        "stroke-width": "0.2",
+        "stroke-dasharray": "3"
+      }), h("line", {
+        y1: chartHeight,
+        x1: xWindScale(15 / 3.6),
+        y2: "0",
+        x2: xWindScale(15 / 3.6),
+        stroke: "black",
+        "stroke-width": "0.2",
+        "stroke-dasharray": "3"
+      }), h("rect", {
+        x: chartWindWidth / 2,
+        width: chartWindWidth / 2,
+        height: chartHeight,
+        fill: "red",
+        opacity: "0.1"
+      }), h("g", {
         class: "chartArea",
-        transform: "translate(10,15)"
+        "clip-path": "url(#clip-chart)"
+      }, h("path", {
+        class: "temperature chart",
+        fill: "none",
+        stroke: "purple",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round",
+        "stroke-width": "1.5",
+        d: windLine(data)
+      }), h("g", {
+        transform: "translate(".concat(chartWindWidth / 2, ",0)")
+      }, data.map(function (d) {
+        return h(WindArrow, {
+          speed: d.wind,
+          dir: d.wind_dir,
+          y: yScale(d.pressure)
+        });
+      }))))), h("g", {
+        class: "chart",
+        transform: "translate(10,0)"
+      }, h("g", {
+        class: "axis"
       }, h("g", {
         class: "x axis",
         transform: "translate(0,".concat(chartHeight, ")"),
@@ -229,7 +443,12 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
         ref: function ref(g) {
           return d3.select(g).call(yAxis);
         }
-      }), h("text", {
+      })), h("g", {
+        class: "chartArea",
+        "clip-path": "url(#clip-chart)",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+      }, h("text", {
         class: "y label",
         opacity: "0.75",
         x: "0",
@@ -243,29 +462,31 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
         class: "temperature chart",
         fill: "none",
         stroke: "red",
-        "stroke-linejoin": "round",
-        "stroke-linecap": "round",
         "stroke-width": "1.5",
         d: tempLine(data)
       }), h("path", {
         class: "dewpoint chart",
         fill: "none",
         stroke: "steelblue",
-        "stroke-linejoin": "round",
-        "stroke-linecap": "round",
         "stroke-width": "1.5",
         d: dewPointLine(data)
-      }), h("path", {
-        class: "ref chart",
-        fill: "none",
-        stroke: "pink",
-        "stroke-linejoin": "round",
-        "stroke-linecap": "round",
-        "stroke-width": "1.5",
-        d: refTemp(data),
-        "transform-origin": "".concat(xScale(data[0].temp), " ").concat(yScale(data[0].gh)),
-        transform: "rotate(45)"
-      })) : h("text", {
+      }), [-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(function (t) {
+        return h(IsoTemp, {
+          temp: t
+        });
+      }), [-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(function (t) {
+        return h(DryAdiabatic, {
+          temp: t
+        });
+      }), [-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(function (t) {
+        return h(MoistAdiabatic, {
+          temp: t
+        });
+      }), [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(function (q) {
+        return h(IsoHume, {
+          q: q
+        });
+      })))) : h("text", {
         x: "50%",
         y: "50%",
         "text-anchor": "middle"
@@ -285,6 +506,7 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
     var maxGh = Number.MIN_VALUE;
     var minPressure = Number.MAX_VALUE;
     var maxPressure = Number.MIN_VALUE;
+    var maxWind = Number.MIN_VALUE;
 
     var _loop = function _loop(ts) {
       var tsData = pointData.data[ts];
@@ -302,6 +524,7 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
 
         minTemp = Math.min(minTemp, d.dewpoint);
         maxTemp = Math.max(maxTemp, d.temp);
+        maxWind = Math.max(maxWind, d.wind);
       });
     };
 
@@ -314,7 +537,11 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
     maxTemp = 30 + 273;
     xScale.domain([minTemp, maxTemp]);
     xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
-    yScale.domain([minGh, maxGh]);
+    xWindScale.domain([0, 30 / 3.6, maxWind]);
+    xWindScale.range([0, chartWindWidth / 2, chartWindWidth]);
+    xWindAxisScale.domain([0, 30, convertWind(maxWind)]);
+    xWindAxisScale.range([0, chartWindWidth / 2, chartWindWidth]);
+    yScale.domain([maxPressure, minPressure]);
     yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
   } // Return the value of the parameter `name` at `level` for the given `tsIndex`
 
@@ -373,10 +600,12 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
     } // Filters the list of levels and add surface (-1).
 
 
-    var levels = [-1].concat(_toConsumableArray(Array.from(paramLevels) // .filter(l => l > 400)
-    .sort(function (a, b) {
+    var levels = [-1].concat(_toConsumableArray(Array.from(paramLevels).filter(function (l) {
+      return l > 300;
+    }).sort(function (a, b) {
       return Number(a) < Number(b) ? 1 : -1;
     })));
+    console.log(levels);
     var levelDataByTs = {};
     timestamps.forEach(function (ts, index) {
       levelDataByTs[ts] = [];
@@ -405,7 +634,6 @@ W.define('windy-plugin-examples/soundingGraph', ['overlays', 'store', '$', 'util
         }
       });
     });
-    console.log(levelDataByTs);
     pointData.data = levelDataByTs;
     pointData.elevation = elevation;
     pointData.modelElevation = modelElevation;
