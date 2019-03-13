@@ -28,9 +28,6 @@ const pointData = {
   lat: 0,
   lon: 0,
   elevation: 0,
-  modelElevation: 0,
-  tempRange: [0, 0],
-  pressureRange: [0, 0],
   data: {},
 };
 
@@ -207,7 +204,26 @@ const init = () => {
     );
   };
 
-  Sounding = ({ data } = {}) => {
+  const Surface = ({ elevation }) => {
+    if (elevation == null) {
+      return null;
+    }
+    const yPx = Math.round(yAxisScale(elevation));
+    if (yPx >= chartHeight) {
+      return null;
+    }
+    return (
+      <rect
+        y={yPx}
+        width={chartWidth + 30 + chartWindWidth}
+        height={chartHeight - yPx}
+        fill="brown"
+        opacity="0.2"
+      />
+    );
+  };
+
+  Sounding = ({ data, elevation } = {}) => {
     return (
       <svg id="sounding">
         <defs>
@@ -217,6 +233,7 @@ const init = () => {
         </defs>
         {data ? (
           <g>
+            <Surface elevation={elevation} />
             <g class="wind">
               <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
                 <g
@@ -288,7 +305,6 @@ const init = () => {
                 stroke-linejoin="round"
                 stroke-linecap="round"
               >
-                <text class="y label" opacity="0.75" x="0" y="-4" />
                 <rect
                   class="overlay"
                   width={chartWidth}
@@ -337,7 +353,7 @@ const init = () => {
     );
   };
 
-  root = render(<Sounding display="block" />, containerEl, root);
+  root = render(<Sounding display="block" elevation="0" />, containerEl, root);
 
   store.on("timestamp", redraw);
 };
@@ -394,12 +410,6 @@ function getParam(airData, name, levelName, tsIndex) {
 }
 
 function getGh(airData, levelName, tsIndex, p) {
-
-  if (level === "surface") {
-    // GFS has no modelElevation
-    return airData.header.modelElevation || airData.header.elevation;
-  }
-
   let value = getParam(airData, "gh", levelName, tsIndex);
   if (value != null) {
     return value;
@@ -412,28 +422,12 @@ function getGh(airData, levelName, tsIndex, p) {
   const g = 9.80665;
   const t0 = 288.15;
   const p0 = 1013.25;
-  const z = t0 / L * (Math.pow(p / p0, -L * R / g) - 1);
+  const z = (t0 / L) * (Math.pow(p / p0, (-L * R) / g) - 1);
   return Math.round(z);
 }
 
 // Handler for data request
-const load = (lat, lon, airData, forecastData) => {
-  pointData.lat = lat;
-  pointData.lon = lon;
-
-  // Create a lookup for forecast
-  const forecastsByTs = {};
-  // TODO: nam ts do not match airData, get a default value
-  let firstForecast;
-  for (let d in forecastData.data) {
-    forecastData.data[d].forEach(f => {
-      if (firstForecast == null) {
-        firstForecast = f;
-      }
-      forecastsByTs[f.origTs] = f;
-    });
-  }
-
+const load = (lat, lon, airData) => {
   // Re-arrange the airData
   // from
   // {
@@ -452,9 +446,7 @@ const load = (lat, lon, airData, forecastData) => {
   //    }, ...
   // }
   const timestamps = airData.data.hours;
-  const elevation = airData.header.elevation || 0;
-  // GFS has no model elevation
-  const modelElevation = airData.header.modelElevation || elevation;
+  // Some models do not provide modelElevation (ie GFS)
   const paramNames = new Set();
   const paramLevels = new Set();
 
@@ -469,38 +461,37 @@ const load = (lat, lon, airData, forecastData) => {
 
   // Filters the list of levels and add surface (-1).
   const levels = Array.from(paramLevels)
-      .filter(l => l > 300)
-      .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
+    .filter(l => l > 300)
+    .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
   const levelDataByTs = {};
   timestamps.forEach((ts, index) => {
     levelDataByTs[ts] = [];
-    // TODO: fix for nam
-    const forecast = forecastsByTs[ts] || firstForecast;
     levels.forEach(level => {
-      let LevelName = level < 0 ? "surface" : `${level}h`;
-      // nam has not forecastsByTs
-      const pressure =
-        LevelName == "surface" ? sfcPressure : level;
-      const gh = getGh(airData, LevelName, index, pressure);
+      let LevelName = `${level}h`;
+      const gh = getGh(airData, LevelName, index, level);
 
-      if (gh >= modelElevation) {
-        // Forecasts have the pressure in Pa - we want hPa.
-        levelDataByTs[ts].push({
-          temp: getParam(airData, "temp", LevelName, index),
-          dewpoint: getParam(airData, "dewpoint", LevelName, index),
-          gh,
-          wind_u: getParam(airData, "wind_u", LevelName, index),
-          wind_v: getParam(airData, "wind_v", LevelName, index),
-          pressure
-        });
-      }
+      // Forecasts have the pressure in Pa - we want hPa.
+      levelDataByTs[ts].push({
+        temp: getParam(airData, "temp", LevelName, index),
+        dewpoint: getParam(airData, "dewpoint", LevelName, index),
+        gh,
+        wind_u: getParam(airData, "wind_u", LevelName, index),
+        wind_v: getParam(airData, "wind_v", LevelName, index),
+        pressure: level,
+      });
     });
   });
 
+  pointData.lat = lat;
+  pointData.lon = lon;
   pointData.data = levelDataByTs;
+  let elevation =
+    airData.header.elevation == null ? 0 : airData.header.elevation;
+  if (airData.header.modelElevation == null) {
+    elevation = airData.header.modelElevation;
+  }
   pointData.elevation = elevation;
-  pointData.modelElevation = modelElevation;
 
   updateScales(pointData);
 
@@ -539,7 +530,11 @@ const redraw = () => {
   }
 
   root = render(
-    <Sounding data={currentData} display="block" />,
+    <Sounding
+      data={currentData}
+      elevation={pointData.elevation}
+      display="block"
+    />,
     containerEl,
     root
   );

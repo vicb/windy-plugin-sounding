@@ -7,18 +7,20 @@
     import rs from "@windy/rootScope";
     import map from "@windy/map";
     import pluginDataLoader from "@windy/pluginDataLoader";
+    import store from "@windy/store";
 
     // Our own modules
     import graph from "./soundingGraph.mjs";
 
     const options = {
-      key: "RxcwkWO2XWsfEbdidcsskbyWqhToAwLx",
-      plugin: "windy-plugin-examples",
+      key: "QKlmnpLWr2rZSyFaT7LpxZc0d5bo34D4",
+      plugin: "windy-plugin-sounding",
     };
 
     const load = pluginDataLoader(options);
 
-    var marker = null;
+    let marker = null;
+    let onProductChangeId;
 
     // Called when opened
     this.onopen = latLonObject => {
@@ -60,43 +62,38 @@
 
       loadData(lat, lon);
 
-      store.on("product", () => loadData(lat, lon));
+      if (onProductChangeId != null) {
+        store.off(onProductChangeId);
+      }
+      onProductChangeId = store.on("product", () => loadData(lat, lon));
 
       this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
         ev.stopPropagation();
     };
 
-    import store from "@windy/store";
-
     const loadData = (lat, lon) => {
-      const supportedModels = ["gfs", "ecmwf", "namConus"];
-      // Support GFS or ECMWF otherwise
-      // TODO: NAM model do not have `gh`, check other models
+      const supportedModels = /gfs|ecmwf|nam\w+/;
       let model = store.get("product");
-
-      console.log(`Trying to load ${model}`);
-
-      if (supportedModels.indexOf(model) == -1) {
-        console.log(`fallback to ecmwf`);
+      if (!supportedModels.test(model)) {
+        // fallback to ecmwf if the model is not supported
         model = "ecmwf";
       }
+
       document.getElementById("sounding-model").innerText = model.toUpperCase();
 
-      const dataOptions = {model, lat, lon};
+      const dataOptions = { model, lat, lon };
 
-      Promise.all([
-        load("forecast", dataOptions),
-        load("airData", dataOptions),
-      ]).then(([forecast, airData]) => {
-        console.log("ad $ forecast");
-        console.log(airData);
-        console.log(forecast);
-        graph.load(lat, lon, airData.data, forecast.data);
+      load("airData", dataOptions).then(airData => {
+        graph.load(lat, lon, airData.data);
       });
     };
 
     // Called when closed
     this.onclose = () => {
+      if (onProductChangeId != null) {
+        store.off(onProductChangeId);
+        onProductChangeId = null;
+      }
       if (marker) {
         map.removeLayer(marker);
         marker = null;
