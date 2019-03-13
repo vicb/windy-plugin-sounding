@@ -1,5 +1,5 @@
 <sounding>
-  <h3>Sounding forecast</h3>
+  <h3>Sounding forecast <span id="sounding-model"></span></h3>
   <div id="sounding-chart"></div>
 
   <script>
@@ -56,20 +56,25 @@
         }).addTo(map);
       }
 
-      initAndLoad(lat, lon);
+      graph.init(this.refs);
+
+      loadData(lat, lon);
+
+      store.on("product", () => loadData(lat, lon));
 
       this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
         ev.stopPropagation();
     };
 
-    const initAndLoad = (lat, lon) => {
-      const dataOptions = {
-        model: "ecmwf",
-        lat,
-        lon,
-      };
+    import store from "@windy/store";
 
-      graph.init(this.refs);
+    const loadData = (lat, lon) => {
+      // Support GFS or ECMWF otherwise
+      // TODO: NAM model do not have `gh`, check other models
+      const model = store.get("product") == "gfs" ? "gfs" : "ecmwf";
+      document.getElementById("sounding-model").innerText = model;
+
+      const dataOptions = {model, lat, lon};
 
       Promise.all([
         load("forecast", dataOptions),

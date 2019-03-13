@@ -338,6 +338,8 @@ const init = () => {
   };
 
   root = render(<Sounding display="block" />, containerEl, root);
+
+  store.on("timestamp", redraw);
 };
 
 // Compute the min and max temp and pressure over the forecast range
@@ -388,7 +390,8 @@ function updateScales() {
 // Return the value of the parameter `name` at `level` for the given `tsIndex`
 function GetParam(airData, name, level, tsIndex) {
   if (name === "gh" && level == "surface") {
-    return airData.header.modelElevation;
+    // GFS has no modelElevation
+    return airData.header.modelElevation || airData.header.elevation;
   }
 
   return airData.data[`${name}-${level}`][tsIndex];
@@ -424,7 +427,8 @@ const load = (lat, lon, airData, forecastData) => {
   // }
   const timestamps = airData.data.hours;
   const elevation = airData.header.elevation;
-  const modelElevation = airData.header.modelElevation;
+  // GFS has no model elevation
+  const modelElevation = airData.header.modelElevation || elevation;
   const paramNames = new Set();
   const paramLevels = new Set();
 
@@ -475,7 +479,6 @@ const load = (lat, lon, airData, forecastData) => {
 
   updateScales(pointData);
 
-  store.on("timestamp", redraw);
   redraw();
 };
 

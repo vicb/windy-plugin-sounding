@@ -199,14 +199,22 @@ async function build() {
   // Babel traspile
   if (prog.transpile) {
     c.info("Transpiling with babel");
-    let res = await babel.transformAsync(output, {
+
+    const is_dev_mode = prog.watch;
+
+    const options = {
       presets: [
         "@babel/preset-env",
-        "minify",
       ],
       plugins: ["@babel/plugin-transform-react-jsx"],
-      comments: false,
-    }); // => Promise<{ code, map, ast }>
+    };
+
+    if (!is_dev_mode) {
+      options.comments = false;
+      options.presets.push("minify");
+    }
+
+    let res = await babel.transformAsync(output, options); // => Promise<{ code, map, ast }>
     output = res.code;
   }
 
