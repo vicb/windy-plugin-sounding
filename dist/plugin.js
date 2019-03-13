@@ -1,1 +1,836 @@
-"use strict";function _toConsumableArray(a){return _arrayWithoutHoles(a)||_iterableToArray(a)||_nonIterableSpread()}function _nonIterableSpread(){throw new TypeError("Invalid attempt to spread non-iterable instance")}function _iterableToArray(a){if(Symbol.iterator in Object(a)||"[object Arguments]"===Object.prototype.toString.call(a))return Array.from(a)}function _arrayWithoutHoles(a){if(Array.isArray(a)){for(var b=0,c=Array(a.length);b<a.length;b++)c[b]=a[b];return c}}function _slicedToArray(a,b){return _arrayWithHoles(a)||_iterableToArrayLimit(a,b)||_nonIterableRest()}function _nonIterableRest(){throw new TypeError("Invalid attempt to destructure non-iterable instance")}function _iterableToArrayLimit(a,b){var c=[],d=!0,e=!1,f=void 0;try{for(var g,h=a[Symbol.iterator]();!(d=(g=h.next()).done)&&(c.push(g.value),!(b&&c.length===b));d=!0);}catch(a){e=!0,f=a}finally{try{d||null==h["return"]||h["return"]()}finally{if(e)throw f}}return c}function _arrayWithHoles(a){if(Array.isArray(a))return a}W.loadPlugin({name:"windy-plugin-sounding",version:"0.2.1",author:"Victor Berchet",repository:{type:"git",url:"git+https://github.com/vicb/windy-plugins"},description:"Soundings for paraglider pilots.",displayName:"Better Sounding",hook:"contextmenu",dependencies:["https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js","https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js"],className:"drop-down-window ",classNameMobile:"drop-down-window down",attachPoint:".leaflet-popup-pane",attachPointMobile:"#plugins"},"<h3>Sounding forecast <span id=\"sounding-model\"></span></h3> <div id=\"sounding-chart\"></div>","#windy-plugin-sounding{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:600px;height:650px;margin-left:-10px}#windy-plugin-sounding h3{margin:0 0 .3em .6em}#windy-plugin-sounding .closing-x{display:block}#windy-plugin-sounding section{margin-left:10px;line-height:1.5}#windy-plugin-sounding section span:not(:first-child){margin-left:1em}#windy-plugin-sounding section:first-of-type{color:black}#windy-plugin-sounding section:last-of-type{font-size:.9em}#windy-plugin-sounding section [data-ref=\"modelAlt\"].red{color:red}#windy-plugin-sounding [data-ref=\"zoom\"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-sounding{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-sounding .axis path,#windy-plugin-sounding .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-sounding #sounding-chart{height:600px;position:relative}#windy-plugin-sounding #sounding-chart svg{width:100%;height:100%}#windy-plugin-sounding #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-sounding #sounding-chart .infoLine .temp{fill:red}#windy-plugin-sounding #sounding-chart .zoomButton{cursor:pointer}",function(){var a=this,b=W.require("store"),d=W.require("windy-plugin-sounding/soundingGraph"),e=W.require("pluginDataLoader"),f=W.require("map"),g=W.require("rootScope"),c=e({key:"RxcwkWO2XWsfEbdidcsskbyWqhToAwLx",plugin:"windy-plugin-examples"}),h=null;this.onopen=function(e){var j,k;if(!e){var p=f.getCenter();j=p.lat,k=p.lng}else j=e.lat,k=e.lon;var l={lng:k,lat:j},m=f.latLngToLayerPoint(l),n=m.x,o=m.y;if(!g.isMobile)a.node.style.position="absolute",a.node.style.left="".concat(n-15,"px"),a.node.style.top="".concat(o+15,"px");else{var c=a.node.clientHeight;f.center({lat:j,lon:k},!1).panBy([0,-.5*c+50])}h?h.setLatLng(l):h=L.marker(l,{icon:f.myMarkers.pulsatingIcon,zIndexOffset:-300}).addTo(f),d.init(a.refs),i(j,k),b.on("product",function(){return i(j,k)}),a.node.oncontextmenu=a.node.ondblclick=a.node.onclick=function(a){return a.stopPropagation()}};var i=function(a,e){var f="gfs"==b.get("product")?"gfs":"ecmwf";document.getElementById("sounding-model").innerText=f;var g={model:f,lat:a,lon:e};Promise.all([c("forecast",g),c("airData",g)]).then(function(b){var c=_slicedToArray(b,2),f=c[0],g=c[1];d.load(a,e,g.data,f.data)})};this.onclose=function(){h&&(f.removeLayer(h),h=null)}}),W.define("windy-plugin-sounding/soundingGraph",["overlays","store","$","utils","windy-plugin-sounding/soundingUtils"],function(a,b,c,e,d){var i=Math.round;function f(){var a=Number.MIN_VALUE,b=Number.MAX_VALUE,c=b,f=a,g=b,h=a,i=b,p=a,q=a,r=function(a){var b=E.data[a];b.forEach(function(a,d){var j=Math.max,k=Math.min;0==d&&(g=k(g,a.gh),p=j(p,a.pressure)),d==b.length-1&&(h=j(h,a.gh),i=k(i,a.pressure)),c=k(c,a.dewpoint),f=j(f,a.temp);var l=e.wind2obj([a.wind_u,a.wind_v]).wind;q=j(q,l)})};for(var s in E.data)r(s);c=243,f=303,j.domain([c,f]),m.domain([G(c),G(f)]),l.domain([0,30/3.6,q]),l.range([0,50,100]),n.domain([0,30,H(q)]),n.range([0,50,100]),k.domain([p,i]),o.domain([J(g),J(h)])}function g(a,b,c,d){return"gh"===b&&"surface"==c?a.header.modelElevation||a.header.elevation:a.data["".concat(b,"-").concat(c)][d]}var j,k,l,m,n,o,p,q,r,s,t,u,v,w,x=c("#sounding-chart"),y=100,z=x.clientWidth-100-20-15,A=x.clientHeight-20,B=preact,C=B.h,h=B.render,D=.4,E={lat:0,lon:0,elevation:0,modelElevation:0,tempRange:[0,0],pressureRange:[0,0],data:{}},F=[],G=a.temp.convertNumber,H=a.wind.convertNumber,I=a.pressure.convertNumber,J=function(b){return i("ft"===a.cloudtop.metric?3.28084*b:b)},K=function(){var a=Math.pow;if(!j){j=d3.scaleLinear().range([0,z]),l=d3.scaleLinear().range([0,y]),k=d3.scaleLog().range([A,0]),m=d3.scaleLinear().range([0,z]),o=d3.scaleLinear().range([A,0]),n=d3.scaleLinear().range([0,y]),p=d3.axisBottom(m).ticks(5,"-d"),r=d3.axisRight(o).ticks(10,"d"),q=d3.axisBottom(n).ticks(4,"d"),s=d3.line().x(function(a){return j(a.temp)+D*(A-k(a.pressure))}).y(function(a){return k(a.pressure)}),t=d3.line().x(function(a){return j(a.dewpoint)+D*(A-k(a.pressure))}).y(function(a){return k(a.pressure)}),u=d3.line().x(function(a){return l(e.wind2obj([a.wind_u,a.wind_v]).wind)}).y(function(a){return k(a.pressure)});var c=function(a){var b=a.temp;if(0==D)return null;var c=j(b+273);return C("line",{x1:c,y1:A,x2:z,y2:A-(z-c)/D,stroke:"darkred","stroke-width":"0.2"})},d=function(b){for(var c=Math.log,d=b.q,e=[],f=A/6,g=A;g>-f;g-=f){var h=k.invert(g),i=a(c(h*d/(d+622)/6.11),-1),l=273+a(17.269/237.3*(i-1/17.269),-1);e.push({t:l,p:h})}var m=d3.line().x(function(a){return j(a.t)+D*(A-k(a.p))}).y(function(a){return k(a.p)});return C("path",{fill:"none",stroke:"blue","stroke-width":"0.3","stroke-dasharray":"2",d:m(e)})},f=function(b){for(var c=b.temp,d=[],e=k.domain()[0],f=A/15,g=A;g>-f;g-=f){var h=k.invert(g),i=(c+273)*a(e/h,-287/1030);d.push({t:i,p:h})}var l=d3.line().x(function(a){return j(a.t)+D*(A-k(a.p))}).y(function(a){return k(a.p)});return C("path",{fill:"none",stroke:"green","stroke-width":"0.3",d:l(d)})},g=function(a){for(var b=Math.exp,c=a.temp,d=[],e=k.domain()[0],f=1030,g=25e5,h=287,i=c+273,l=e,m=A/15,n=A;n>-m;n-=m){var o=k.invert(n),p=g/461*(1/273-1/i),q=6.11*b(p)*(.622/o),r=g*q/(h*i),s=h*i/(f*o)*(1+r),u=1+r*(1555000/(f*i));i-=s/u*(l-o),l=o,d.push({t:i,p:o})}var v=d3.line().x(function(a){return j(a.t)+D*(A-k(a.p))}).y(function(a){return k(a.p)});return C("path",{fill:"none",stroke:"green","stroke-width":"0.3","stroke-dasharray":"3 5",d:v(d)})},i=function(a){var b=a.wind_u,c=a.wind_v,d=a.y,f=e.wind2obj([b,c]);return C("g",null,1<f.wind?C("g",{transform:"translate(0,".concat(d,") rotate(").concat(f.dir,")"),stroke:"black",fill:"none"},C("line",{y2:"-30"}),C("polyline",{points:"-5,-10 0,0 5,-10","stroke-linejoin":"round"})):C("g",{transform:"translate(0,".concat(d,")"),stroke:"black",fill:"none"},C("circle",{r:"6"}),C("circle",{r:"1"})))};v=function(){var a=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{},b=a.data;return C("svg",{id:"sounding"},C("defs",null,C("clipPath",{id:"clip-chart"},C("rect",{x:"0",y:"0",width:z,height:A+20}))),b?C("g",null,C("g",{class:"wind"},C("g",{class:"chart",transform:"translate(".concat(z+30,",0)")},C("g",{class:"x axis",transform:"translate(0,".concat(A,")"),ref:function b(a){return d3.select(a).call(q)}}),C("line",{y1:A,y2:"0",stroke:"black","stroke-width":"0.2","stroke-dasharray":"3"}),C("line",{y1:A,x1:l(15/3.6),y2:"0",x2:l(15/3.6),stroke:"black","stroke-width":"0.2","stroke-dasharray":"3"}),C("rect",{x:y/2,width:y/2,height:A,fill:"red",opacity:"0.1"}),C("g",{class:"chartArea","clip-path":"url(#clip-chart)"},C("path",{class:"temperature chart",fill:"none",stroke:"purple","stroke-linejoin":"round","stroke-linecap":"round","stroke-width":"1.5",d:u(b)}),C("g",{transform:"translate(".concat(y/2,",0)")},b.map(function(a){return C(i,{wind_u:a.wind_u,wind_v:a.wind_v,y:k(a.pressure)})}))))),C("g",{class:"chart",transform:"translate(10,0)"},C("g",{class:"axis"},C("g",{class:"x axis",transform:"translate(0,".concat(A,")"),ref:function b(a){return d3.select(a).call(p)}}),C("g",{class:"y axis",y:A+16,ref:function b(a){return d3.select(a).call(r)}})),C("g",{class:"chartArea","clip-path":"url(#clip-chart)","stroke-linejoin":"round","stroke-linecap":"round"},C("text",{class:"y label",opacity:"0.75",x:"0",y:"-4"}),C("rect",{class:"overlay",width:z,height:A,opacity:"0"}),C("path",{class:"temperature chart",fill:"none",stroke:"red","stroke-width":"1.5",d:s(b)}),C("path",{class:"dewpoint chart",fill:"none",stroke:"steelblue","stroke-width":"1.5",d:t(b)}),[-70,-60,-50,-40,-30,-20,-10,0,10,20].map(function(a){return C(c,{temp:a})}),[-20,-10,0,5,10,15,20,25,30,40,50,60,70,80].map(function(a){return C(f,{temp:a})}),[-20,-10,0,5,10,15,20,25,30,35].map(function(a){return C(g,{temp:a})}),[.01,.1,.5,1,2,5,8,12,16,20].map(function(a){return C(d,{q:a})})))):C("text",{x:"50%",y:"50%","text-anchor":"middle"},"No Data"))},w=h(C(v,{display:"block"}),x,w),b.on("timestamp",M)}},M=function(){if(F=null,E.data){var a,c,e=b.get("timestamp"),f=Object.getOwnPropertyNames(E.data).sort(function(c,a){return+c<+a?-1:1}),g=f.findIndex(function(a){return a>=e});-1<g&&(0==g?a=c=f[0]:(a=f[g-1],c=f[g]),F=d.interpolateArray(E.data[a],E.data[c],c==a?0:(e-a)/(c-a)))}w=h(C(v,{data:F,display:"block"}),x,w)};return{load:function r(a,b,c,e){E.lat=a,E.lon=b;var h={};for(var s in e.data)e.data[s].forEach(function(a){return h[a.origTs]=a});var j=c.data.hours,k=c.header.elevation,l=c.header.modelElevation||k,n=new Set,o=new Set;for(var d in c.data){var t=d.match(/([^-]+)-(.+)h$/);null!==t&&(n.add(t[1]),o.add(+t[2]))}var p=[-1].concat(_toConsumableArray(Array.from(o).filter(function(a){return 300<a}).sort(function(c,a){return+c<+a?1:-1}))),q={};j.forEach(function(a,b){q[a]=[],p.forEach(function(d){var e=0>d?"surface":"".concat(d,"h"),f=g(c,"gh",e,b);if(f>=l){var j=0>d?i(h[a].pressure/100):d;q[a].push({temp:g(c,"temp",e,b),dewpoint:g(c,"dewpoint",e,b),gh:g(c,"gh",e,b),wind_u:g(c,"wind_u",e,b),wind_v:g(c,"wind_v",e,b),pressure:j,forecast:h[a]})}})}),E.data=q,E.elevation=k,E.modelElevation=l,f(E),M()},init:K}}),W.define("windy-plugin-sounding/soundingUtils",[],function(){function a(a,b,c){var d={},e=Object.getOwnPropertyNames(a);return e.forEach(function(e){d[e]=(1-c)*a[e]+c*b[e]}),d}function b(a,b){var c=_slicedToArray(a,2),e=_slicedToArray(c[0],2),f=e[0],g=e[1],h=_slicedToArray(c[1],2),i=h[0],j=h[1],k=_slicedToArray(b,2),l=_slicedToArray(k[0],2),m=l[0],n=l[1],o=_slicedToArray(k[1],2),p=o[0],q=o[1];if(0==i-f&&0==j-g||0==p-m&&0==q-n)return null;var r=(j-g)*(p-m)-(i-f)*(q-n);if(!r)return null;var d=((i-f)*(n-g)+(j-g)*(f-m))/r;if(0>d||1<d)return null;var t=m+d*(p-m),u=n+d*(q-n),v=i-f?(t-f)/(i-f):(u-g)/(j-g);return 0>v||1<v?null:[t,u]}return{validateData:function(a){for(var b=function(b){var d=Object.keys(a[b]);d.find(function(c){return null==a[b][c]})?a.splice(b,1):++b,c=b},c=0;c<a.length;)b(c)},interpolateArray:function(b,c,d){var e=[];return b.forEach(function(b,f){var g=b.pressure,h=0==f?c[0]:c.find(function(a){return a.pressure==g});h&&e.push(a(b,h,d))}),e},interpolatePoint:a,intersection:b,dataIntersection:function(a,c,d){for(var e,f=0;f<c.length-1;++f)if(e=b(a,[d(c[f]),d(c[f+1])]),e)return e;return null}}});
+"use strict";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+/**
+ * This is main plugin loading function
+ * Feel free to write your own compiler
+ */
+W.loadPlugin(
+/* Mounting options */
+{
+  "name": "windy-plugin-sounding",
+  "version": "0.3.0",
+  "author": "Victor Berchet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vicb/windy-plugins"
+  },
+  "description": "Soundings for paraglider pilots.",
+  "displayName": "Better Sounding",
+  "hook": "contextmenu",
+  "dependencies": ["https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js", "https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js"],
+  "className": "drop-down-window ",
+  "classNameMobile": "drop-down-window down",
+  "attachPoint": ".leaflet-popup-pane",
+  "attachPointMobile": "#plugins"
+},
+/* HTML */
+'<h3>Sounding forecast <span id="sounding-model"></span></h3> <div id="sounding-chart"></div>',
+/* CSS */
+'#windy-plugin-sounding{font-size:12px;padding:.5em .7em;line-height:2;z-index:100;width:600px;height:650px;margin-left:-10px}#windy-plugin-sounding h3{margin:0 0 .3em .6em}#windy-plugin-sounding .closing-x{display:block}#windy-plugin-sounding section{margin-left:10px;line-height:1.5}#windy-plugin-sounding section span:not(:first-child){margin-left:1em}#windy-plugin-sounding section:first-of-type{color:black}#windy-plugin-sounding section:last-of-type{font-size:.9em}#windy-plugin-sounding section [data-ref="modelAlt"].red{color:red}#windy-plugin-sounding [data-ref="zoom"]{position:absolute;right:20px;bottom:15px;font-size:25px;color:#9d0300}@media only screen and (max-device-width:736px){#windy-plugin-sounding{display:block;left:0;top:0;right:0;width:calc(100% - 20px);margin:10px}}#windy-plugin-sounding .axis path,#windy-plugin-sounding .axis line{fill:none;stroke:#000;shape-rendering:crispEdges}#windy-plugin-sounding #sounding-chart{height:600px;position:relative}#windy-plugin-sounding #sounding-chart svg{width:100%;height:100%}#windy-plugin-sounding #sounding-chart .infoLine .dewpoint{fill:steelblue}#windy-plugin-sounding #sounding-chart .infoLine .temp{fill:red}#windy-plugin-sounding #sounding-chart .zoomButton{cursor:pointer}',
+/* Constructor */
+function () {
+  var _this = this;
+
+  var store = W.require('store');
+
+  var graph = W.require('windy-plugin-sounding/soundingGraph');
+
+  var pluginDataLoader = W.require('pluginDataLoader');
+
+  var map = W.require('map');
+
+  var rs = W.require('rootScope');
+
+  var options = {
+    key: "RxcwkWO2XWsfEbdidcsskbyWqhToAwLx",
+    plugin: "windy-plugin-examples"
+  };
+  var load = pluginDataLoader(options);
+  var marker = null;
+
+  this.onopen = function (latLonObject) {
+    var lat, lon;
+
+    if (!latLonObject) {
+      var c = map.getCenter();
+      lat = c.lat;
+      lon = c.lng;
+    } else {
+      lat = latLonObject.lat;
+      lon = latLonObject.lon;
+    }
+
+    var leafletCoords = {
+      lng: lon,
+      lat: lat
+    },
+        _map$latLngToLayerPoi = map.latLngToLayerPoint(leafletCoords),
+        x = _map$latLngToLayerPoi.x,
+        y = _map$latLngToLayerPoi.y;
+
+    if (!rs.isMobile) {
+      _this.node.style.position = "absolute";
+      _this.node.style.left = "".concat(x - 15, "px");
+      _this.node.style.top = "".concat(y + 15, "px");
+    } else {
+      var height = _this.node.clientHeight;
+      map.center({
+        lat: lat,
+        lon: lon
+      }, false).panBy([0, -0.5 * height + 50]);
+    }
+
+    if (marker) {
+      marker.setLatLng(leafletCoords);
+    } else {
+      marker = L.marker(leafletCoords, {
+        icon: map.myMarkers.pulsatingIcon,
+        zIndexOffset: -300
+      }).addTo(map);
+    }
+
+    graph.init(_this.refs);
+    loadData(lat, lon);
+    store.on("product", function () {
+      return loadData(lat, lon);
+    });
+
+    _this.node.oncontextmenu = _this.node.ondblclick = _this.node.onclick = function (ev) {
+      return ev.stopPropagation();
+    };
+  };
+
+  var loadData = function loadData(lat, lon) {
+    var supportedModels = ["gfs", "ecmwf", "namConus"];
+    var model = store.get("product");
+    console.log("Trying to load ".concat(model));
+
+    if (supportedModels.indexOf(model) == -1) {
+      console.log("fallback to ecmwf");
+      model = "ecmwf";
+    }
+
+    document.getElementById("sounding-model").innerText = model.toUpperCase();
+    var dataOptions = {
+      model: model,
+      lat: lat,
+      lon: lon
+    };
+    Promise.all([load("forecast", dataOptions), load("airData", dataOptions)]).then(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          forecast = _ref2[0],
+          airData = _ref2[1];
+
+      console.log("ad $ forecast");
+      console.log(airData);
+      console.log(forecast);
+      graph.load(lat, lon, airData.data, forecast.data);
+    });
+  };
+
+  this.onclose = function () {
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+  };
+});
+/*! */
+// This page was transpiled automatically from src/soundingGraph.mjs
+
+W.define('windy-plugin-sounding/soundingGraph', ['overlays', 'store', '$', 'utils', 'windy-plugin-sounding/soundingUtils'], function (overlays, store, $, _, sUtils) {
+  ;
+  ;
+  ;
+  ;
+  ;
+  var containerEl = $("#sounding-chart");
+  var chartWindWidth = 100;
+  var chartWidth = containerEl.clientWidth - 100 - 20 - 15;
+  var chartHeight = containerEl.clientHeight - 20;
+  /** @jsx h */
+
+  var _preact = preact,
+      h = _preact.h,
+      render = _preact.render; // Scale for chart
+
+  var xScale, yScale, xWindScale;
+  var xAxisScale, xWindAxisScale, yAxisScale;
+  var xAxis, xWindAxis, yAxis;
+  var skew = 0.4;
+  var tempLine, dewPointLine, windLine;
+  var Sounding;
+  var root;
+  var pointData = {
+    lat: 0,
+    lon: 0,
+    elevation: 0,
+    modelElevation: 0,
+    tempRange: [0, 0],
+    pressureRange: [0, 0],
+    data: {}
+  };
+  var currentData = [];
+  var convertTemp = overlays.temp.convertNumber;
+  var convertWind = overlays.wind.convertNumber;
+  var convertPressure = overlays.pressure.convertNumber; // Custom conversion of altitude
+  // Can not use convertNumber, because it rounds altitude to 100m
+
+  var convertAlt = function convertAlt(value) {
+    return Math.round(overlays.cloudtop.metric === "ft" ? value * 3.28084 : value);
+  };
+
+  var init = function init() {
+    if (xScale) {
+      return;
+    } // Scale for chart
+
+
+    xScale = d3.scaleLinear().range([0, chartWidth]);
+    xWindScale = d3.scaleLinear().range([0, chartWindWidth]);
+    yScale = d3.scaleLog().range([chartHeight, 0]); // Scale for axis is different, because it can display custom units
+
+    xAxisScale = d3.scaleLinear().range([0, chartWidth]);
+    yAxisScale = d3.scaleLinear().range([chartHeight, 0]);
+    xWindAxisScale = d3.scaleLinear().range([0, chartWindWidth]);
+    xAxis = d3.axisBottom(xAxisScale).ticks(5, "-d");
+    yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
+    xWindAxis = d3.axisBottom(xWindAxisScale).ticks(4, "d");
+    tempLine = d3.line().x(function (d) {
+      return xScale(d.temp) + skew * (chartHeight - yScale(d.pressure));
+    }).y(function (d) {
+      return yScale(d.pressure);
+    });
+    dewPointLine = d3.line().x(function (d) {
+      return xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure));
+    }).y(function (d) {
+      return yScale(d.pressure);
+    });
+    windLine = d3.line().x(function (d) {
+      return xWindScale(_.wind2obj([d.wind_u, d.wind_v]).wind);
+    }).y(function (d) {
+      return yScale(d.pressure);
+    });
+
+    var IsoTemp = function IsoTemp(_ref3) {
+      var temp = _ref3.temp;
+
+      if (skew == 0) {
+        return null;
+      }
+
+      var x1 = xScale(temp + 273);
+      var y2 = chartHeight - (chartWidth - x1) / skew;
+      return h("line", {
+        x1: x1,
+        y1: chartHeight,
+        x2: chartWidth,
+        y2: y2,
+        stroke: "darkred",
+        "stroke-width": "0.2"
+      });
+    };
+
+    var IsoHume = function IsoHume(_ref4) {
+      var q = _ref4.q;
+      var points = [];
+      var step = chartHeight / 6;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var p = yScale.invert(y);
+        var es = p * q / (q + 622.0);
+        var logthing = Math.pow(Math.log(es / 6.11), -1.0);
+        var t = 273 + Math.pow(17.269 / 237.3 * (logthing - 1.0 / 17.269), -1.0);
+        points.push({
+          t: t,
+          p: p
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "blue",
+        "stroke-width": "0.3",
+        "stroke-dasharray": "2",
+        d: ad(points)
+      });
+    };
+
+    var DryAdiabatic = function DryAdiabatic(_ref5) {
+      var temp = _ref5.temp;
+      var points = [];
+      var t0 = temp + 273;
+      var p0 = yScale.domain()[0];
+      var CP = 1.03e3;
+      var RD = 287.0;
+      var step = chartHeight / 15;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var p = yScale.invert(y);
+        var t = t0 * Math.pow(p0 / p, -RD / CP);
+        points.push({
+          t: t,
+          p: p
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "green",
+        "stroke-width": "0.3",
+        d: ad(points)
+      });
+    };
+
+    var MoistAdiabatic = function MoistAdiabatic(_ref6) {
+      var temp = _ref6.temp;
+      var points = [];
+      var t0 = temp + 273;
+      var p0 = yScale.domain()[0];
+      var CP = 1.03e3;
+      var L = 2.5e6;
+      var RD = 287.0;
+      var RV = 461.0;
+      var KELVIN = 273;
+      var t = t0;
+      var previousP = p0;
+      var step = chartHeight / 15;
+
+      for (var y = chartHeight; y > -step; y -= step) {
+        var pressure = yScale.invert(y);
+        var lsbc = L / RV * (1.0 / KELVIN - 1.0 / t);
+        var rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
+        var lrwbt = L * rw / (RD * t);
+        var nume = RD * t / (CP * pressure) * (1.0 + lrwbt);
+        var deno = 1.0 + lrwbt * (0.622 * L / (CP * t));
+        var gradi = nume / deno;
+        t = t - gradi * (previousP - pressure);
+        previousP = pressure;
+        points.push({
+          t: t,
+          p: pressure
+        });
+      }
+
+      var ad = d3.line().x(function (d) {
+        return xScale(d.t) + skew * (chartHeight - yScale(d.p));
+      }).y(function (d) {
+        return yScale(d.p);
+      });
+      return h("path", {
+        fill: "none",
+        stroke: "green",
+        "stroke-width": "0.3",
+        "stroke-dasharray": "3 5",
+        d: ad(points)
+      });
+    };
+
+    var WindArrow = function WindArrow(_ref7) {
+      var wind_u = _ref7.wind_u,
+          wind_v = _ref7.wind_v,
+          y = _ref7.y;
+
+      var w = _.wind2obj([wind_u, wind_v]);
+
+      return h("g", null, w.wind > 1 ? h("g", {
+        transform: "translate(0,".concat(y, ") rotate(").concat(w.dir, ")"),
+        stroke: "black",
+        fill: "none"
+      }, h("line", {
+        y2: "-30"
+      }), h("polyline", {
+        points: "-5,-10 0,0 5,-10",
+        "stroke-linejoin": "round"
+      })) : h("g", {
+        transform: "translate(0,".concat(y, ")"),
+        stroke: "black",
+        fill: "none"
+      }, h("circle", {
+        r: "6"
+      }), h("circle", {
+        r: "1"
+      })));
+    };
+
+    Sounding = function Sounding() {
+      var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          data = _ref8.data;
+
+      return h("svg", {
+        id: "sounding"
+      }, h("defs", null, h("clipPath", {
+        id: "clip-chart"
+      }, h("rect", {
+        x: "0",
+        y: "0",
+        width: chartWidth,
+        height: chartHeight + 20
+      }))), data ? h("g", null, h("g", {
+        class: "wind"
+      }, h("g", {
+        class: "chart",
+        transform: "translate(".concat(chartWidth + 30, ",0)")
+      }, h("g", {
+        class: "x axis",
+        transform: "translate(0,".concat(chartHeight, ")"),
+        ref: function ref(g) {
+          return d3.select(g).call(xWindAxis);
+        }
+      }), h("line", {
+        y1: chartHeight,
+        y2: "0",
+        stroke: "black",
+        "stroke-width": "0.2",
+        "stroke-dasharray": "3"
+      }), h("line", {
+        y1: chartHeight,
+        x1: xWindScale(15 / 3.6),
+        y2: "0",
+        x2: xWindScale(15 / 3.6),
+        stroke: "black",
+        "stroke-width": "0.2",
+        "stroke-dasharray": "3"
+      }), h("rect", {
+        x: chartWindWidth / 2,
+        width: chartWindWidth / 2,
+        height: chartHeight,
+        fill: "red",
+        opacity: "0.1"
+      }), h("g", {
+        class: "chartArea",
+        "clip-path": "url(#clip-chart)"
+      }, h("path", {
+        class: "temperature chart",
+        fill: "none",
+        stroke: "purple",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round",
+        "stroke-width": "1.5",
+        d: windLine(data)
+      }), h("g", {
+        transform: "translate(".concat(chartWindWidth / 2, ",0)")
+      }, data.map(function (d) {
+        return h(WindArrow, {
+          wind_u: d.wind_u,
+          wind_v: d.wind_v,
+          y: yScale(d.pressure)
+        });
+      }))))), h("g", {
+        class: "chart",
+        transform: "translate(10,0)"
+      }, h("g", {
+        class: "axis"
+      }, h("g", {
+        class: "x axis",
+        transform: "translate(0,".concat(chartHeight, ")"),
+        ref: function ref(g) {
+          return d3.select(g).call(xAxis);
+        }
+      }), h("g", {
+        class: "y axis",
+        y: chartHeight + 16,
+        ref: function ref(g) {
+          return d3.select(g).call(yAxis);
+        }
+      })), h("g", {
+        class: "chartArea",
+        "clip-path": "url(#clip-chart)",
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+      }, h("text", {
+        class: "y label",
+        opacity: "0.75",
+        x: "0",
+        y: "-4"
+      }), h("rect", {
+        class: "overlay",
+        width: chartWidth,
+        height: chartHeight,
+        opacity: "0"
+      }), h("path", {
+        class: "temperature chart",
+        fill: "none",
+        stroke: "red",
+        "stroke-width": "1.5",
+        d: tempLine(data)
+      }), h("path", {
+        class: "dewpoint chart",
+        fill: "none",
+        stroke: "steelblue",
+        "stroke-width": "1.5",
+        d: dewPointLine(data)
+      }), [-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(function (t) {
+        return h(IsoTemp, {
+          temp: t
+        });
+      }), [-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(function (t) {
+        return h(DryAdiabatic, {
+          temp: t
+        });
+      }), [-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(function (t) {
+        return h(MoistAdiabatic, {
+          temp: t
+        });
+      }), [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(function (q) {
+        return h(IsoHume, {
+          q: q
+        });
+      })))) : h("text", {
+        x: "50%",
+        y: "50%",
+        "text-anchor": "middle"
+      }, "No Data"));
+    };
+
+    root = render(h(Sounding, {
+      display: "block"
+    }), containerEl, root);
+    store.on("timestamp", redraw);
+  }; // Compute the min and max temp and pressure over the forecast range
+
+
+  function updateScales() {
+    var minTemp = Number.MAX_VALUE;
+    var maxTemp = Number.MIN_VALUE;
+    var minGh = Number.MAX_VALUE;
+    var maxGh = Number.MIN_VALUE;
+    var minPressure = Number.MAX_VALUE;
+    var maxPressure = Number.MIN_VALUE;
+    var maxWind = Number.MIN_VALUE;
+
+    var _loop = function _loop(ts) {
+      var tsData = pointData.data[ts];
+      tsData.forEach(function (d, index) {
+        if (index == 0) {
+          minGh = Math.min(minGh, d.gh);
+          maxPressure = Math.max(maxPressure, d.pressure);
+        }
+
+        if (index == tsData.length - 1) {
+          maxGh = Math.max(maxGh, d.gh);
+          minPressure = Math.min(minPressure, d.pressure);
+        } // pt.dewpoint <= pt.temp
+
+
+        minTemp = Math.min(minTemp, d.dewpoint);
+        maxTemp = Math.max(maxTemp, d.temp);
+
+        var wind = _.wind2obj([d.wind_u, d.wind_v]).wind;
+
+        maxWind = Math.max(maxWind, wind);
+      });
+    };
+
+    for (var ts in pointData.data) {
+      _loop(ts);
+    } // TODO
+
+
+    minTemp = -30 + 273;
+    maxTemp = 30 + 273;
+    xScale.domain([minTemp, maxTemp]);
+    xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
+    xWindScale.domain([0, 30 / 3.6, maxWind]);
+    xWindScale.range([0, chartWindWidth / 2, chartWindWidth]);
+    xWindAxisScale.domain([0, 30, convertWind(maxWind)]);
+    xWindAxisScale.range([0, chartWindWidth / 2, chartWindWidth]);
+    yScale.domain([maxPressure, minPressure]);
+    yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
+  } // Return the value of the parameter `name` at `level` for the given `tsIndex`
+
+
+  function getParam(airData, name, levelName, tsIndex) {
+    var valueByTs = airData.data["".concat(name, "-").concat(levelName)];
+    return Array.isArray(valueByTs) ? valueByTs[tsIndex] : null;
+  }
+
+  function getGh(airData, levelName, tsIndex, p) {
+    if (level === "surface") {
+      // GFS has no modelElevation
+      return airData.header.modelElevation || airData.header.elevation;
+    }
+
+    var value = getParam(airData, "gh", levelName, tsIndex);
+
+    if (value != null) {
+      return value;
+    } // Approximate GH when not provided by the model
+    // z = t0 / L ((P/P0)^-L*R/g - 1)
+
+
+    var L = -6.5e-3;
+    var R = 287.053;
+    var g = 9.80665;
+    var t0 = 288.15;
+    var p0 = 1013.25;
+    var z = t0 / L * (Math.pow(p / p0, -L * R / g) - 1);
+    return Math.round(z);
+  } // Handler for data request
+
+
+  var load = function load(lat, lon, airData, forecastData) {
+    pointData.lat = lat;
+    pointData.lon = lon; // Create a lookup for forecast
+
+    var forecastsByTs = {}; // TODO: nam ts do not match airData, get a default value
+
+    var firstForecast;
+
+    for (var d in forecastData.data) {
+      forecastData.data[d].forEach(function (f) {
+        if (firstForecast == null) {
+          firstForecast = f;
+        }
+
+        forecastsByTs[f.origTs] = f;
+      });
+    } // Re-arrange the airData
+    // from
+    // {
+    //    temp-150h: [...]
+    //    temp-surface: [...]
+    //    hours: [...]
+    //    ...
+    // }
+    // to
+    // {
+    //    [timestamp0]: {
+    //      temp: ,
+    //      wind_u: ,
+    //      wind_v: ,
+    //      level: ,
+    //    }, ...
+    // }
+
+
+    var timestamps = airData.data.hours;
+    var elevation = airData.header.elevation || 0; // GFS has no model elevation
+
+    var modelElevation = airData.header.modelElevation || elevation;
+    var paramNames = new Set();
+    var paramLevels = new Set(); // Extracts parameter names and levels.
+
+    for (var name in airData.data) {
+      var m = name.match(/([^-]+)-(.+)h$/);
+
+      if (m !== null) {
+        paramNames.add(m[1]);
+        paramLevels.add(Number(m[2]));
+      }
+    } // Filters the list of levels and add surface (-1).
+
+
+    var levels = Array.from(paramLevels).filter(function (l) {
+      return l > 300;
+    }).sort(function (a, b) {
+      return Number(a) < Number(b) ? 1 : -1;
+    });
+    var levelDataByTs = {};
+    timestamps.forEach(function (ts, index) {
+      levelDataByTs[ts] = []; // TODO: fix for nam
+
+      var forecast = forecastsByTs[ts] || firstForecast;
+      levels.forEach(function (level) {
+        var LevelName = level < 0 ? "surface" : "".concat(level, "h"); // nam has not forecastsByTs
+
+        var pressure = LevelName == "surface" ? sfcPressure : level;
+        var gh = getGh(airData, LevelName, index, pressure);
+
+        if (gh >= modelElevation) {
+          // Forecasts have the pressure in Pa - we want hPa.
+          levelDataByTs[ts].push({
+            temp: getParam(airData, "temp", LevelName, index),
+            dewpoint: getParam(airData, "dewpoint", LevelName, index),
+            gh: gh,
+            wind_u: getParam(airData, "wind_u", LevelName, index),
+            wind_v: getParam(airData, "wind_v", LevelName, index),
+            pressure: pressure
+          });
+        }
+      });
+    });
+    pointData.data = levelDataByTs;
+    pointData.elevation = elevation;
+    pointData.modelElevation = modelElevation;
+    updateScales(pointData);
+    redraw();
+  }; // Update the sounding
+
+
+  var redraw = function redraw() {
+    currentData = null;
+
+    if (pointData.data) {
+      var ts = store.get("timestamp"); // Find nearest hour
+
+      var hours = Object.getOwnPropertyNames(pointData.data).sort(function (a, b) {
+        return Number(a) < Number(b) ? -1 : 1;
+      });
+      var ts1, ts2;
+      var idx = hours.findIndex(function (x) {
+        return x >= ts;
+      });
+
+      if (idx > -1) {
+        if (idx == 0) {
+          ts1 = ts2 = hours[0];
+        } else {
+          ts1 = hours[idx - 1];
+          ts2 = hours[idx];
+        } // Interpolate between two nearest hours
+
+
+        currentData = sUtils.interpolateArray(pointData.data[ts1], pointData.data[ts2], ts2 != ts1 ? (ts - ts1) / (ts2 - ts1) : 0);
+      }
+    }
+
+    root = render(h(Sounding, {
+      data: currentData,
+      display: "block"
+    }), containerEl, root);
+  };
+
+  return {
+    load: load,
+    init: init
+  };
+});
+/*! */
+// This page was transpiled automatically from src/soundingUtils.mjs
+
+W.define('windy-plugin-sounding/soundingUtils', [], function () {
+  // Remove data points with some null values
+  function validateData(data) {
+    var _loop2 = function _loop2(_i2) {
+      var keys = Object.keys(data[_i2]);
+
+      if (keys.find(function (key) {
+        return data[_i2][key] == null;
+      })) {
+        data.splice(_i2, 1);
+      } else {
+        ++_i2;
+      }
+
+      i = _i2;
+    };
+
+    for (var i = 0; i < data.length;) {
+      _loop2(i);
+    }
+  } // Bilinear interpolation between two data arrays
+
+
+  function interpolateArray(data1, data2, w) {
+    var data = [];
+    data1.forEach(function (d1, i) {
+      var pressure1 = d1.pressure;
+      var d2 = i == 0 ? data2[0] : data2.find(function (d2) {
+        return d2.pressure == pressure1;
+      });
+
+      if (d2) {
+        data.push(interpolatePoint(d1, d2, w));
+      }
+    });
+    return data;
+  } // Bilinear interpolation between two data points
+
+
+  function interpolatePoint(point1, point2, w) {
+    var interp = {};
+    var keys = Object.getOwnPropertyNames(point1);
+    keys.forEach(function (key) {
+      interp[key] = (1 - w) * point1[key] + w * point2[key];
+    });
+    return interp;
+  } // Returns intersection of two line segments
+
+
+  function intersection(line1, line2) {
+    var _line = _slicedToArray(line1, 2),
+        _line$ = _slicedToArray(_line[0], 2),
+        x1 = _line$[0],
+        y1 = _line$[1],
+        _line$2 = _slicedToArray(_line[1], 2),
+        x2 = _line$2[0],
+        y2 = _line$2[1];
+
+    var _line2 = _slicedToArray(line2, 2),
+        _line2$ = _slicedToArray(_line2[0], 2),
+        x3 = _line2$[0],
+        y3 = _line2$[1],
+        _line2$2 = _slicedToArray(_line2[1], 2),
+        x4 = _line2$2[0],
+        y4 = _line2$2[1];
+
+    if (x2 - x1 == 0 && y2 - y1 == 0 || x4 - x3 == 0 && y4 - y3 == 0) {
+      return null; // One of the lines has zero length
+    }
+
+    var d = (y2 - y1) * (x4 - x3) - (x2 - x1) * (y4 - y3);
+
+    if (!d) {
+      return null;
+    } // Lines are parallel
+
+
+    var t = ((x2 - x1) * (y3 - y1) + (y2 - y1) * (x1 - x3)) / d;
+
+    if (t < 0 || t > 1) {
+      return null;
+    } // Intersection is out of line1
+
+
+    var px = x3 + t * (x4 - x3);
+    var py = y3 + t * (y4 - y3);
+    var s = x2 - x1 ? (px - x1) / (x2 - x1) : (py - y1) / (y2 - y1);
+
+    if (s < 0 || s > 1) {
+      return null;
+    } // Intersetion is out of line2
+
+
+    return [px, py];
+  } // Returns first intersection of polyline straight line
+
+
+  function dataIntersection(line, polyline, getPoint) {
+    for (var _i3 = 0; _i3 < polyline.length - 1; ++_i3) {
+      var pt = intersection(line, [getPoint(polyline[_i3]), getPoint(polyline[_i3 + 1])]);
+
+      if (pt) {
+        return pt;
+      }
+    }
+
+    return null;
+  }
+
+  return {
+    validateData: validateData,
+    interpolateArray: interpolateArray,
+    interpolatePoint: interpolatePoint,
+    intersection: intersection,
+    dataIntersection: dataIntersection
+  };
+});

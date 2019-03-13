@@ -69,10 +69,18 @@
     import store from "@windy/store";
 
     const loadData = (lat, lon) => {
+      const supportedModels = ["gfs", "ecmwf", "namConus"];
       // Support GFS or ECMWF otherwise
       // TODO: NAM model do not have `gh`, check other models
-      const model = store.get("product") == "gfs" ? "gfs" : "ecmwf";
-      document.getElementById("sounding-model").innerText = model;
+      let model = store.get("product");
+
+      console.log(`Trying to load ${model}`);
+
+      if (supportedModels.indexOf(model) == -1) {
+        console.log(`fallback to ecmwf`);
+        model = "ecmwf";
+      }
+      document.getElementById("sounding-model").innerText = model.toUpperCase();
 
       const dataOptions = {model, lat, lon};
 
@@ -80,6 +88,9 @@
         load("forecast", dataOptions),
         load("airData", dataOptions),
       ]).then(([forecast, airData]) => {
+        console.log("ad $ forecast");
+        console.log(airData);
+        console.log(forecast);
         graph.load(lat, lon, airData.data, forecast.data);
       });
     };

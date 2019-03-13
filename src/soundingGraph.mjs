@@ -388,13 +388,32 @@ function updateScales() {
 }
 
 // Return the value of the parameter `name` at `level` for the given `tsIndex`
-function GetParam(airData, name, level, tsIndex) {
-  if (name === "gh" && level == "surface") {
+function getParam(airData, name, levelName, tsIndex) {
+  const valueByTs = airData.data[`${name}-${levelName}`];
+  return Array.isArray(valueByTs) ? valueByTs[tsIndex] : null;
+}
+
+function getGh(airData, levelName, tsIndex, p) {
+
+  if (level === "surface") {
     // GFS has no modelElevation
     return airData.header.modelElevation || airData.header.elevation;
   }
 
-  return airData.data[`${name}-${level}`][tsIndex];
+  let value = getParam(airData, "gh", levelName, tsIndex);
+  if (value != null) {
+    return value;
+  }
+
+  // Approximate GH when not provided by the model
+  // z = t0 / L ((P/P0)^-L*R/g - 1)
+  const L = -6.5e-3;
+  const R = 287.053;
+  const g = 9.80665;
+  const t0 = 288.15;
+  const p0 = 1013.25;
+  const z = t0 / L * (Math.pow(p / p0, -L * R / g) - 1);
+  return Math.round(z);
 }
 
 // Handler for data request
@@ -404,8 +423,15 @@ const load = (lat, lon, airData, forecastData) => {
 
   // Create a lookup for forecast
   const forecastsByTs = {};
+  // TODO: nam ts do not match airData, get a default value
+  let firstForecast;
   for (let d in forecastData.data) {
-    forecastData.data[d].forEach(f => (forecastsByTs[f.origTs] = f));
+    forecastData.data[d].forEach(f => {
+      if (firstForecast == null) {
+        firstForecast = f;
+      }
+      forecastsByTs[f.origTs] = f;
+    });
   }
 
   // Re-arrange the airData
@@ -426,7 +452,7 @@ const load = (lat, lon, airData, forecastData) => {
   //    }, ...
   // }
   const timestamps = airData.data.hours;
-  const elevation = airData.header.elevation;
+  const elevation = airData.header.elevation || 0;
   // GFS has no model elevation
   const modelElevation = airData.header.modelElevation || elevation;
   const paramNames = new Set();
@@ -442,32 +468,31 @@ const load = (lat, lon, airData, forecastData) => {
   }
 
   // Filters the list of levels and add surface (-1).
-  const levels = [
-    -1,
-    ...Array.from(paramLevels)
+  const levels = Array.from(paramLevels)
       .filter(l => l > 300)
-      .sort((a, b) => (Number(a) < Number(b) ? 1 : -1)),
-  ];
+      .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
   const levelDataByTs = {};
   timestamps.forEach((ts, index) => {
     levelDataByTs[ts] = [];
+    // TODO: fix for nam
+    const forecast = forecastsByTs[ts] || firstForecast;
     levels.forEach(level => {
       let LevelName = level < 0 ? "surface" : `${level}h`;
-      const gh = GetParam(airData, "gh", LevelName, index);
+      // nam has not forecastsByTs
+      const pressure =
+        LevelName == "surface" ? sfcPressure : level;
+      const gh = getGh(airData, LevelName, index, pressure);
+
       if (gh >= modelElevation) {
         // Forecasts have the pressure in Pa - we want hPa.
-        const pressure =
-          level < 0 ? Math.round(forecastsByTs[ts].pressure / 100) : level;
-
         levelDataByTs[ts].push({
-          temp: GetParam(airData, "temp", LevelName, index),
-          dewpoint: GetParam(airData, "dewpoint", LevelName, index),
-          gh: GetParam(airData, "gh", LevelName, index),
-          wind_u: GetParam(airData, "wind_u", LevelName, index),
-          wind_v: GetParam(airData, "wind_v", LevelName, index),
-          pressure,
-          forecast: forecastsByTs[ts],
+          temp: getParam(airData, "temp", LevelName, index),
+          dewpoint: getParam(airData, "dewpoint", LevelName, index),
+          gh,
+          wind_u: getParam(airData, "wind_u", LevelName, index),
+          wind_v: getParam(airData, "wind_v", LevelName, index),
+          pressure
         });
       }
     });
