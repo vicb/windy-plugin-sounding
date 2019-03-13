@@ -223,9 +223,16 @@ const init = () => {
     );
   };
 
+  const wheelHandler = (e)=> {
+    const ts = store.get("timestamp");
+    const deltaTs = Math.sign(-event.deltaY) * 3600 * 1000;
+    store.set("timestamp", ts + deltaTs);
+    e.stopPropagation();
+  };
+
   Sounding = ({ data, elevation } = {}) => {
     return (
-      <svg id="sounding">
+      <svg id="sounding" onWheel={wheelHandler}>
         <defs>
           <clipPath id="clip-chart">
             <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
