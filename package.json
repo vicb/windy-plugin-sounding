@@ -3,6 +3,7 @@
   "version": "0.4.0",
   "description": "Soundings for paraglider pilots.",
   "main": "dist/plugin.js",
+  "files": ["src/**"],
   "scripts": {
     "start": "node ./compiler.js --build --watch --serve --transpile",
     "build": "node ./compiler.js --build --transpile",
@@ -13,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vicb/windy-plugins"
+    "url": "git+https://github.com/vicb/windy-plugin-sounding"
   },
   "author": "Victor Berchet",
   "license": "MIT",

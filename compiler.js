@@ -38,7 +38,6 @@ prog
     "Build plugin and watch file changes in required directory"
   )
   .option("-s, --serve", `Serve dist directory on port ${port}`)
-  .option("-p, --prompt", "Show command line promt with all the examples")
   .option("-t, --transpile", "Transpile your code with Babel")
   .parse(process.argv);
 
@@ -50,14 +49,12 @@ if (!process.argv.slice(2).length) {
 let config,
   srcDir = "src";
 
+const isDevMode = prog.watch;
+const outputJs = isDevMode ? "plugin-dev.js" : "plugin.js";
+
 // Main
 (async () => {
   console.log(`\nBuilding ${yellow(name)}, version ${yellow(version)}`);
-
-  // Beginners example selection
-  if (prog.prompt) {
-    srcDir = await utils.prompt();
-  }
 
   c.info(`Compiler will compile ${yellow(`./${srcDir}/plugin.html`)}`);
 
@@ -80,11 +77,11 @@ let config,
 
     // Tasks
     if (prog.watch || prog.build) {
-      await build();
+      await build(outputJs);
     }
 
     if (prog.serve) {
-      await startServer();
+      await startServer(outputJs);
     }
 
     if (prog.watch) {
@@ -96,7 +93,7 @@ let config,
   }
 })();
 
-function startServer() {
+function startServer(pluginJs) {
   return new Promise(resolve => {
     const httpsOptions = {
       // https://www.ibm.com/support/knowledgecenter/en/SSWHYP_4.0.0/com.ibm.apimgmt.cmc.doc/task_apionprem_gernerate_self_signed_openSSL.html
@@ -104,7 +101,9 @@ function startServer() {
       cert: fs.readFileSync(join(__dirname, "dev", "certificate.pem"), "utf8"),
     };
 
-    app.use(express.static("dist"));
+    app.get("/plugin.js", function(req, res) {
+      console.log(__dirname, "dist", pluginJs);      res.sendFile(join(__dirname, "dist", pluginJs));
+    });
 
     https.createServer(httpsOptions, app).listen(port, () => {
       c.success(`Your plugin is published at ${gray(
@@ -124,9 +123,8 @@ function startServer() {
 	The result must be a single .js file with single W.loadPlugin() function
 
 	Make sure to replace import XY from '@windy/XY' with W.require(XY)
-
 */
-async function build() {
+async function build(outputJs) {
   // Riot parser options
   const riotOpts = {
     entities: true,
@@ -194,13 +192,11 @@ async function build() {
   }
 
   // Save plugin to dest directory
-  const destination = join(__dirname, "dist", "plugin.js");
+  const destination = join(__dirname, "dist", outputJs);
 
   // Babel traspile
   if (prog.transpile) {
     c.info("Transpiling with babel");
-
-    const is_dev_mode = prog.watch;
 
     const options = {
       presets: [
@@ -209,7 +205,7 @@ async function build() {
       plugins: ["@babel/plugin-transform-react-jsx"],
     };
 
-    if (!is_dev_mode) {
+    if (!isDevMode) {
       options.comments = false;
       options.presets.push("minify");
     }
@@ -241,8 +237,7 @@ async function compileLess() {
   }
 
   const lessSrc = await fs.readFile(lessFile, "utf8");
-
-  let { css } = await less.render(lessSrc, lessOptions);
+  const { css } = await less.render(lessSrc, lessOptions);
 
   return css;
 }
@@ -261,8 +256,6 @@ function reloadConfig() {
 //
 const onChange = async fullPath => {
   c.info(`watch: File changed ${gray(fullPath)}`);
-
   reloadConfig();
-
-  await build();
+  await build(outputJs);
 };
