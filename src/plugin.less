@@ -1,20 +1,20 @@
 @import "dev/variables.less";
 
 #windy-plugin-sounding {
+  background-color: @backgroundWhite;
   font-size: 12px;
-  padding: 0.5em 0.7em;
+  padding: 1em 1em;
   line-height: 2;
   z-index: 100;
 
   @h: 650px;
-
   width: 600px;
   height: @h;
 
-  margin-left: -10px;
-
-  h3 {
+  .title {
     margin: 0 0 0.3em 0.6em;
+    color: @grayFont;
+    font-size: 16px;
   }
 
   .closing-x {

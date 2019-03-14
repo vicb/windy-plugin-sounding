@@ -1,15 +1,11 @@
 <sounding>
-  <h3>Sounding forecast <span id="sounding-model"></span></h3>
+  <div class="title">Sounding forecast <span id="sounding-model"></span></div>
   <div id="sounding-chart"></div>
 
   <script>
-    // Windy's core modules
-    import rs from "@windy/rootScope";
     import map from "@windy/map";
     import pluginDataLoader from "@windy/pluginDataLoader";
     import store from "@windy/store";
-
-    // Our own modules
     import graph from "./soundingGraph.mjs";
 
     const options = {
@@ -24,7 +20,8 @@
 
     // Called when opened
     this.onopen = latLonObject => {
-      let lat, lon;
+      let lat;
+      let lon;
 
       // Opening from other location than contextmenu
       if (!latLonObject) {
@@ -36,18 +33,7 @@
         lon = latLonObject.lon;
       }
 
-      const leafletCoords = { lng: lon, lat },
-        { x, y } = map.latLngToLayerPoint(leafletCoords);
-
-      if (!rs.isMobile) {
-        this.node.style.position = "absolute";
-        this.node.style.left = `${x - 15}px`;
-        this.node.style.top = `${y + 15}px`;
-      } else {
-        let height = this.node.clientHeight;
-
-        map.center({ lat, lon }, false).panBy([0, -0.5 * height + 50]);
-      }
+      const leafletCoords = { lng: lon, lat };
 
       if (marker) {
         marker.setLatLng(leafletCoords);
