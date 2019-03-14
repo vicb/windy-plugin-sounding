@@ -35,7 +35,6 @@ let currentData = [];
 
 const convertTemp = overlays.temp.convertNumber;
 const convertWind = overlays.wind.convertNumber;
-const convertPressure = overlays.pressure.convertNumber;
 
 // Custom conversion of altitude
 // Can not use convertNumber, because it rounds altitude to 100m
@@ -192,7 +191,7 @@ const init = () => {
             fill="none"
           >
             <line y2="-30" />
-            <polyline points="-5,-10 0,0 5,-10" stroke-linejoin="round" />
+            <path d="M-4,-8L0,0L4,-8" stroke-linejoin="round" />
           </g>
         ) : (
           <g transform={`translate(0,${y})`} stroke="black" fill="none">
@@ -214,16 +213,16 @@ const init = () => {
     }
     return (
       <rect
+        class="surface"
+        x="10"
         y={yPx}
-        width={chartWidth + 30 + chartWindWidth}
+        width={chartWidth + 20 + chartWindWidth}
         height={chartHeight - yPx}
-        fill="brown"
-        opacity="0.2"
       />
     );
   };
 
-  const wheelHandler = (e)=> {
+  const wheelHandler = e => {
     const ts = store.get("timestamp");
     const deltaTs = Math.sign(-event.deltaY) * 3600 * 1000;
     store.set("timestamp", ts + deltaTs);
@@ -272,15 +271,7 @@ const init = () => {
                   opacity="0.1"
                 />
                 <g class="chartArea" clip-path="url(#clip-chart)">
-                  <path
-                    class="temperature chart"
-                    fill="none"
-                    stroke="purple"
-                    stroke-linejoin="round"
-                    stroke-linecap="round"
-                    stroke-width="1.5"
-                    d={windLine(data)}
-                  />
+                  <path class="infoline wind" d={windLine(data)} />
                   <g transform={`translate(${chartWindWidth / 2},0)`}>
                     {data.map(d => (
                       <WindArrow
@@ -306,32 +297,15 @@ const init = () => {
                   ref={g => d3.select(g).call(yAxis)}
                 />
               </g>
-              <g
-                class="chartArea"
-                clip-path="url(#clip-chart)"
-                stroke-linejoin="round"
-                stroke-linecap="round"
-              >
+              <g class="chartArea" clip-path="url(#clip-chart)">
                 <rect
                   class="overlay"
                   width={chartWidth}
                   height={chartHeight}
                   opacity="0"
                 />
-                <path
-                  class="temperature chart"
-                  fill="none"
-                  stroke="red"
-                  stroke-width="1.5"
-                  d={tempLine(data)}
-                />
-                <path
-                  class="dewpoint chart"
-                  fill="none"
-                  stroke="steelblue"
-                  stroke-width="1.5"
-                  d={dewPointLine(data)}
-                />
+                <path class="infoline temperature" d={tempLine(data)} />
+                <path class="infoline dewpoint" d={dewPointLine(data)} />
                 {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
                   <IsoTemp temp={t} />
                 ))}

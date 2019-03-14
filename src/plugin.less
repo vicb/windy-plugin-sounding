@@ -21,34 +21,6 @@
     display: block;
   }
 
-  section {
-    margin-left: 10px;
-    line-height: 1.5;
-
-    span:not(:first-child) {
-      margin-left: 1em;
-    }
-    &:first-of-type {
-      color: black;
-    }
-    &:last-of-type {
-      font-size: 0.9em;
-    }
-    [data-ref="modelAlt"] {
-      &.red {
-        color: red;
-      }
-    }
-  }
-
-  [data-ref="zoom"] {
-    position: absolute;
-    right: 20px;
-    bottom: 15px;
-    font-size: 25px;
-    color: @myred;
-  }
-
   .mobile(
     {display: block; left: 0; top: 0; right: 0; width: ~"calc(100% - 20px)" ;
       margin: 10px;}
@@ -70,19 +42,33 @@
   #sounding-chart {
     height: @h - 50px;
     position: relative;
+
     svg {
       width: 100%;
       height: 100%;
     }
 
-    .infoLine .dewpoint {
-      fill: steelblue;
+    .infoline {
+      stroke-width: 1.5;
+      fill: none;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+
+      &.dewpoint {
+        stroke: steelblue;
+      }
+      &.temperature {
+        stroke: red;
+      }
+      &.wind {
+        stroke: purple;
+      }
     }
-    .infoLine .temp {
-      fill: red;
+
+    .surface {
+      fill: brown;
+      opacity: 0.2;
     }
-    .zoomButton {
-      cursor: pointer;
-    }
+
   }
 }
