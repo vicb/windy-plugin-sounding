@@ -54,7 +54,7 @@ const outputJs = isDevMode ? "plugin-dev.js" : "plugin.js";
 
 // Main
 (async () => {
-  console.log(`\nBuilding ${yellow(name)}, version ${yellow(version)}`);
+  c.info(`\nBuilding ${yellow(name)}, version ${yellow(version)}`);
 
   c.info(`Compiler will compile ${yellow(`./${srcDir}/plugin.html`)}`);
 
@@ -85,7 +85,7 @@ const outputJs = isDevMode ? "plugin-dev.js" : "plugin.js";
     }
 
     if (prog.watch) {
-      c.start(`Staring watch on ${gray(srcDir)}...`);
+      c.start(`Starting watch on ${gray(srcDir)}...`);
       chokidar.watch([srcDir]).on("change", onChange);
     }
   } catch (e) {
@@ -102,7 +102,7 @@ function startServer(pluginJs) {
     };
 
     app.get("/plugin.js", function(req, res) {
-      console.log(__dirname, "dist", pluginJs);      res.sendFile(join(__dirname, "dist", pluginJs));
+      res.sendFile(join(__dirname, "dist", pluginJs));
     });
 
     https.createServer(httpsOptions, app).listen(port, () => {

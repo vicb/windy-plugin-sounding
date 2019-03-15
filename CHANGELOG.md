@@ -12,9 +12,10 @@
 
 [ ] listen to metricChanged
 
-## next
+## 0.4.2 - March 12 2019
 
 - Fix the color of labels.
+- Fix left pane styles.
 
 ## 0.4.1 - March 12 2019
 

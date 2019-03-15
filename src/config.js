@@ -6,5 +6,5 @@ module.exports = {
     "https://cdn.jsdelivr.net/npm/preact@8/dist/preact.min.js",
   ],
   className: "plugin-lhpane plugin-mobile-fullscreen",
-  exclusive: "all",
+  exclusive: "lhpane",
 };
