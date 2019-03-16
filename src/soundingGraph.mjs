@@ -1,4 +1,5 @@
 import overlays from "@windy/overlays";
+import broadcast from "@windy/broadcast";
 import store from "@windy/store";
 import $ from "@windy/$";
 import _ from "@windy/utils";
@@ -7,7 +8,7 @@ import sUtils from "./soundingUtils.mjs";
 const containerEl = $("#sounding-chart");
 const chartWindWidth = 100;
 const chartWidth = containerEl.clientWidth - 100 - 20 - 15;
-const chartHeight = containerEl.clientHeight - 20;
+const chartHeight = /*containerEl.clientHeight*/ 600 - 20;
 
 /** @jsx h */
 const { h, render } = preact;
@@ -222,6 +223,24 @@ const init = () => {
     );
   };
 
+  const flyTo = location => {
+    broadcast.emit("rqstOpen", "windy-plugin-sounding", location);
+  };
+
+  const Favorites = ({ places }) => {
+    if (places.length == 0) {
+      return null;
+    }
+
+    return (
+      <ul>
+        {places.map(f => (
+          <li onClick={_ => flyTo(f)}>{f.title || f.name}</li>
+        ))}
+      </ul>
+    );
+  };
+
   const wheelHandler = e => {
     const ts = store.get("timestamp");
     const deltaTs = Math.sign(-event.deltaY) * 3600 * 1000;
@@ -231,106 +250,111 @@ const init = () => {
 
   Sounding = ({ data, elevation } = {}) => {
     return (
-      <svg id="sounding" onWheel={wheelHandler}>
-        <defs>
-          <clipPath id="clip-chart">
-            <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
-          </clipPath>
-        </defs>
-        {data ? (
-          <g>
-            <Surface elevation={elevation} />
-            <g class="wind">
-              <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
-                <g
-                  class="x axis"
-                  transform={`translate(0,${chartHeight})`}
-                  ref={g => d3.select(g).call(xWindAxis)}
-                />
-                <line
-                  y1={chartHeight}
-                  y2="0"
-                  stroke="black"
-                  stroke-width="0.2"
-                  stroke-dasharray="3"
-                />
-                <line
-                  y1={chartHeight}
-                  x1={xWindScale(15 / 3.6)}
-                  y2="0"
-                  x2={xWindScale(15 / 3.6)}
-                  stroke="black"
-                  stroke-width="0.2"
-                  stroke-dasharray="3"
-                />
-                <rect
-                  x={chartWindWidth / 2}
-                  width={chartWindWidth / 2}
-                  height={chartHeight}
-                  fill="red"
-                  opacity="0.1"
-                />
-                <g class="chartArea" clip-path="url(#clip-chart)">
-                  <path class="infoline wind" d={windLine(data)} />
-                  <g transform={`translate(${chartWindWidth / 2},0)`}>
-                    {data.map(d => (
-                      <WindArrow
-                        wind_u={d.wind_u}
-                        wind_v={d.wind_v}
-                        y={yScale(d.pressure)}
-                      />
-                    ))}
+      <div>
+        <svg id="sounding" onWheel={wheelHandler}>
+          <defs>
+            <clipPath id="clip-chart">
+              <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
+            </clipPath>
+          </defs>
+          {data ? (
+            <g>
+              <Surface elevation={elevation} />
+              <g class="wind">
+                <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
+                  <g
+                    class="x axis"
+                    transform={`translate(0,${chartHeight})`}
+                    ref={g => d3.select(g).call(xWindAxis)}
+                  />
+                  <line
+                    y1={chartHeight}
+                    y2="0"
+                    stroke="black"
+                    stroke-width="0.2"
+                    stroke-dasharray="3"
+                  />
+                  <line
+                    y1={chartHeight}
+                    x1={xWindScale(15 / 3.6)}
+                    y2="0"
+                    x2={xWindScale(15 / 3.6)}
+                    stroke="black"
+                    stroke-width="0.2"
+                    stroke-dasharray="3"
+                  />
+                  <rect
+                    x={chartWindWidth / 2}
+                    width={chartWindWidth / 2}
+                    height={chartHeight}
+                    fill="red"
+                    opacity="0.1"
+                  />
+                  <g class="chartArea" clip-path="url(#clip-chart)">
+                    <path class="infoline wind" d={windLine(data)} />
+                    <g transform={`translate(${chartWindWidth / 2},0)`}>
+                      {data.map(d => (
+                        <WindArrow
+                          wind_u={d.wind_u}
+                          wind_v={d.wind_v}
+                          y={yScale(d.pressure)}
+                        />
+                      ))}
+                    </g>
                   </g>
                 </g>
               </g>
-            </g>
-            <g class="chart" transform="translate(10,0)">
-              <g class="axis">
-                <g
-                  class="x axis"
-                  transform={`translate(0,${chartHeight})`}
-                  ref={g => d3.select(g).call(xAxis)}
-                />
-                <g
-                  class="y axis"
-                  y={chartHeight + 16}
-                  ref={g => d3.select(g).call(yAxis)}
-                />
+              <g class="chart" transform="translate(10,0)">
+                <g class="axis">
+                  <g
+                    class="x axis"
+                    transform={`translate(0,${chartHeight})`}
+                    ref={g => d3.select(g).call(xAxis)}
+                  />
+                  <g
+                    class="y axis"
+                    y={chartHeight + 16}
+                    ref={g => d3.select(g).call(yAxis)}
+                  />
+                </g>
+                <g class="chartArea" clip-path="url(#clip-chart)">
+                  <rect
+                    class="overlay"
+                    width={chartWidth}
+                    height={chartHeight}
+                    opacity="0"
+                  />
+                  <path class="infoline temperature" d={tempLine(data)} />
+                  <path class="infoline dewpoint" d={dewPointLine(data)} />
+                  {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
+                    <IsoTemp temp={t} />
+                  ))}
+                  {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(
+                    t => (
+                      <DryAdiabatic temp={t} />
+                    )
+                  )}
+                  {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
+                    <MoistAdiabatic temp={t} />
+                  ))}
+                  {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(
+                    q => (
+                      <IsoHume q={q} />
+                    )
+                  )}
+                </g>
               </g>
-              <g class="chartArea" clip-path="url(#clip-chart)">
-                <rect
-                  class="overlay"
-                  width={chartWidth}
-                  height={chartHeight}
-                  opacity="0"
-                />
-                <path class="infoline temperature" d={tempLine(data)} />
-                <path class="infoline dewpoint" d={dewPointLine(data)} />
-                {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
-                  <IsoTemp temp={t} />
-                ))}
-                {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(
-                  t => (
-                    <DryAdiabatic temp={t} />
-                  )
-                )}
-                {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
-                  <MoistAdiabatic temp={t} />
-                ))}
-                {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(
-                  q => (
-                    <IsoHume q={q} />
-                  )
-                )}
-              </g>
             </g>
-          </g>
-        ) : (
-          <text x="50%" y="50%" text-anchor="middle">
-            No Data
-          </text>
-        )}
-      </svg>
+          ) : (
+            <text x="50%" y="50%" text-anchor="middle">
+              No Data
+            </text>
+          )}
+        </svg>
+        <section>
+          <Favorites places={sUtils.getFavorites()} />
+        </section>
+      </div>
     );
   };
 
@@ -468,9 +492,9 @@ const load = (lat, lon, airData) => {
   pointData.lon = lon;
   pointData.data = levelDataByTs;
   let elevation =
-    airData.header.elevation == null ? 0 : airData.header.elevation;
-  if (airData.header.modelElevation == null) {
-    elevation = airData.header.modelElevation;
+    airData.header.modelElevation == null ? 0 : airData.header.modelElevation;
+  if (airData.header.elevation != null) {
+    elevation = airData.header.elevation;
   }
   pointData.elevation = elevation;
 

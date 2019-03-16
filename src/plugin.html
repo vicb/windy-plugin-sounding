@@ -20,19 +20,25 @@
     let marker = null;
     let onProductChangeId;
 
-    // Called when opened
-    this.onopen = latLonObject => {
+    // Called when the plugin is opened
+    // - `{lat, lon}` when opened from the context menu,
+    // - `{lat, lon, name, ...}` when open from a favorite,
+    // - `undefined` when opened in dev mode on plugin reload.
+    this.onopen = location => {
       let lat;
       let lon;
 
       // Opening from other location than contextmenu
-      if (!latLonObject) {
+      if (!location) {
         const c = map.getCenter();
         lat = c.lat;
         lon = c.lng;
       } else {
-        lat = latLonObject.lat;
-        lon = latLonObject.lon;
+        lat = location.lat;
+        lon = location.lon;
+        if (location.name) {
+          map.panTo({ lng: lon, lat });
+        }
       }
 
       const leafletCoords = { lng: lon, lat };
