@@ -59,7 +59,7 @@ const init = () => {
 
   xAxis = d3.axisBottom(xAxisScale).ticks(5, "-d");
   yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
-  xWindAxis = d3.axisBottom(xWindAxisScale).ticks(4, "d");
+  xWindAxis = d3.axisBottom(xWindAxisScale).ticks(3, "d");
 
   tempLine = d3
     .line()
@@ -123,7 +123,7 @@ const init = () => {
   const DryAdiabatic = ({ temp }) => {
     const points = [];
     let t0 = temp + 273;
-    const p0 = yScale.domain()[0];
+    const p0 = 1000;
     const CP = 1.03e3;
     const RD = 287.0;
     const step = chartHeight / 15;
@@ -144,7 +144,7 @@ const init = () => {
   const MoistAdiabatic = ({ temp }) => {
     const points = [];
     let t0 = temp + 273;
-    const p0 = yScale.domain()[0];
+    const p0 = 1000;
     const CP = 1.03e3;
     const L = 2.5e6;
     const RD = 287.0;
@@ -228,22 +228,30 @@ const init = () => {
   };
 
   const Favorites = ({ places }) => {
-    if (places.length == 0) {
-      return null;
-    }
-
     return (
-      <ul>
-        {places.map(f => (
-          <li onClick={_ => flyTo(f)}>{f.title || f.name}</li>
-        ))}
-      </ul>
+      <div id="fly-to" class="size-s">
+        {places.length == 0 ? (
+          <span data-icon="m">Add favorites to enable fly to.</span>
+        ) : (
+          places.map(f => {
+            const selected = pointData.lat == f.lat && pointData.lon == f.lon;
+            return (
+              <span
+                class={`location${selected ? " selected" : ""}`}
+                onClick={_ => flyTo(f)}
+              >
+                {f.title || f.name}
+              </span>
+            );
+          })
+        )}
+      </div>
     );
   };
 
   const wheelHandler = e => {
     const ts = store.get("timestamp");
-    const deltaTs = Math.sign(-event.deltaY) * 3600 * 1000;
+    const deltaTs = Math.sign(-event.deltaY) * 3600 * 500;
     store.set("timestamp", ts + deltaTs);
     e.stopPropagation();
   };
@@ -351,9 +359,7 @@ const init = () => {
             </text>
           )}
         </svg>
-        <section>
-          <Favorites places={sUtils.getFavorites()} />
-        </section>
+        <Favorites places={sUtils.getFavorites()} />
       </div>
     );
   };

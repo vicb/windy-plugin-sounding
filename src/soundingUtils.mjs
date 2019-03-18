@@ -26,8 +26,9 @@ function getFavorites() {
   try {
     const favs = JSON.parse(localStorage.getItem("favs"));
     return Object.keys(favs).map(k => favs[k]);
-  } catch (e) {}
-  return [];
+  } catch (e) {
+    return [];
+  }
 }
 
 export default {
