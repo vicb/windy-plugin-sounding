@@ -250,10 +250,26 @@ const init = () => {
   };
 
   const wheelHandler = e => {
-    const ts = store.get("timestamp");
-    const deltaTs = Math.sign(-event.deltaY) * 3600 * 500;
-    store.set("timestamp", ts + deltaTs);
+    let ts = store.get("timestamp");
+    const direction = Math.sign(event.deltaY);
+
+    if (e.shiftKey || e.ctrlKey) {
+      const d = new Date(ts);
+      const h = d.getUTCHours();
+      const refTime = (13 - pointData.tzOffset + 24) % 24;
+      const dh = (refTime - h) * direction;
+      if (dh <= 0) {
+        ts += direction * (24 + dh) * 3600 * 1000;
+      } else {
+        ts += direction * dh * 3600 * 1000;
+      }
+    } else {
+      ts += direction * 3600 * 1000;
+    }
+
+    store.set("timestamp", ts);
     e.stopPropagation();
+    e.preventDefault();
   };
 
   Sounding = ({ data, elevation } = {}) => {
@@ -438,7 +454,7 @@ function getGh(airData, levelName, tsIndex, p) {
 }
 
 // Handler for data request
-const load = (lat, lon, airData) => {
+const load = (lat, lon, airData, forecast) => {
   // Re-arrange the airData
   // from
   // {
@@ -498,12 +514,15 @@ const load = (lat, lon, airData) => {
   pointData.lon = lon;
   pointData.data = levelDataByTs;
   let elevation =
-    airData.header.modelElevation == null ? 0 : airData.header.modelElevation;
+    forecast.header.elevation == null ? 0 : forecast.header.elevation;
+  if (airData.header.modelElevation != null) {
+    elevation = airData.header.modelElevation;
+  }
   if (airData.header.elevation != null) {
     elevation = airData.header.elevation;
   }
   pointData.elevation = elevation;
-
+  pointData.tzOffset = forecast.celestial.TZoffset;
   updateScales(pointData);
 
   redraw();
