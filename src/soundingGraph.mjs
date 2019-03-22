@@ -256,6 +256,8 @@ const init = () => {
     if (e.shiftKey || e.ctrlKey) {
       const d = new Date(ts);
       const h = d.getUTCHours();
+      d.setUTCMinutes(0);
+      ts = d.getTime();
       const refTime = (13 - pointData.tzOffset + 24) % 24;
       const dh = (refTime - h) * direction;
       if (dh <= 0) {
