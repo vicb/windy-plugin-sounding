@@ -20,6 +20,9 @@
     let marker = null;
     let onProductChangeId;
 
+    map.setZoom(8, { animate: false });
+    store.set("overlay", "clouds");
+
     // Called when the plugin is opened
     // - `{lat, lon}` when opened from the context menu,
     // - `{lat, lon, name, ...}` when open from a favorite,
@@ -36,10 +39,13 @@
       } else {
         lat = location.lat;
         lon = location.lon;
-        if (location.name) {
-          map.panTo({ lng: lon, lat });
-        }
       }
+
+      const bounds = map.getBounds();
+      const deltaLng = bounds.getEast() - bounds.getWest();
+      // TODO: 300 = left bar width / 2
+      const centerLon = lon - (deltaLng / map.getSize().x) * 300;
+      map.panTo({ lng: centerLon, lat });
 
       const leafletCoords = { lng: lon, lat };
 
