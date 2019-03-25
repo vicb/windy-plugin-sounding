@@ -22,16 +22,6 @@ function interpolatePoint(point1, point2, w) {
   return interp;
 }
 
-function getFavorites() {
-  try {
-    const favs = JSON.parse(localStorage.getItem("favs"));
-    return Object.keys(favs).map(k => favs[k]);
-  } catch (e) {
-    return [];
-  }
-}
-
 export default {
   interpolateArray,
-  getFavorites,
 };

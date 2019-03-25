@@ -1,5 +1,6 @@
 import overlays from "@windy/overlays";
 import broadcast from "@windy/broadcast";
+import favs from "@windy/favs";
 import store from "@windy/store";
 import $ from "@windy/$";
 import _ from "@windy/utils";
@@ -227,7 +228,8 @@ const init = () => {
     broadcast.emit("rqstOpen", "windy-plugin-sounding", location);
   };
 
-  const Favorites = ({ places }) => {
+  const Favorites = ({ favs }) => {
+    const places = Object.values(favs);
     return (
       <div id="fly-to" class="size-s">
         {places.length == 0 ? (
@@ -249,11 +251,13 @@ const init = () => {
     );
   };
 
+  let lastWheelMove = Date.now();
   const wheelHandler = e => {
     let ts = store.get("timestamp");
+    let debounceMs = 300;
     const direction = Math.sign(event.deltaY);
-
     if (e.shiftKey || e.ctrlKey) {
+      debounceMs = 800;
       const d = new Date(ts);
       const h = d.getUTCHours();
       d.setUTCMinutes(0);
@@ -269,7 +273,10 @@ const init = () => {
       ts += direction * 3600 * 1000;
     }
 
-    store.set("timestamp", ts);
+    if (Date.now() - lastWheelMove > debounceMs) {
+      store.set("timestamp", ts);
+      lastWheelMove = Date.now();
+    }
     e.stopPropagation();
     e.preventDefault();
   };
@@ -377,7 +384,7 @@ const init = () => {
             </text>
           )}
         </svg>
-        <Favorites places={sUtils.getFavorites()} />
+        <Favorites favs={favs.getAll()} />
       </div>
     );
   };
