@@ -15,7 +15,7 @@ const chartHeight = /*containerEl.clientHeight*/ 600 - 20;
 const { h, render } = preact;
 
 // Scale for chart
-let xScale, yScale, xWindScale;
+let xScale, yScale, xWindScale, canvasScale;
 let xAxisScale, xWindAxisScale, yAxisScale;
 let xAxis, xWindAxis, yAxis;
 
@@ -25,6 +25,8 @@ let tempLine, dewPointLine, windLine;
 
 let Sounding;
 let root;
+
+const upperLevel = 300;
 
 const pointData = {
   lat: 0,
@@ -40,8 +42,7 @@ const convertWind = overlays.wind.convertNumber;
 
 // Custom conversion of altitude
 // Can not use convertNumber, because it rounds altitude to 100m
-const convertAlt = value =>
-  Math.round(overlays.cloudtop.metric === "ft" ? value * 3.28084 : value);
+const convertAlt = value => Math.round(overlays.cloudtop.metric === "ft" ? value * 3.28084 : value);
 
 const init = () => {
   if (xScale) {
@@ -84,14 +85,7 @@ const init = () => {
     const x1 = xScale(temp + 273);
     const y2 = chartHeight - (chartWidth - x1) / skew;
     return (
-      <line
-        x1={x1}
-        y1={chartHeight}
-        x2={chartWidth}
-        y2={y2}
-        stroke="darkred"
-        stroke-width="0.2"
-      />
+      <line x1={x1} y1={chartHeight} x2={chartWidth} y2={y2} stroke="darkred" stroke-width="0.2" />
     );
   };
 
@@ -102,8 +96,7 @@ const init = () => {
       const p = yScale.invert(y);
       const es = (p * q) / (q + 622.0);
       const logthing = Math.pow(Math.log(es / 6.11), -1.0);
-      const t =
-        273 + Math.pow((17.269 / 237.3) * (logthing - 1.0 / 17.269), -1.0);
+      const t = 273 + Math.pow((17.269 / 237.3) * (logthing - 1.0 / 17.269), -1.0);
       points.push({ t, p });
     }
     const ad = d3
@@ -111,13 +104,7 @@ const init = () => {
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
     return (
-      <path
-        fill="none"
-        stroke="blue"
-        stroke-width="0.3"
-        stroke-dasharray="2"
-        d={ad(points)}
-      />
+      <path fill="none" stroke="blue" stroke-width="0.3" stroke-dasharray="2" d={ad(points)} />
     );
   };
 
@@ -137,9 +124,7 @@ const init = () => {
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
-    return (
-      <path fill="none" stroke="green" stroke-width="0.3" d={ad(points)} />
-    );
+    return <path fill="none" stroke="green" stroke-width="0.3" d={ad(points)} />;
   };
 
   const MoistAdiabatic = ({ temp }) => {
@@ -172,13 +157,7 @@ const init = () => {
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
     return (
-      <path
-        fill="none"
-        stroke="green"
-        stroke-width="0.3"
-        stroke-dasharray="3 5"
-        d={ad(points)}
-      />
+      <path fill="none" stroke="green" stroke-width="0.3" stroke-dasharray="3 5" d={ad(points)} />
     );
   };
 
@@ -187,11 +166,7 @@ const init = () => {
     return (
       <g>
         {w.wind > 1 ? (
-          <g
-            transform={`translate(0,${y}) rotate(${w.dir})`}
-            stroke="black"
-            fill="none"
-          >
+          <g transform={`translate(0,${y}) rotate(${w.dir})`} stroke="black" fill="none">
             <line y2="-30" />
             <path d="M-4,-8L0,0L4,-8" stroke-linejoin="round" />
           </g>
@@ -224,6 +199,62 @@ const init = () => {
     );
   };
 
+  const Cloud = ({ y, height, width, cover }) => {
+    return (
+      <rect {...{ y, height, width }} x="0" fill={`rgba(${cover}, ${cover}, ${cover}, 0.8)`} />
+    );
+  };
+
+  const Clouds = () => {
+    const ts = store.get("timestamp");
+    const canvas = pointData.mgCanvas;
+    const w = canvas.width;
+    const height = canvas.height;
+    const x = Math.round(((w - 1) / (pointData.maxTs - pointData.minTs)) * (ts - pointData.minTs));
+    const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
+    const maxY = Math.round(yAxisScale(pointData.elevation));
+
+    const cloudCoverAtChartY = y => {
+      const p = yScale.invert(y);
+      const canvasY = Math.round(canvasScale(p));
+      return data[4 * canvasY];
+    };
+
+    const rects = [];
+
+    // Compress upper clouds to y pixels
+    let y = 30;
+    const upperBottomCanvas = Math.round(canvasScale(yScale.invert(y)));
+    let maxCover = 255;
+    let hasUpperCover = false;
+    for (let cy = 0; cy < upperBottomCanvas; cy++) {
+      const cover = data[4 * cy];
+      if (cover > 0) {
+        hasUpperCover = true;
+        maxCover = Math.min(cover, maxCover);
+      }
+    }
+    if (hasUpperCover) {
+      rects.push(<Cloud y="0" width={chartWidth} height="30" cover={maxCover} />);
+    }
+
+    // Then respect the y scale
+    while (y < maxY) {
+      const startY = y;
+      const cover = cloudCoverAtChartY(y);
+      let height = 1;
+      while (y++ < maxY && cloudCoverAtChartY(y) == cover) {
+        height++;
+      }
+      if (cover == 0) {
+        continue;
+      }
+      rects.push(<Cloud y={startY} width="100" height={height} cover={cover} />);
+    }
+
+    return <g children={rects} />;
+  };
+
   const flyTo = location => {
     broadcast.emit("rqstOpen", "windy-plugin-sounding", location);
   };
@@ -238,10 +269,7 @@ const init = () => {
           places.map(f => {
             const selected = pointData.lat == f.lat && pointData.lon == f.lon;
             return (
-              <span
-                class={`location${selected ? " selected" : ""}`}
-                onClick={_ => flyTo(f)}
-              >
+              <span class={`location${selected ? " selected" : ""}`} onClick={_ => flyTo(f)}>
                 {f.title || f.name}
               </span>
             );
@@ -254,7 +282,7 @@ const init = () => {
   let lastWheelMove = Date.now();
   const wheelHandler = e => {
     let ts = store.get("timestamp");
-    let debounceMs = 300;
+    let debounceMs = 100;
     const direction = Math.sign(event.deltaY);
     if (e.shiftKey || e.ctrlKey) {
       debounceMs = 800;
@@ -327,54 +355,38 @@ const init = () => {
                     <path class="infoline wind" d={windLine(data)} />
                     <g transform={`translate(${chartWindWidth / 2},0)`}>
                       {data.map(d => (
-                        <WindArrow
-                          wind_u={d.wind_u}
-                          wind_v={d.wind_v}
-                          y={yScale(d.pressure)}
-                        />
+                        <WindArrow wind_u={d.wind_u} wind_v={d.wind_v} y={yScale(d.pressure)} />
                       ))}
                     </g>
                   </g>
                 </g>
               </g>
               <g class="chart" transform="translate(10,0)">
+                <Clouds />
                 <g class="axis">
                   <g
                     class="x axis"
                     transform={`translate(0,${chartHeight})`}
                     ref={g => d3.select(g).call(xAxis)}
                   />
-                  <g
-                    class="y axis"
-                    y={chartHeight + 16}
-                    ref={g => d3.select(g).call(yAxis)}
-                  />
+                  <g class="y axis" y={chartHeight + 16} ref={g => d3.select(g).call(yAxis)} />
                 </g>
                 <g class="chartArea" clip-path="url(#clip-chart)">
-                  <rect
-                    class="overlay"
-                    width={chartWidth}
-                    height={chartHeight}
-                    opacity="0"
-                  />
+                  <rect class="overlay" width={chartWidth} height={chartHeight} opacity="0" />
                   <path class="infoline temperature" d={tempLine(data)} />
                   <path class="infoline dewpoint" d={dewPointLine(data)} />
                   {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
                     <IsoTemp temp={t} />
                   ))}
-                  {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(
-                    t => (
-                      <DryAdiabatic temp={t} />
-                    )
-                  )}
+                  {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(t => (
+                    <DryAdiabatic temp={t} />
+                  ))}
                   {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
                     <MoistAdiabatic temp={t} />
                   ))}
-                  {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(
-                    q => (
-                      <IsoHume q={q} />
-                    )
-                  )}
+                  {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(q => (
+                    <IsoHume q={q} />
+                  ))}
                 </g>
               </g>
             </g>
@@ -395,7 +407,7 @@ const init = () => {
 };
 
 // Compute the min and max temp and pressure over the forecast range
-function updateScales() {
+function updateScales(hrAlt) {
   let minTemp = Number.MAX_VALUE;
   let maxTemp = Number.MIN_VALUE;
   let minGh = Number.MAX_VALUE;
@@ -437,6 +449,13 @@ function updateScales() {
 
   yScale.domain([maxPressure, minPressure]);
   yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
+
+  const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
+  const levelsH = hrAlt.map(p => pointData.mgCanvas.height * (1 - p / 100));
+  canvasScale = d3
+    .scaleLinear()
+    .range(levelsH)
+    .domain(levels);
 }
 
 // Return the value of the parameter `name` at `level` for the given `tsIndex`
@@ -463,7 +482,7 @@ function getGh(airData, levelName, tsIndex, p) {
 }
 
 // Handler for data request
-const load = (lat, lon, airData, forecast) => {
+const load = (lat, lon, airData, forecast, meteogram) => {
   // Re-arrange the airData
   // from
   // {
@@ -497,7 +516,7 @@ const load = (lat, lon, airData, forecast) => {
 
   // Filters the list of levels and add surface (-1).
   const levels = Array.from(paramLevels)
-    .filter(l => l > 300)
+    .filter(l => l > upperLevel)
     .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
   const levelDataByTs = {};
@@ -519,20 +538,36 @@ const load = (lat, lon, airData, forecast) => {
     });
   });
 
+  // Draw the clouds
+  const canvas = document.createElement("canvas");
+  const numData = airData.data.hours.length;
+  // 300px whatever the pixel density
+  const height = 300 / meteogram.canvasRatio;
+  meteogram
+    .init(canvas, numData, 6, height)
+    .setHeight(height)
+    .setOffset(0)
+    .render(airData)
+    .resetCanvas();
+
   pointData.lat = lat;
   pointData.lon = lon;
   pointData.data = levelDataByTs;
-  let elevation =
-    forecast.header.elevation == null ? 0 : forecast.header.elevation;
-  if (airData.header.modelElevation != null) {
-    elevation = airData.header.modelElevation;
-  }
+  pointData.mgCanvas = canvas;
+  pointData.minTs = airData.data.hours[0];
+  pointData.maxTs = airData.data.hours[airData.data.hours.length - 1];
+  let elevation = forecast.header.elevation == null ? 0 : forecast.header.elevation;
   if (airData.header.elevation != null) {
     elevation = airData.header.elevation;
   }
+  if (airData.header.modelElevation != null) {
+    elevation = airData.header.modelElevation;
+  }
   pointData.elevation = elevation;
   pointData.tzOffset = forecast.celestial.TZoffset;
-  updateScales(pointData);
+
+  // Update the scales
+  updateScales(meteogram.hrAlt);
 
   redraw();
 };
@@ -569,11 +604,7 @@ const redraw = () => {
   }
 
   root = render(
-    <Sounding
-      data={currentData}
-      elevation={pointData.elevation}
-      display="block"
-    />,
+    <Sounding data={currentData} elevation={pointData.elevation} display="block" />,
     containerEl,
     root
   );
