@@ -8,7 +8,6 @@
     import map from "@windy/map";
     import pluginDataLoader from "@windy/pluginDataLoader";
     import store from "@windy/store";
-    import Class from "@windy/Class";
     import graph from "./soundingGraph.mjs";
 
     const options = {
@@ -70,7 +69,7 @@
         }).addTo(map);
       }
 
-      graph.init();
+      graph.init(lat, lon);
 
       loadData(lat, lon);
 
@@ -84,7 +83,7 @@
     };
 
     const loadData = (lat, lon) => {
-      const supportedModels = /gfs|ecmwf|nam\w+/;
+      const supportedModels = /gfs|ecmwf|nam\w+|iconEu/;
       let model = store.get("product");
       if (!supportedModels.test(model)) {
         // fallback to ecmwf if the model is not supported
@@ -97,7 +96,7 @@
 
       Promise.all([load("airData", dataOptions), load("forecast", dataOptions), meteogram]).then(
         ([airData, forecast, meteogram]) => {
-          graph.load(lat, lon, airData.data, forecast.data, meteogram);
+          graph.load(airData.data, forecast.data, meteogram);
         }
       );
     };

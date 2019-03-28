@@ -3,7 +3,7 @@ import broadcast from "@windy/broadcast";
 import favs from "@windy/favs";
 import store from "@windy/store";
 import $ from "@windy/$";
-import _ from "@windy/utils";
+import utils from "@windy/utils";
 import sUtils from "./soundingUtils.mjs";
 
 const containerEl = $("#sounding-chart");
@@ -44,8 +44,13 @@ const convertWind = overlays.wind.convertNumber;
 // Can not use convertNumber, because it rounds altitude to 100m
 const convertAlt = value => Math.round(overlays.cloudtop.metric === "ft" ? value * 3.28084 : value);
 
-const init = () => {
+const init = (lat, lon) => {
+  pointData.lat = lat;
+  pointData.lon = lon;
+  pointData.data = null;
+
   if (xScale) {
+    redraw();
     return;
   }
 
@@ -75,7 +80,7 @@ const init = () => {
 
   windLine = d3
     .line()
-    .x(d => xWindScale(_.wind2obj([d.wind_u, d.wind_v]).wind))
+    .x(d => xWindScale(utils.wind2obj([d.wind_u, d.wind_v]).wind))
     .y(d => yScale(d.pressure));
 
   const IsoTemp = ({ temp }) => {
@@ -162,7 +167,7 @@ const init = () => {
   };
 
   const WindArrow = ({ wind_u, wind_v, y }) => {
-    const w = _.wind2obj([wind_u, wind_v]);
+    const w = utils.wind2obj([wind_u, wind_v]);
     return (
       <g>
         {w.wind > 1 ? (
@@ -256,20 +261,24 @@ const init = () => {
   };
 
   const flyTo = location => {
+    init(location.lat, location.lon);
     broadcast.emit("rqstOpen", "windy-plugin-sounding", location);
   };
 
   const Favorites = ({ favs }) => {
     const places = Object.values(favs);
+    const currentLoc = utils.latLon2str(pointData);
     return (
       <div id="fly-to" class="size-s">
         {places.length == 0 ? (
           <span data-icon="m">Add favorites to enable fly to.</span>
         ) : (
           places.map(f => {
-            const selected = pointData.lat == f.lat && pointData.lon == f.lon;
             return (
-              <span class={`location${selected ? " selected" : ""}`} onClick={_ => flyTo(f)}>
+              <span
+                class={`location + ${utils.latLon2str(f) == currentLoc ? " selected" : ""}`}
+                onClick={_ => flyTo(f)}
+              >
                 {f.title || f.name}
               </span>
             );
@@ -430,7 +439,7 @@ function updateScales(hrAlt) {
       // pt.dewpoint <= pt.temp
       minTemp = Math.min(minTemp, d.dewpoint);
       maxTemp = Math.max(maxTemp, d.temp);
-      const wind = _.wind2obj([d.wind_u, d.wind_v]).wind;
+      const wind = utils.wind2obj([d.wind_u, d.wind_v]).wind;
       maxWind = Math.max(maxWind, wind);
     });
   }
@@ -482,7 +491,7 @@ function getGh(airData, levelName, tsIndex, p) {
 }
 
 // Handler for data request
-const load = (lat, lon, airData, forecast, meteogram) => {
+const load = (airData, forecast, meteogram) => {
   // Re-arrange the airData
   // from
   // {
@@ -550,8 +559,6 @@ const load = (lat, lon, airData, forecast, meteogram) => {
     .render(airData)
     .resetCanvas();
 
-  pointData.lat = lat;
-  pointData.lon = lon;
   pointData.data = levelDataByTs;
   pointData.mgCanvas = canvas;
   pointData.minTs = airData.data.hours[0];
