@@ -1,8 +1,11 @@
 ## TODO
 
+[ ] Convective clouds
+[ ] Loading indicator when changing model / time
+[ ] Activate favorite when clicked (instead of after loading)
 [ ] Graph: better axis, labelled
+[ ] Cache data by location for 15mn {location: data1: {expires: } }}
 [ ] Split components
-[ ] Jump to favorites ?
 [ ] Remove the dependency on d3
 
 [ ] Multi-models ?
