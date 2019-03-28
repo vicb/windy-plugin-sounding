@@ -4,13 +4,15 @@
 [ ] Split components
 [ ] Jump to favorites ?
 [ ] Remove the dependency on d3
-[ ] Skew via SVG ?
-[ ] Always load emcwf to get gnd elevation / alternative source
 
 [ ] Multi-models ?
 [ ] Add support for more models (iconEu)
 
 [ ] listen to metricChanged
+
+## 0.5.0 - March 27 2019
+
+- Add cloud cover (data source = windy meteograms)
 
 ## 0.4.2 - March 12 2019
 
