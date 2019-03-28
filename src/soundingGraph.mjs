@@ -212,7 +212,7 @@ const init = () => {
     const height = canvas.height;
     const x = Math.round(((w - 1) / (pointData.maxTs - pointData.minTs)) * (ts - pointData.minTs));
     const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
-    const maxY = Math.round(yAxisScale(pointData.elevation));
+    const maxY = Math.min(chartHeight, Math.round(yAxisScale(pointData.elevation)));
 
     const cloudCoverAtChartY = y => {
       const p = yScale.invert(y);
@@ -451,7 +451,7 @@ function updateScales(hrAlt) {
   yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
 
   const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
-  const levelsH = hrAlt.map(p => pointData.mgCanvas.height * (1 - p / 100));
+  const levelsH = hrAlt.map(p => (pointData.mgCanvas.height - 1) * (1 - p / 100));
   canvasScale = d3
     .scaleLinear()
     .range(levelsH)
