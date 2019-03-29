@@ -8,6 +8,7 @@
     import map from "@windy/map";
     import pluginDataLoader from "@windy/pluginDataLoader";
     import store from "@windy/store";
+    import plugins from "@windy/plugins";
     import graph from "./soundingGraph.mjs";
 
     const options = {
@@ -20,16 +21,14 @@
     let marker = null;
     let onProductChangeId;
 
-    const meteogram = W.require("plugins")
-      .detail.load()
-      .then(() => {
-        W.define("sMeteogram", ["meteogram", "Class"], function(m, c) {
-          return c.extend(m, {
-            legend: () => this,
-          });
+    const meteogram = plugins["detail-render"].load().then(() => {
+      W.define("sMeteogram", ["meteogram", "Class"], function(m, c) {
+        return c.extend(m, {
+          legend: () => this,
         });
-        return W.require("sMeteogram");
       });
+      return W.require("sMeteogram");
+    });
 
     map.setZoom(10, { animate: false });
     store.set("overlay", "clouds");
