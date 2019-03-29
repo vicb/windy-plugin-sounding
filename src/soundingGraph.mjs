@@ -5,6 +5,8 @@ import store from "@windy/store";
 import $ from "@windy/$";
 import utils from "@windy/utils";
 import sUtils from "./soundingUtils.mjs";
+import atm from "./atmosphere.mjs";
+import math from "./math.mjs";
 
 const containerEl = $("#sounding-chart");
 const chartWindWidth = 100;
@@ -94,76 +96,61 @@ const init = (lat, lon) => {
     );
   };
 
-  const IsoHume = ({ q }) => {
+  const IsoHume = ({ temp }) => {
     const points = [];
+    const mixingRatio = atm.mixingRatio(atm.saturationVaporPressure(temp + atm.celsiusToK), 1000);
     const step = chartHeight / 6;
     for (let y = chartHeight; y > -step; y -= step) {
       const p = yScale.invert(y);
-      const es = (p * q) / (q + 622.0);
-      const logthing = Math.pow(Math.log(es / 6.11), -1.0);
-      const t = 273 + Math.pow((17.269 / 237.3) * (logthing - 1.0 / 17.269), -1.0);
+      const t = atm.dewpoint(atm.vaporPressure(p, mixingRatio));
       points.push({ t, p });
     }
     const ad = d3
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
-    return (
-      <path fill="none" stroke="blue" stroke-width="0.3" stroke-dasharray="2" d={ad(points)} />
-    );
+    return <path class="isohume" d={ad(points)} />;
   };
 
   const DryAdiabatic = ({ temp }) => {
     const points = [];
-    let t0 = temp + 273;
+    const tK0 = temp + atm.celsiusToK;
     const p0 = 1000;
-    const CP = 1.03e3;
-    const RD = 287.0;
+
     const step = chartHeight / 15;
     for (let y = chartHeight; y > -step; y -= step) {
       const p = yScale.invert(y);
-      const t = t0 * Math.pow(p0 / p, -RD / CP);
+      const t = atm.dryLapse(p, tK0, p0);
+      points.push({ t, p });
+    }
+
+    const ad = d3
+      .line()
+      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
+      .y(d => yScale(d.p));
+
+    return <path class="dry" d={ad(points)} />;
+  };
+
+  const MoistAdiabatic = ({ temp }) => {
+    const points = [];
+    const tK0 = temp + atm.celsiusToK;
+    const p0 = 1000;
+
+    let t = tK0;
+    let previousP = p0;
+    const step = chartHeight / 15;
+    for (let y = chartHeight; y > -step; y -= step) {
+      const p = yScale.invert(y);
+      t = t + (p - previousP) * atm.moistGradientT(p, t);
+      previousP = p;
       points.push({ t, p });
     }
     const ad = d3
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
-    return <path fill="none" stroke="green" stroke-width="0.3" d={ad(points)} />;
-  };
-
-  const MoistAdiabatic = ({ temp }) => {
-    const points = [];
-    let t0 = temp + 273;
-    const p0 = 1000;
-    const CP = 1.03e3;
-    const L = 2.5e6;
-    const RD = 287.0;
-    const RV = 461.0;
-    const KELVIN = 273;
-
-    let t = t0;
-    let previousP = p0;
-    const step = chartHeight / 15;
-    for (let y = chartHeight; y > -step; y -= step) {
-      const pressure = yScale.invert(y);
-      const lsbc = (L / RV) * (1.0 / KELVIN - 1.0 / t);
-      const rw = 6.11 * Math.exp(lsbc) * (0.622 / pressure);
-      const lrwbt = (L * rw) / (RD * t);
-      const nume = ((RD * t) / (CP * pressure)) * (1.0 + lrwbt);
-      const deno = 1.0 + lrwbt * ((0.622 * L) / (CP * t));
-      const gradi = nume / deno;
-      t = t - gradi * (previousP - pressure);
-      previousP = pressure;
-      points.push({ t, p: pressure });
-    }
-    const ad = d3
-      .line()
-      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-      .y(d => yScale(d.p));
-    return (
-      <path fill="none" stroke="green" stroke-width="0.3" stroke-dasharray="3 5" d={ad(points)} />
-    );
+    return <path class="moist" d={ad(points)} />;
   };
 
   const WindArrow = ({ wind_u, wind_v, y }) => {
@@ -189,6 +176,7 @@ const init = (lat, lon) => {
     if (elevation == null) {
       return null;
     }
+    // TODO: `elevation` is in meter, yAxisScale might not
     const yPx = Math.round(yAxisScale(elevation));
     if (yPx >= chartHeight) {
       return null;
@@ -210,12 +198,29 @@ const init = (lat, lon) => {
     );
   };
 
+  // https://www.flaticon.com/authors/yannick
+  const Cumulus = ({ x, y }) => {
+    return (
+      <path
+        class="cumulus"
+        transform={`translate(${x - 32}, ${y - 32})`}
+        d="M27.586,14.212C26.66,11.751,24.284,10,21.5,10c-0.641,0-1.26,0.093-1.846,0.266
+		C18.068,7.705,15.233,6,12,6c-4.905,0-8.893,3.924-8.998,8.803C1.208,15.842,0,17.783,0,20c0,3.312,2.687,6,6,6h20
+		c3.312,0,6-2.693,6-6C32,17.234,30.13,14.907,27.586,14.212z M26.003,24H5.997C3.794,24,2,22.209,2,20
+		c0-1.893,1.318-3.482,3.086-3.896C5.03,15.745,5,15.376,5,15c0-3.866,3.134-7,7-7c3.162,0,5.834,2.097,6.702,4.975
+		C19.471,12.364,20.441,12,21.5,12c2.316,0,4.225,1.75,4.473,4h0.03C28.206,16,30,17.791,30,20C30,22.205,28.211,24,26.003,24z"
+      />
+    );
+  };
+
   const Clouds = () => {
     const ts = store.get("timestamp");
     const canvas = pointData.mgCanvas;
     const w = canvas.width;
     const height = canvas.height;
-    const x = Math.round(((w - 1) / (pointData.maxTs - pointData.minTs)) * (ts - pointData.minTs));
+    const minTs = pointData.hours[0];
+    const maxTs = pointData.hours[pointData.hours.length - 1];
+    const x = Math.round(((w - 1) / (maxTs - minTs)) * (ts - minTs));
     const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
     const maxY = Math.min(chartHeight, Math.round(yAxisScale(pointData.elevation)));
 
@@ -227,7 +232,7 @@ const init = (lat, lon) => {
 
     const rects = [];
 
-    // Compress upper clouds to y pixels
+    // Compress upper clouds to top pixels
     let y = 30;
     const upperBottomCanvas = Math.round(canvasScale(yScale.invert(y)));
     let maxCover = 255;
@@ -288,6 +293,116 @@ const init = (lat, lon) => {
     );
   };
 
+  const Parcel = ({ data }) => {
+    const temps = [];
+    const dewpoints = [];
+    const pressures = [];
+    data.forEach(d => {
+      temps.push(d.temp);
+      dewpoints.push(d.dewpoint);
+      pressures.push(d.pressure);
+    });
+    const sfcPressure = yScale.invert(yAxisScale(pointData.elevation));
+    const sfcTemp = 3 + math.sampleAt(pressures, temps, [sfcPressure])[0];
+    const sfcDewpoint = math.sampleAt(pressures, dewpoints, [sfcPressure])[0];
+
+    const pdTemps = [];
+    const pdDewpoints = [];
+    const pdPressures = [];
+    const pressureStep = 20;
+    const mixingRatio = atm.mixingRatio(atm.saturationVaporPressure(sfcDewpoint), sfcPressure);
+
+    for (let p = sfcPressure; p >= upperLevel; p -= pressureStep) {
+      pdPressures.push(p);
+      pdTemps.push(atm.dryLapse(p, sfcTemp, sfcPressure));
+      pdDewpoints.push(atm.dewpoint(atm.vaporPressure(p, mixingRatio)));
+    }
+
+    const moistIntersection = math.firstIntersection(
+      pdPressures,
+      pdTemps,
+      pdPressures,
+      pdDewpoints
+    );
+    const dryIntersection = math.firstIntersection(pdPressures, pdTemps, pressures, temps);
+
+    const line = d3
+      .line()
+      .y(d => yScale(d[1]))
+      .x(d => xScale(d[0]) + skew * (chartHeight - yScale(d[1])));
+
+    const children = [];
+
+    let thermalTop = dryIntersection;
+
+    if (moistIntersection && moistIntersection[0] > dryIntersection[0]) {
+      // Cumulus clouds
+      thermalTop = moistIntersection;
+      const pmPressures = [];
+      const pmTemps = [];
+      let t = moistIntersection[1];
+      for (let p = thermalTop[0]; p >= upperLevel; p -= pressureStep) {
+        pmPressures.push(p);
+        pmTemps.push(t);
+        t = t - pressureStep * atm.moistGradientT(p, t);
+      }
+
+      const isohumePoints = d3.zip(pdDewpoints, pdPressures).filter(pt => pt[1] > thermalTop[0]);
+      isohumePoints.push([moistIntersection[1], moistIntersection[0]]);
+      children.push(<path class="parcel isohume" d={line(isohumePoints)} />);
+
+      let cloudPoints = d3.zip(pmTemps, pmPressures);
+      const equilibrium = math.firstIntersection(pmPressures, pmTemps, pressures, temps);
+
+      let cloudTopPx = 0;
+      if (equilibrium) {
+        const cloudTop = equilibrium[0];
+        cloudTopPx = yScale(cloudTop);
+        children.push(
+          <line
+            stroke="gray"
+            stroke-width="1"
+            stroke-dasharray="3"
+            y1={cloudTopPx}
+            y2={cloudTopPx}
+            x2={chartWidth}
+          />
+        );
+        cloudPoints = cloudPoints.filter(pt => pt[1] >= cloudTop);
+        cloudPoints.push([equilibrium[1], equilibrium[0]]);
+      }
+
+      children.push(
+        <rect
+          x="0"
+          y={cloudTopPx}
+          height={yScale(thermalTop[0]) - cloudTopPx}
+          width={chartWidth}
+          fill="url(#diag-hatch)"
+        />
+      );
+      children.push(<Cumulus x={chartWidth} y={yScale(thermalTop[0])} />);
+      children.push(<path class="parcel moist" d={line(cloudPoints)} />);
+    }
+
+    const thermalTopPx = yScale(thermalTop[0]);
+    const dryPoints = d3.zip(pdTemps, pdPressures).filter(pt => pt[1] >= thermalTop[0]);
+    dryPoints.push([thermalTop[1], thermalTop[0]]);
+    children.push(
+      <line
+        stroke="gray"
+        stroke-width="1"
+        stroke-dasharray="3"
+        y1={thermalTopPx}
+        y2={thermalTopPx}
+        x2={chartWidth}
+      />
+    );
+    children.push(<path class="parcel dry" d={line(dryPoints)} />);
+
+    return <g children={children} />;
+  };
+
   let lastWheelMove = Date.now();
   const wheelHandler = e => {
     let ts = store.get("timestamp");
@@ -326,6 +441,15 @@ const init = (lat, lon) => {
             <clipPath id="clip-chart">
               <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
             </clipPath>
+            <pattern
+              id="diag-hatch"
+              patternUnits="userSpaceOnUse"
+              width="8"
+              height="8"
+              patternTransform="rotate(45 2 2)"
+            >
+              <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="0.5" />
+            </pattern>
           </defs>
           {data ? (
             <g>
@@ -384,6 +508,7 @@ const init = (lat, lon) => {
                   <rect class="overlay" width={chartWidth} height={chartHeight} opacity="0" />
                   <path class="infoline temperature" d={tempLine(data)} />
                   <path class="infoline dewpoint" d={dewPointLine(data)} />
+                  <Parcel data={data} />
                   {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
                     <IsoTemp temp={t} />
                   ))}
@@ -393,8 +518,8 @@ const init = (lat, lon) => {
                   {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
                     <MoistAdiabatic temp={t} />
                   ))}
-                  {[0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 8.0, 12.0, 16.0, 20.0].map(q => (
-                    <IsoHume q={q} />
+                  {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
+                    <IsoHume temp={t} />
                   ))}
                 </g>
               </g>
@@ -474,20 +599,8 @@ function getParam(airData, name, levelName, tsIndex) {
 }
 
 function getGh(airData, levelName, tsIndex, p) {
-  let value = getParam(airData, "gh", levelName, tsIndex);
-  if (value != null) {
-    return value;
-  }
-
-  // Approximate GH when not provided by the model
-  // z = t0 / L ((P/P0)^-L*R/g - 1)
-  const L = -6.5e-3;
-  const R = 287.053;
-  const g = 9.80665;
-  const t0 = 288.15;
-  const p0 = 1013.25;
-  const z = (t0 / L) * (Math.pow(p / p0, (-L * R) / g) - 1);
-  return Math.round(z);
+  const value = getParam(airData, "gh", levelName, tsIndex);
+  return value != null ? value : Math.round(atm.getElevation(p));
 }
 
 // Handler for data request
@@ -529,8 +642,10 @@ const load = (airData, forecast, meteogram) => {
     .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
   const levelDataByTs = {};
+  const sfcTempByTs = [];
   timestamps.forEach((ts, index) => {
     levelDataByTs[ts] = [];
+    sfcTempByTs.push(getParam(airData, "temp", "surface", index));
     levels.forEach(level => {
       let LevelName = `${level}h`;
       const gh = getGh(airData, LevelName, index, level);
@@ -561,8 +676,8 @@ const load = (airData, forecast, meteogram) => {
 
   pointData.data = levelDataByTs;
   pointData.mgCanvas = canvas;
-  pointData.minTs = airData.data.hours[0];
-  pointData.maxTs = airData.data.hours[airData.data.hours.length - 1];
+  pointData.hours = airData.data.hours;
+  pointData.sfcTempByTs = sfcTempByTs;
   let elevation = forecast.header.elevation == null ? 0 : forecast.header.elevation;
   if (airData.header.elevation != null) {
     elevation = airData.header.elevation;
@@ -582,31 +697,32 @@ const load = (airData, forecast, meteogram) => {
 // Update the sounding
 const redraw = () => {
   currentData = null;
+  pointData.sfcTemp = null;
   if (pointData.data) {
     const ts = store.get("timestamp");
 
-    // Find nearest hour
-    const hours = Object.getOwnPropertyNames(pointData.data).sort((a, b) =>
-      Number(a) < Number(b) ? -1 : 1
-    );
-
     let ts1, ts2;
+    const hours = pointData.hours;
     const idx = hours.findIndex(x => x >= ts);
 
+    let w = 0;
     if (idx > -1) {
       if (idx == 0) {
         ts1 = ts2 = hours[0];
       } else {
         ts1 = hours[idx - 1];
         ts2 = hours[idx];
+        w = (ts - ts1) / (ts2 - ts1);
       }
 
       // Interpolate between two nearest hours
-      currentData = sUtils.interpolateArray(
-        pointData.data[ts1],
-        pointData.data[ts2],
-        ts2 != ts1 ? (ts - ts1) / (ts2 - ts1) : 0
-      );
+      currentData = sUtils.interpolateArray(pointData.data[ts1], pointData.data[ts2], w);
+      // Surface temperature
+      const temp1 = pointData.sfcTempByTs[idx - 1];
+      if (temp1 != null) {
+        const temp2 = pointData.sfcTempByTs[idx];
+        pointData.sfcTemp = (1 - w) * temp1 + w * temp2;
+      }
     }
   }
 

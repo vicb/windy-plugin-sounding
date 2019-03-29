@@ -1,6 +1,6 @@
 ## TODO
 
-[ ] Convective clouds
+[ ] Make skew independent of graph dimensions & range
 [ ] Loading indicator when changing model / time
 [ ] Graph: better axis, labelled
 [ ] Cache data by location for 15mn {location: data1: {expires: } }}
@@ -11,6 +11,10 @@
 [ ] Add support for more models (iconEu)
 
 [ ] listen to metricChanged ?
+
+## 0.6.0 - April 4 2019
+
+- Add convective layer
 
 ## 0.5.0 - March 27 2019
 

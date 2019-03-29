@@ -53,8 +53,12 @@
       height: @chartHeight;
     }
 
+    .cumulus {
+      fill: #030104;
+    }
+
     .infoline {
-      stroke-width: 1.5;
+      stroke-width: 3;
       fill: none;
       stroke-linejoin: round;
       stroke-linecap: round;
@@ -68,6 +72,45 @@
       &.wind {
         stroke: purple;
       }
+      &.parcel {
+        stroke: darkorange;
+        stroke-width: 2;
+      }
+    }
+
+    .moist {
+      fill: none;
+      stroke: green;
+      stroke-width: 0.3;
+      stroke-dasharray: 4 6;
+    }
+    .dry {
+      fill: none;
+      stroke: green;
+      stroke-width: 0.3;
+    }
+    .isohume {
+      fill: none;
+      stroke: blue;
+      stroke-width: 0.3;
+      stroke-dasharray: 4 6;
+    }
+
+    .parcel {
+      stroke-width: 2;
+      stroke-dasharray: None;
+
+      &.moist {
+        stroke: rgb(119, 206, 6);
+      }
+      &.dry {
+        stroke: rgb(119, 206, 6);
+      }
+      &.isohume {
+        stroke: gray;
+        stroke-dasharray: 3;
+      }
+
     }
 
     .surface {
