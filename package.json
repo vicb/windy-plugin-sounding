@@ -1,9 +1,11 @@
 {
   "name": "windy-plugin-sounding",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Soundings for paraglider pilots.",
   "main": "dist/plugin.js",
-  "files": ["src/**"],
+  "files": [
+    "src/**"
+  ],
   "scripts": {
     "start": "node ./compiler.js --build --watch --serve --transpile",
     "build": "node ./compiler.js --build --transpile",
@@ -19,23 +21,24 @@
   "author": "Victor Berchet",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.1.2",
+    "@babel/core": "^7.4.3",
     "@babel/plugin-transform-react-jsx": "^7.3.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-es2015": "^7.0.0-beta.53",
     "babel-preset-minify": "^0.5.0",
-    "chokidar": "^2.0.4",
+    "chokidar": "^2.1.5",
     "colorette": "^1.0.6",
-    "commander": "^2.19.0",
+    "commander": "^2.20.0",
     "consola": "^1.4.4",
     "decache": "^4.4.0",
-    "eslint": "^5.14.1",
+    "eslint": "^5.16.0",
     "eslint-plugin-html": "^5.0.3",
     "express": "^4.16.4",
     "fs-extra": "^7.0.0",
     "less": "^3.8.1",
     "prettier": "1.16.4",
     "prompts": "^1.1.1",
-    "riot-compiler": "^3.5.1",
+    "riot-compiler": "^3.6.0",
     "ucfirst": "^1.0.0"
   }
 }

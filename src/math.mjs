@@ -7,12 +7,12 @@ function linearInterpolate(x1, y1, x2, y2, x) {
   return y1 * (1 - w) + y2 * w;
 }
 
-// Linear interpolation at targetXs
-// xs must be sorted in descending order.
+// Sampling at at targetXs with linear interpolation
 // xs and ys must have the same length.
 function sampleAt(xs, ys, targetXs) {
+  const descOrder = xs[0] > xs[1];
   return targetXs.map(tx => {
-    let index = xs.findIndex(x => x <= tx);
+    let index = xs.findIndex(x => (descOrder ? x <= tx : x >= tx));
     if (index == -1) {
       index = xs.length - 1;
     } else if (index == 0) {
@@ -58,8 +58,63 @@ function firstIntersection(x1s, y1s, x2s, y2s) {
   return null;
 }
 
+function zip(a, b) {
+  return a.map((v, i) => [v, b[i]]);
+}
+
+function scaleLinear() {
+  let range = [0, 1];
+  let domain = [0, 1];
+  const scale = v => sampleAt(domain, range, [v])[0];
+  scale.invert = v => sampleAt(range, domain, [v])[0];
+  scale.range = r => {
+    range = r;
+    return scale;
+  };
+  scale.domain = d => {
+    domain = d;
+    return scale;
+  };
+  return scale;
+}
+
+function scaleLog() {
+  let range = [0, 1];
+  let domain = [0, 1];
+  const scale = v => sampleAt(domain, range, [Math.log(v)])[0];
+  scale.invert = v => Math.exp(sampleAt(range, domain, [v])[0]);
+  scale.range = r => {
+    range = r;
+    return scale;
+  };
+  scale.domain = d => {
+    domain = d.map(Math.log);
+    return scale;
+  };
+  return scale;
+}
+
+function line() {
+  let x = v => v[0];
+  let y = v => v[1];
+  const line = d => d.reduce((p, v, i) => p + `${i == 0 ? "M" : "L"}${x(v)},${y(v)}`, "");
+  line.x = f => {
+    x = f;
+    return line;
+  };
+  line.y = f => {
+    y = f;
+    return line;
+  };
+  return line;
+}
+
 export default {
   firstIntersection,
   sampleAt,
   linearInterpolate,
+  zip,
+  scaleLinear,
+  scaleLog,
+  line,
 };

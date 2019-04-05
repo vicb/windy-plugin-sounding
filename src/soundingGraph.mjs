@@ -18,8 +18,7 @@ const { h, render } = preact;
 
 // Scale for chart
 let xScale, yScale, xWindScale, canvasScale;
-let xAxisScale, xWindAxisScale, yAxisScale;
-let xAxis, xWindAxis, yAxis;
+let xAxisScale, yAxisScale;
 
 let skew = 0.4;
 
@@ -44,7 +43,8 @@ const convertWind = overlays.wind.convertNumber;
 
 // Custom conversion of altitude
 // Can not use convertNumber, because it rounds altitude to 100m
-const convertAlt = value => Math.round(overlays.cloudtop.metric === "ft" ? value * 3.28084 : value);
+const convertAlt = value =>
+  Math.round(store.get("metric_altitude") === "ft" ? value * 3.28084 : value);
 
 const init = (lat, lon) => {
   pointData.lat = lat;
@@ -57,30 +57,25 @@ const init = (lat, lon) => {
   }
 
   // Scale for chart
-  xScale = d3.scaleLinear().range([0, chartWidth]);
-  xWindScale = d3.scaleLinear().range([0, chartWindWidth]);
-  yScale = d3.scaleLog().range([chartHeight, 0]);
+  xScale = math.scaleLinear().range([0, chartWidth]);
+  xWindScale = math.scaleLinear().range([0, chartWindWidth]);
+  yScale = math.scaleLog().range([chartHeight, 0]);
 
   // Scale for axis is different, because it can display custom units
-  xAxisScale = d3.scaleLinear().range([0, chartWidth]);
-  yAxisScale = d3.scaleLinear().range([chartHeight, 0]);
-  xWindAxisScale = d3.scaleLinear().range([0, chartWindWidth]);
+  xAxisScale = math.scaleLinear().range([0, chartWidth]);
+  yAxisScale = math.scaleLinear().range([chartHeight, 0]);
 
-  xAxis = d3.axisBottom(xAxisScale).ticks(5, "-d");
-  yAxis = d3.axisRight(yAxisScale).ticks(10, "d");
-  xWindAxis = d3.axisBottom(xWindAxisScale).ticks(3, "d");
-
-  tempLine = d3
+  tempLine = math
     .line()
     .x(d => xScale(d.temp) + skew * (chartHeight - yScale(d.pressure)))
     .y(d => yScale(d.pressure));
 
-  dewPointLine = d3
+  dewPointLine = math
     .line()
     .x(d => xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure)))
     .y(d => yScale(d.pressure));
 
-  windLine = d3
+  windLine = math
     .line()
     .x(d => xWindScale(utils.wind2obj([d.wind_u, d.wind_v]).wind))
     .y(d => yScale(d.pressure));
@@ -89,7 +84,7 @@ const init = (lat, lon) => {
     if (skew == 0) {
       return null;
     }
-    const x1 = xScale(temp + 273);
+    const x1 = xScale(temp + atm.celsiusToK);
     const y2 = chartHeight - (chartWidth - x1) / skew;
     return (
       <line x1={x1} y1={chartHeight} x2={chartWidth} y2={y2} stroke="darkred" stroke-width="0.2" />
@@ -105,7 +100,7 @@ const init = (lat, lon) => {
       const t = atm.dewpoint(atm.vaporPressure(p, mixingRatio));
       points.push({ t, p });
     }
-    const ad = d3
+    const ad = math
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
@@ -124,7 +119,7 @@ const init = (lat, lon) => {
       points.push({ t, p });
     }
 
-    const ad = d3
+    const ad = math
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
@@ -146,7 +141,7 @@ const init = (lat, lon) => {
       previousP = p;
       points.push({ t, p });
     }
-    const ad = d3
+    const ad = math
       .line()
       .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
       .y(d => yScale(d.p));
@@ -172,23 +167,27 @@ const init = (lat, lon) => {
     );
   };
 
+  // elevation in meters
   const Surface = ({ elevation }) => {
     if (elevation == null) {
       return null;
     }
-    // TODO: `elevation` is in meter, yAxisScale might not
-    const yPx = Math.round(yAxisScale(elevation));
+
+    const yPx = Math.round(yAxisScale(convertAlt(elevation)));
     if (yPx >= chartHeight) {
       return null;
     }
     return (
-      <rect
-        class="surface"
-        x="10"
-        y={yPx}
-        width={chartWidth + 20 + chartWindWidth}
-        height={chartHeight - yPx}
-      />
+      <g>
+        <rect class="surface" x="10" y={yPx} width={chartWidth} height={chartHeight - yPx} />
+        <rect
+          class="surface"
+          x={10 + chartWidth + 20}
+          y={yPx}
+          width={chartWindWidth}
+          height={chartHeight - yPx}
+        />
+      </g>
     );
   };
 
@@ -203,12 +202,8 @@ const init = (lat, lon) => {
     return (
       <path
         class="cumulus"
-        transform={`translate(${x - 32}, ${y - 32})`}
-        d="M27.586,14.212C26.66,11.751,24.284,10,21.5,10c-0.641,0-1.26,0.093-1.846,0.266
-		C18.068,7.705,15.233,6,12,6c-4.905,0-8.893,3.924-8.998,8.803C1.208,15.842,0,17.783,0,20c0,3.312,2.687,6,6,6h20
-		c3.312,0,6-2.693,6-6C32,17.234,30.13,14.907,27.586,14.212z M26.003,24H5.997C3.794,24,2,22.209,2,20
-		c0-1.893,1.318-3.482,3.086-3.896C5.03,15.745,5,15.376,5,15c0-3.866,3.134-7,7-7c3.162,0,5.834,2.097,6.702,4.975
-		C19.471,12.364,20.441,12,21.5,12c2.316,0,4.225,1.75,4.473,4h0.03C28.206,16,30,17.791,30,20C30,22.205,28.211,24,26.003,24z"
+        transform={`translate(${x - 36}, ${y - 28})`}
+        d="M27.586 14.212C26.66 11.751 24.284 10 21.5 10c-.641 0-1.26.093-1.846.266C18.068 7.705 15.233 6 12 6c-4.905 0-8.893 3.924-8.998 8.803C1.208 15.842 0 17.783 0 20c0 3.312 2.687 6 6 6h20c3.312 0 6-2.693 6-6 0-2.766-1.87-5.093-4.414-5.788zM26.003 24H5.997C3.794 24 2 22.209 2 20c0-1.893 1.318-3.482 3.086-3.896A7.162 7.162 0 0 1 5 15c0-3.866 3.134-7 7-7 3.162 0 5.834 2.097 6.702 4.975A4.477 4.477 0 0 1 21.5 12c2.316 0 4.225 1.75 4.473 4h.03C28.206 16 30 17.791 30 20c0 2.205-1.789 4-3.997 4z"
       />
     );
   };
@@ -222,7 +217,7 @@ const init = (lat, lon) => {
     const maxTs = pointData.hours[pointData.hours.length - 1];
     const x = Math.round(((w - 1) / (maxTs - minTs)) * (ts - minTs));
     const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
-    const maxY = Math.min(chartHeight, Math.round(yAxisScale(pointData.elevation)));
+    const maxY = Math.min(chartHeight, Math.round(yAxisScale(convertAlt(pointData.elevation))));
 
     const cloudCoverAtChartY = y => {
       const p = yScale.invert(y);
@@ -302,8 +297,8 @@ const init = (lat, lon) => {
       dewpoints.push(d.dewpoint);
       pressures.push(d.pressure);
     });
-    const sfcPressure = yScale.invert(yAxisScale(pointData.elevation));
-    const sfcTemp = 3 + math.sampleAt(pressures, temps, [sfcPressure])[0];
+    const sfcPressure = yScale.invert(yAxisScale(convertAlt(pointData.elevation)));
+    const sfcThermalTemp = 3 + math.sampleAt(pressures, temps, [sfcPressure])[0];
     const sfcDewpoint = math.sampleAt(pressures, dewpoints, [sfcPressure])[0];
 
     const pdTemps = [];
@@ -314,7 +309,7 @@ const init = (lat, lon) => {
 
     for (let p = sfcPressure; p >= upperLevel; p -= pressureStep) {
       pdPressures.push(p);
-      pdTemps.push(atm.dryLapse(p, sfcTemp, sfcPressure));
+      pdTemps.push(atm.dryLapse(p, sfcThermalTemp, sfcPressure));
       pdDewpoints.push(atm.dewpoint(atm.vaporPressure(p, mixingRatio)));
     }
 
@@ -326,7 +321,7 @@ const init = (lat, lon) => {
     );
     const dryIntersection = math.firstIntersection(pdPressures, pdTemps, pressures, temps);
 
-    const line = d3
+    const line = math
       .line()
       .y(d => yScale(d[1]))
       .x(d => xScale(d[0]) + skew * (chartHeight - yScale(d[1])));
@@ -347,11 +342,11 @@ const init = (lat, lon) => {
         t = t - pressureStep * atm.moistGradientT(p, t);
       }
 
-      const isohumePoints = d3.zip(pdDewpoints, pdPressures).filter(pt => pt[1] > thermalTop[0]);
+      const isohumePoints = math.zip(pdDewpoints, pdPressures).filter(pt => pt[1] > thermalTop[0]);
       isohumePoints.push([moistIntersection[1], moistIntersection[0]]);
       children.push(<path class="parcel isohume" d={line(isohumePoints)} />);
 
-      let cloudPoints = d3.zip(pmTemps, pmPressures);
+      let cloudPoints = math.zip(pmTemps, pmPressures);
       const equilibrium = math.firstIntersection(pmPressures, pmTemps, pressures, temps);
 
       let cloudTopPx = 0;
@@ -386,7 +381,7 @@ const init = (lat, lon) => {
     }
 
     const thermalTopPx = yScale(thermalTop[0]);
-    const dryPoints = d3.zip(pdTemps, pdPressures).filter(pt => pt[1] >= thermalTop[0]);
+    const dryPoints = math.zip(pdTemps, pdPressures).filter(pt => pt[1] >= thermalTop[0]);
     dryPoints.push([thermalTop[1], thermalTop[0]]);
     children.push(
       <line
@@ -433,13 +428,59 @@ const init = (lat, lon) => {
     e.preventDefault();
   };
 
+  const AltitudeAxis = () => {
+    const children = [];
+
+    const altiMetric = store.get("metric_altitude");
+    const altiStep = altiMetric == "m" ? 1000 : 3000;
+
+    for (let alti = altiStep, isLast; !isLast; alti += altiStep) {
+      const yPx = yAxisScale(alti);
+      isLast = yAxisScale(alti + altiStep) < 20;
+      children.push(<line y1={yPx} x2={chartWidth} y2={yPx} stroke="black" stroke-width="0.1" />);
+      children.push(
+        <text class="tick" y={yPx - 5} x={5}>
+          {alti + " " + (isLast ? " " + altiMetric : "")}
+        </text>
+      );
+    }
+
+    return <g children={children} />;
+  };
+
+  const TemperatureAxis = () => {
+    const children = [];
+
+    const tempMetric = store.get("metric_temp");
+    const tempStep = tempMetric == "°C" ? 10 : 20;
+    const tempStart = Math.trunc(xAxisScale.invert(0) / tempStep) * tempStep;
+
+    for (let temp = tempStart, isLast; !isLast; temp += tempStep) {
+      const xPx = xAxisScale(temp);
+      isLast = xAxisScale(temp + tempStep) > chartWidth;
+      children.push(
+        <text
+          class="tick"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          y={chartHeight + 5}
+          x={xPx}
+        >
+          {temp + (isLast ? " " + tempMetric : "")}
+        </text>
+      );
+    }
+
+    return <g children={children} />;
+  };
+
   Sounding = ({ data, elevation } = {}) => {
     return (
       <div>
         <svg id="sounding" onWheel={wheelHandler}>
           <defs>
             <clipPath id="clip-chart">
-              <rect x="0" y="0" width={chartWidth} height={chartHeight + 20} />
+              <rect width={chartWidth} height={chartHeight + 20} />
             </clipPath>
             <pattern
               id="diag-hatch"
@@ -448,7 +489,7 @@ const init = (lat, lon) => {
               height="8"
               patternTransform="rotate(45 2 2)"
             >
-              <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="0.5" />
+              <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
             </pattern>
           </defs>
           {data ? (
@@ -456,18 +497,31 @@ const init = (lat, lon) => {
               <Surface elevation={elevation} />
               <g class="wind">
                 <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
-                  <g
-                    class="x axis"
-                    transform={`translate(0,${chartHeight})`}
-                    ref={g => d3.select(g).call(xWindAxis)}
+                  <rect
+                    fill="none"
+                    y="1"
+                    height={chartHeight}
+                    width={chartWindWidth}
+                    stroke="gray"
+                    stroke-width=".5"
                   />
-                  <line
-                    y1={chartHeight}
-                    y2="0"
-                    stroke="black"
-                    stroke-width="0.2"
-                    stroke-dasharray="3"
-                  />
+                  <text
+                    class="tick"
+                    transform={`translate(${xWindScale(15 / 3.6) - 5} 80) rotate(-90)`}
+                  >
+                    {convertWind(15 / 3.6, " ")}
+                  </text>
+                  <text
+                    class="tick"
+                    transform={`translate(${xWindScale(30 / 3.6) - 5} 80) rotate(-90)`}
+                  >
+                    {convertWind(30 / 3.6, " ")}
+                  </text>
+                  <text class="tick" transform={`translate(${chartWindWidth - 5} 80) rotate(-90)`}>
+                    {convertWind(xWindScale.invert(chartWindWidth)) +
+                      " " +
+                      store.get("metric_wind")}
+                  </text>
                   <line
                     y1={chartHeight}
                     x1={xWindScale(15 / 3.6)}
@@ -496,14 +550,16 @@ const init = (lat, lon) => {
               </g>
               <g class="chart" transform="translate(10,0)">
                 <Clouds />
-                <g class="axis">
-                  <g
-                    class="x axis"
-                    transform={`translate(0,${chartHeight})`}
-                    ref={g => d3.select(g).call(xAxis)}
-                  />
-                  <g class="y axis" y={chartHeight + 16} ref={g => d3.select(g).call(yAxis)} />
-                </g>
+                <rect
+                  fill="none"
+                  y="1"
+                  height={chartHeight}
+                  width={chartWidth}
+                  stroke="gray"
+                  stroke-width=".5"
+                />
+                <AltitudeAxis />
+                <TemperatureAxis />
                 <g class="chartArea" clip-path="url(#clip-chart)">
                   <rect class="overlay" width={chartWidth} height={chartHeight} opacity="0" />
                   <path class="infoline temperature" d={tempLine(data)} />
@@ -570,23 +626,21 @@ function updateScales(hrAlt) {
   }
 
   // TODO
-  minTemp = -30 + 273;
-  maxTemp = 30 + 273;
+  minTemp = -30 + atm.celsiusToK;
+  maxTemp = 30 + atm.celsiusToK;
 
   xScale.domain([minTemp, maxTemp]);
   xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
 
   xWindScale.domain([0, 30 / 3.6, maxWind]);
   xWindScale.range([0, chartWindWidth / 2, chartWindWidth]);
-  xWindAxisScale.domain([0, 30, convertWind(maxWind)]);
-  xWindAxisScale.range([0, chartWindWidth / 2, chartWindWidth]);
 
   yScale.domain([maxPressure, minPressure]);
   yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
 
   const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
   const levelsH = hrAlt.map(p => (pointData.mgCanvas.height - 1) * (1 - p / 100));
-  canvasScale = d3
+  canvasScale = math
     .scaleLinear()
     .range(levelsH)
     .domain(levels);

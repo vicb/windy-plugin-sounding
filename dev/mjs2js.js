@@ -1,19 +1,23 @@
 // .mjs -> es6 -> native js
-const fs = require("fs-extra"),
-  { find } = require("./shimport");
+const fs = require("fs-extra");
+const { find } = require("./shimport");
+const babel = require("@babel/core");
 
 // Replaces all imports, exports in a file
 module.exports = async (fullPath, moduleId, namespace) => {
-  const body = await fs.readFile(fullPath, "utf8"),
-    transformed = transform(fullPath, body, moduleId, namespace);
+  const src = await fs.readFile(fullPath, "utf8");
 
-  return transformed;
+  // Transforms the body to remove jsx which does not play well with shimport
+  const options = {
+    presets: [["@babel/preset-env", { modules: false }]],
+    plugins: ["@babel/plugin-transform-react-jsx"],
+  };
+  const res = await babel.transformAsync(src, options);
+  return transform(fullPath, res.code, moduleId, namespace);
 };
 
 const transform = (file, source, id, namespace) => {
-  const [importDeclarations, importStatements, exportDeclarations] = find(
-    source
-  );
+  const [importDeclarations, importStatements, exportDeclarations] = find(source);
 
   var nameBySource = new Map();
 

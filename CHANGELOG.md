@@ -2,15 +2,19 @@
 
 [ ] Make skew independent of graph dimensions & range
 [ ] Loading indicator when changing model / time
-[ ] Graph: better axis, labelled
 [ ] Cache data by location for 15mn {location: data1: {expires: } }}
 [ ] Split components
-[ ] Remove the dependency on d3
 
 [ ] Multi-models ?
 [ ] Add support for more models (iconEu)
 
 [ ] listen to metricChanged ?
+
+## 0.7.0 - April 5 2019
+
+- Better axis labels,
+- Drop d3,
+- Fix a few issues with imperial units.
 
 ## 0.6.0 - April 4 2019
 
