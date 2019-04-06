@@ -203,7 +203,7 @@ const init = (lat, lon) => {
       <path
         class="cumulus"
         transform={`translate(${x - 36}, ${y - 28})`}
-        d="M27.586 14.212C26.66 11.751 24.284 10 21.5 10c-.641 0-1.26.093-1.846.266C18.068 7.705 15.233 6 12 6c-4.905 0-8.893 3.924-8.998 8.803C1.208 15.842 0 17.783 0 20c0 3.312 2.687 6 6 6h20c3.312 0 6-2.693 6-6 0-2.766-1.87-5.093-4.414-5.788zM26.003 24H5.997C3.794 24 2 22.209 2 20c0-1.893 1.318-3.482 3.086-3.896A7.162 7.162 0 0 1 5 15c0-3.866 3.134-7 7-7 3.162 0 5.834 2.097 6.702 4.975A4.477 4.477 0 0 1 21.5 12c2.316 0 4.225 1.75 4.473 4h.03C28.206 16 30 17.791 30 20c0 2.205-1.789 4-3.997 4z"
+        d="M26.003 24H5.997C3.794 24 2 22.209 2 20c0-1.893 1.318-3.482 3.086-3.896A7.162 7.162 0 0 1 5 15c0-3.866 3.134-7 7-7 3.162 0 5.834 2.097 6.702 4.975A4.477 4.477 0 0 1 21.5 12c2.316 0 4.225 1.75 4.473 4h.03C28.206 16 30 17.791 30 20c0 2.205-1.789 4-3.997 4z"
       />
     );
   };
@@ -381,6 +381,7 @@ const init = (lat, lon) => {
     }
 
     const thermalTopPx = yScale(thermalTop[0]);
+    const thermalTopUsr = Math.round(yAxisScale.invert(thermalTopPx) / 100) * 100;
     const dryPoints = math.zip(pdTemps, pdPressures).filter(pt => pt[1] >= thermalTop[0]);
     dryPoints.push([thermalTop[1], thermalTop[0]]);
     children.push(
@@ -392,6 +393,18 @@ const init = (lat, lon) => {
         y2={thermalTopPx}
         x2={chartWidth}
       />
+    );
+    children.push(
+      <text
+        class="tick"
+        style="fill: black"
+        text-anchor="end"
+        dominant-baseline="hanging"
+        y={thermalTopPx + 4}
+        x={chartWidth - 7}
+      >
+        {thermalTopUsr}
+      </text>
     );
     children.push(<path class="parcel dry" d={line(dryPoints)} />);
 
@@ -509,13 +522,13 @@ const init = (lat, lon) => {
                     class="tick"
                     transform={`translate(${xWindScale(15 / 3.6) - 5} 80) rotate(-90)`}
                   >
-                    {convertWind(15 / 3.6, " ")}
+                    {convertWind(15 / 3.6)}
                   </text>
                   <text
                     class="tick"
                     transform={`translate(${xWindScale(30 / 3.6) - 5} 80) rotate(-90)`}
                   >
-                    {convertWind(30 / 3.6, " ")}
+                    {convertWind(30 / 3.6)}
                   </text>
                   <text class="tick" transform={`translate(${chartWindWidth - 5} 80) rotate(-90)`}>
                     {convertWind(xWindScale.invert(chartWindWidth)) +
