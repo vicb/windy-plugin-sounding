@@ -289,6 +289,14 @@ const init = (lat, lon) => {
   };
 
   const Parcel = ({ data }) => {
+    // Thermal 2h after sunrise to 2h before sunset
+    const thermalStart = pointData.celestial.sunriseTs + 2 * 3600000;
+    const thermalStop = pointData.celestial.sunsetTs - 2 * 3600000;
+    const thermalDuration = thermalStop - thermalStart;
+    const currentTs = store.get('timestamp');
+    if (currentTs < thermalStart || ((currentTs - thermalStart) % (24 * 3600000)) > thermalDuration) {
+      return null;
+    }
     const temps = [];
     const dewpoints = [];
     const pressures = [];
@@ -422,7 +430,7 @@ const init = (lat, lon) => {
       const h = d.getUTCHours();
       d.setUTCMinutes(0);
       ts = d.getTime();
-      const refTime = (13 - pointData.tzOffset + 24) % 24;
+      const refTime = (13 - pointData.celestial.TZoffset + 24) % 24;
       const dh = (refTime - h) * direction;
       if (dh <= 0) {
         ts += direction * (24 + dh) * 3600 * 1000;
@@ -753,7 +761,7 @@ const load = (airData, forecast, meteogram) => {
     elevation = airData.header.modelElevation;
   }
   pointData.elevation = elevation;
-  pointData.tzOffset = forecast.celestial.TZoffset;
+  pointData.celestial = forecast.celestial;
 
   // Update the scales
   updateScales(meteogram.hrAlt);

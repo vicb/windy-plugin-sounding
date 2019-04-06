@@ -99,18 +99,16 @@
     }
 
     .parcel {
-      stroke-width: 2;
+      stroke-width: 3;
       stroke-dasharray: None;
 
-      &.moist {
-        stroke: rgb(119, 206, 6);
-      }
-      &.dry {
-        stroke: rgb(119, 206, 6);
+      &.moist, &.dry {
+        stroke: rgb(89, 156, 0);
       }
       &.isohume {
+        stroke-width: 1;
         stroke: gray;
-        stroke-dasharray: 3;
+        stroke-dasharray: 4;
       }
     }
 
