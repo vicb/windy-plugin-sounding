@@ -148,6 +148,18 @@ const init = (lat, lon) => {
     return <path class="moist" d={ad(points)} />;
   };
 
+  const WindArrows = ({ data }) => {
+    const ySfcPx = yAxisScale(pointData.elevation);
+    const arrows = data.reduce((arrows, d) => {
+      const yPx = yScale(d.pressure);
+      if (yPx < ySfcPx) {
+        arrows.push(<WindArrow wind_u={d.wind_u} wind_v={d.wind_v} y={yPx} />);
+      }
+      return arrows;
+    }, []);
+    return <g children={arrows} />;
+  };
+
   const WindArrow = ({ wind_u, wind_v, y }) => {
     const w = utils.wind2obj([wind_u, wind_v]);
     return (
@@ -534,10 +546,7 @@ const init = (lat, lon) => {
                   <g class="chartArea">
                     <path class="infoline wind" d={windLine(data)} />
                     <g transform={`translate(${chartWindWidth / 2},0)`}>
-                      {data.map(d => (
-                        // TODO: filter out if below sfc
-                        <WindArrow wind_u={d.wind_u} wind_v={d.wind_v} y={yScale(d.pressure)} />
-                      ))}
+                      <WindArrows data={data} />
                     </g>
                   </g>
                   <Surface elevation={elevation} width={chartWindWidth} />
