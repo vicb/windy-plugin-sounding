@@ -1,7 +1,8 @@
 ## TODO
 
-[ ] Order favorite by distance to map center
 [ ] Make skew independent of graph dimensions & range
+[ ] Make the temperature range dynamic
+[ ] Order favorite by distance to map center
 [ ] Loading indicator when changing model / time
 [ ] Cache data by location for 15mn {location: data1: {expires: } }}
 [ ] Split components
@@ -10,6 +11,12 @@
 [ ] Add support for more models (iconEu)
 
 [ ] listen to metricChanged ?
+
+## 0.7.1 - April 6 2019
+
+- Add thermal top label,
+- Improve styles,
+- Display thermals from 2h after sunrise to 2h before sunset.
 
 ## 0.7.0 - April 5 2019
 
