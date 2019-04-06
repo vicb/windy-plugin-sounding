@@ -215,7 +215,7 @@ const init = (lat, lon) => {
     const height = canvas.height;
     const minTs = pointData.hours[0];
     const maxTs = pointData.hours[pointData.hours.length - 1];
-    const x = Math.round(((w - 1) / (maxTs - minTs)) * (ts - minTs));
+    const x = Math.round(math.linearInterpolate(minTs, 0, maxTs, w - 1, ts));
     const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
     const maxY = Math.min(chartHeight, Math.round(yAxisScale(convertAlt(pointData.elevation))));
 
@@ -241,6 +241,12 @@ const init = (lat, lon) => {
     }
     if (hasUpperCover) {
       rects.push(<Cloud y="0" width={chartWidth} height="30" cover={maxCover} />);
+      rects.push(
+        <text class="tick" y={30 - 5} x={chartWidth - 5} text-anchor="end">
+          upper clouds
+        </text>
+      );
+      rects.push(<line y1="30" y2="30" x2={chartWidth} class="boundary" />);
     }
 
     // Then respect the y scale
@@ -293,8 +299,8 @@ const init = (lat, lon) => {
     const thermalStart = pointData.celestial.sunriseTs + 2 * 3600000;
     const thermalStop = pointData.celestial.sunsetTs - 2 * 3600000;
     const thermalDuration = thermalStop - thermalStart;
-    const currentTs = store.get('timestamp');
-    if (currentTs < thermalStart || ((currentTs - thermalStart) % (24 * 3600000)) > thermalDuration) {
+    const currentTs = store.get("timestamp");
+    if (currentTs < thermalStart || (currentTs - thermalStart) % (24 * 3600000) > thermalDuration) {
       return null;
     }
     const temps = [];
@@ -361,16 +367,7 @@ const init = (lat, lon) => {
       if (equilibrium) {
         const cloudTop = equilibrium[0];
         cloudTopPx = yScale(cloudTop);
-        children.push(
-          <line
-            stroke="gray"
-            stroke-width="1"
-            stroke-dasharray="3"
-            y1={cloudTopPx}
-            y2={cloudTopPx}
-            x2={chartWidth}
-          />
-        );
+        children.push(<line class="boundary" y1={cloudTopPx} y2={cloudTopPx} x2={chartWidth} />);
         cloudPoints = cloudPoints.filter(pt => pt[1] >= cloudTop);
         cloudPoints.push([equilibrium[1], equilibrium[0]]);
       }
@@ -392,16 +389,7 @@ const init = (lat, lon) => {
     const thermalTopUsr = Math.round(yAxisScale.invert(thermalTopPx) / 100) * 100;
     const dryPoints = math.zip(pdTemps, pdPressures).filter(pt => pt[1] >= thermalTop[0]);
     dryPoints.push([thermalTop[1], thermalTop[0]]);
-    children.push(
-      <line
-        stroke="gray"
-        stroke-width="1"
-        stroke-dasharray="3"
-        y1={thermalTopPx}
-        y2={thermalTopPx}
-        x2={chartWidth}
-      />
-    );
+    children.push(<line class="boundary" y1={thermalTopPx} y2={thermalTopPx} x2={chartWidth} />);
     children.push(
       <text
         class="tick"
@@ -546,11 +534,9 @@ const init = (lat, lon) => {
                   <line
                     y1={chartHeight}
                     x1={xWindScale(15 / 3.6)}
-                    y2="0"
                     x2={xWindScale(15 / 3.6)}
                     stroke="black"
-                    stroke-width="0.2"
-                    stroke-dasharray="3"
+                    stroke-width="0.1"
                   />
                   <rect
                     x={chartWindWidth / 2}

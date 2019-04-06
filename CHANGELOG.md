@@ -1,5 +1,6 @@
 ## TODO
 
+[ ] Order favorite by distance to map center
 [ ] Make skew independent of graph dimensions & range
 [ ] Loading indicator when changing model / time
 [ ] Cache data by location for 15mn {location: data1: {expires: } }}
