@@ -168,7 +168,7 @@ const init = (lat, lon) => {
   };
 
   // elevation in meters
-  const Surface = ({ elevation }) => {
+  const Surface = ({ elevation, width }) => {
     if (elevation == null) {
       return null;
     }
@@ -177,24 +177,11 @@ const init = (lat, lon) => {
     if (yPx >= chartHeight) {
       return null;
     }
-    return (
-      <g>
-        <rect class="surface" x="10" y={yPx} width={chartWidth} height={chartHeight - yPx} />
-        <rect
-          class="surface"
-          x={10 + chartWidth + 20}
-          y={yPx}
-          width={chartWindWidth}
-          height={chartHeight - yPx}
-        />
-      </g>
-    );
+    return <rect class="surface" y={yPx} width={width} height={chartHeight - yPx + 1} />;
   };
 
   const Cloud = ({ y, height, width, cover }) => {
-    return (
-      <rect {...{ y, height, width }} x="0" fill={`rgba(${cover}, ${cover}, ${cover}, 0.8)`} />
-    );
+    return <rect {...{ y, height, width }} fill={`rgba(${cover}, ${cover}, ${cover}, 0.7)`} />;
   };
 
   // https://www.flaticon.com/authors/yannick
@@ -374,7 +361,6 @@ const init = (lat, lon) => {
 
       children.push(
         <rect
-          x="0"
           y={cloudTopPx}
           height={yScale(thermalTop[0]) - cloudTopPx}
           width={chartWidth}
@@ -498,21 +484,21 @@ const init = (lat, lon) => {
               height="8"
               patternTransform="rotate(45 2 2)"
             >
+              <rect width="8" height="8" fill="#f8f8f8" opacity="0.7" />
               <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
             </pattern>
           </defs>
           {data ? (
             <g>
-              <Surface elevation={elevation} />
               <g class="wind">
                 <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
                   <rect
                     fill="none"
                     y="1"
-                    height={chartHeight}
+                    height={chartHeight - 1}
                     width={chartWindWidth}
                     stroke="gray"
-                    stroke-width=".5"
+                    stroke-width="1"
                   />
                   <text
                     class="tick"
@@ -545,33 +531,29 @@ const init = (lat, lon) => {
                     fill="red"
                     opacity="0.1"
                   />
-                  <g class="chartArea" clip-path="url(#clip-chart)">
+                  <g class="chartArea">
                     <path class="infoline wind" d={windLine(data)} />
                     <g transform={`translate(${chartWindWidth / 2},0)`}>
                       {data.map(d => (
+                        // TODO: filter out if below sfc
                         <WindArrow wind_u={d.wind_u} wind_v={d.wind_v} y={yScale(d.pressure)} />
                       ))}
                     </g>
                   </g>
+                  <Surface elevation={elevation} width={chartWindWidth} />
                 </g>
               </g>
               <g class="chart" transform="translate(10,0)">
-                <Clouds />
                 <rect
                   fill="none"
                   y="1"
-                  height={chartHeight}
+                  height={chartHeight - 1}
                   width={chartWidth}
                   stroke="gray"
-                  stroke-width=".5"
+                  stroke-width="1"
                 />
-                <AltitudeAxis />
-                <TemperatureAxis />
                 <g class="chartArea" clip-path="url(#clip-chart)">
                   <rect class="overlay" width={chartWidth} height={chartHeight} opacity="0" />
-                  <path class="infoline temperature" d={tempLine(data)} />
-                  <path class="infoline dewpoint" d={dewPointLine(data)} />
-                  <Parcel data={data} />
                   {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
                     <IsoTemp temp={t} />
                   ))}
@@ -584,7 +566,14 @@ const init = (lat, lon) => {
                   {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
                     <IsoHume temp={t} />
                   ))}
+                  <Parcel data={data} />
+                  <Clouds />
+                  <path class="infoline temperature" d={tempLine(data)} />
+                  <path class="infoline dewpoint" d={dewPointLine(data)} />
+                  <Surface elevation={elevation} width={chartWidth} />
                 </g>
+                <TemperatureAxis />
+                <AltitudeAxis />
               </g>
             </g>
           ) : (
