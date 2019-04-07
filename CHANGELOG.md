@@ -1,15 +1,9 @@
 ## TODO
 
-[ ] Make skew independent of graph dimensions & range
-[ ] Make the temperature range dynamic
 [ ] Order favorite by distance to map center
 [ ] Loading indicator when changing model / time
 [ ] Cache data by location for 15mn {location: data1: {expires: } }}
 [ ] Split components
-
-[ ] Multi-models ?
-[ ] Add support for more models (iconEu)
-
 [ ] listen to metricChanged ?
 
 ## 0.7.1 - April 6 2019

@@ -20,14 +20,15 @@ const { h, render } = preact;
 let xScale, yScale, xWindScale, canvasScale;
 let xAxisScale, yAxisScale;
 
-let skew = 0.4;
+let skew;
 
 let tempLine, dewPointLine, windLine;
 
 let Sounding;
 let root;
 
-const upperLevel = 300;
+// Keep levels >= upper level
+const upperLevel = 400;
 
 const pointData = {
   lat: 0,
@@ -630,9 +631,11 @@ function updateScales(hrAlt) {
     });
   }
 
-  // TODO
-  minTemp = -30 + atm.celsiusToK;
-  maxTemp = 30 + atm.celsiusToK;
+  maxTemp += 8;
+  minTemp = maxTemp - 60;
+
+  skew =
+    ((76.53 * (3 - Math.log10(upperLevel))) / (maxTemp - minTemp)) * (chartWidth / chartHeight);
 
   xScale.domain([minTemp, maxTemp]);
   xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
@@ -695,9 +698,9 @@ const load = (airData, forecast, meteogram) => {
     }
   }
 
-  // Filters the list of levels and add surface (-1).
+  // Filters the list of levels
   const levels = Array.from(paramLevels)
-    .filter(l => l > upperLevel)
+    .filter(l => l >= upperLevel)
     .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
   const levelDataByTs = {};
