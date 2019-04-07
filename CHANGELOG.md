@@ -6,6 +6,10 @@
 [ ] Split components
 [ ] listen to metricChanged ?
 
+## 0.7.2 - April 7 2019
+
+- Derives the max temp on the graph from the actual max temp.
+
 ## 0.7.1 - April 6 2019
 
 - Add thermal top label,
