@@ -81,14 +81,17 @@ const init = (lat, lon) => {
     .x(d => xWindScale(utils.wind2obj([d.wind_u, d.wind_v]).wind))
     .y(d => yScale(d.pressure));
 
-  const IsoTemp = ({ temp }) => {
-    if (skew == 0) {
-      return null;
-    }
+  const IsoTherm = ({ temp }) => {
     const x1 = xScale(temp + atm.celsiusToK);
     const y2 = chartHeight - (chartWidth - x1) / skew;
     return (
-      <line x1={x1} y1={chartHeight} x2={chartWidth} y2={y2} stroke="darkred" stroke-width="0.2" />
+      <line
+        class="isotherm"
+        x1={x1.toFixed(1)}
+        y1={chartHeight}
+        x2={chartWidth}
+        y2={y2.toFixed(1)}
+      />
     );
   };
 
@@ -318,10 +321,11 @@ const init = (lat, lon) => {
     const pdTemps = [];
     const pdDewpoints = [];
     const pdPressures = [];
-    const pressureStep = 20;
+    // TODO: using pixel steps would make more sense
+    const pressureStep = 80;
     const mixingRatio = atm.mixingRatio(atm.saturationVaporPressure(sfcDewpoint), sfcPressure);
 
-    for (let p = sfcPressure; p >= upperLevel; p -= pressureStep) {
+    for (let p = sfcPressure; p >= upperLevel - pressureStep; p -= pressureStep) {
       pdPressures.push(p);
       pdTemps.push(atm.dryLapse(p, sfcThermalTemp, sfcPressure));
       pdDewpoints.push(atm.dewpoint(atm.vaporPressure(p, mixingRatio)));
@@ -350,7 +354,7 @@ const init = (lat, lon) => {
       const pmPressures = [];
       const pmTemps = [];
       let t = moistIntersection[1];
-      for (let p = thermalTop[0]; p >= upperLevel; p -= pressureStep) {
+      for (let p = thermalTop[0]; p >= upperLevel - pressureStep; p -= pressureStep) {
         pmPressures.push(p);
         pmTemps.push(t);
         t = t - pressureStep * atm.moistGradientT(p, t);
@@ -565,7 +569,7 @@ const init = (lat, lon) => {
                 <g class="chartArea" clip-path="url(#clip-chart)">
                   <rect class="overlay" width={chartWidth} height={chartHeight} opacity="0" />
                   {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20].map(t => (
-                    <IsoTemp temp={t} />
+                    <IsoTherm temp={t} />
                   ))}
                   {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(t => (
                     <DryAdiabatic temp={t} />
@@ -681,7 +685,7 @@ const load = (airData, forecast, meteogram) => {
   //      temp: ,
   //      wind_u: ,
   //      wind_v: ,
-  //      level: ,
+  //      pressure: ,
   //    }, ...
   // }
   const timestamps = airData.data.hours;

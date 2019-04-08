@@ -94,10 +94,14 @@ function scaleLog() {
   return scale;
 }
 
-function line() {
+function line(xDigits = 1, yDigits = 1) {
   let x = v => v[0];
   let y = v => v[1];
-  const line = d => d.reduce((p, v, i) => p + `${i == 0 ? "M" : "L"}${x(v)},${y(v)}`, "");
+  const coordinates = (x, y) => x.toFixed(xDigits) + "," + y.toFixed(yDigits);
+  const line = d => {
+    const points = d.map(v => coordinates(x(v), y(v)));
+    return "M" + points.join("L");
+  };
   line.x = f => {
     x = f;
     return line;
