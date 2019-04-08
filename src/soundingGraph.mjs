@@ -4,7 +4,6 @@ import favs from "@windy/favs";
 import store from "@windy/store";
 import $ from "@windy/$";
 import utils from "@windy/utils";
-import sUtils from "./soundingUtils.mjs";
 import atm from "./atmosphere.mjs";
 import math from "./math.mjs";
 
@@ -22,7 +21,7 @@ let xAxisScale, yAxisScale;
 
 let skew;
 
-let tempLine, dewPointLine, windLine;
+let tempLine, windLine;
 
 let Sounding;
 let root;
@@ -34,10 +33,10 @@ const pointData = {
   lat: 0,
   lon: 0,
   elevation: 0,
-  data: {},
+  params: {},
 };
 
-let currentData = [];
+let currentParams = [];
 
 const convertTemp = overlays.temp.convertNumber;
 const convertWind = overlays.wind.convertNumber;
@@ -50,7 +49,7 @@ const convertAlt = value =>
 const init = (lat, lon) => {
   pointData.lat = lat;
   pointData.lon = lon;
-  pointData.data = null;
+  pointData.params = null;
 
   if (xScale) {
     redraw();
@@ -68,18 +67,13 @@ const init = (lat, lon) => {
 
   tempLine = math
     .line()
-    .x(d => xScale(d.temp) + skew * (chartHeight - yScale(d.pressure)))
-    .y(d => yScale(d.pressure));
-
-  dewPointLine = math
-    .line()
-    .x(d => xScale(d.dewpoint) + skew * (chartHeight - yScale(d.pressure)))
-    .y(d => yScale(d.pressure));
+    .x(d => xScale(d[0]) + skew * (chartHeight - yScale(d[1])))
+    .y(d => yScale(d[1]));
 
   windLine = math
     .line()
-    .x(d => xWindScale(utils.wind2obj([d.wind_u, d.wind_v]).wind))
-    .y(d => yScale(d.pressure));
+    .x(d => xWindScale(d[0]))
+    .y(d => yScale(d[1]));
 
   const IsoTherm = ({ temp }) => {
     const x1 = xScale(temp + atm.celsiusToK);
@@ -102,13 +96,9 @@ const init = (lat, lon) => {
     for (let y = chartHeight; y > -step; y -= step) {
       const p = yScale.invert(y);
       const t = atm.dewpoint(atm.vaporPressure(p, mixingRatio));
-      points.push({ t, p });
+      points.push([t, p]);
     }
-    const ad = math
-      .line()
-      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-      .y(d => yScale(d.p));
-    return <path class="isohume" d={ad(points)} />;
+    return <path class="isohume" d={tempLine(points)} />;
   };
 
   const DryAdiabatic = ({ temp }) => {
@@ -120,15 +110,10 @@ const init = (lat, lon) => {
     for (let y = chartHeight; y > -step; y -= step) {
       const p = yScale.invert(y);
       const t = atm.dryLapse(p, tK0, p0);
-      points.push({ t, p });
+      points.push([t, p]);
     }
 
-    const ad = math
-      .line()
-      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-      .y(d => yScale(d.p));
-
-    return <path class="dry" d={ad(points)} />;
+    return <path class="dry" d={tempLine(points)} />;
   };
 
   const MoistAdiabatic = ({ temp }) => {
@@ -143,21 +128,18 @@ const init = (lat, lon) => {
       const p = yScale.invert(y);
       t = t + (p - previousP) * atm.moistGradientT(p, t);
       previousP = p;
-      points.push({ t, p });
+      points.push([t, p]);
     }
-    const ad = math
-      .line()
-      .x(d => xScale(d.t) + skew * (chartHeight - yScale(d.p)))
-      .y(d => yScale(d.p));
-    return <path class="moist" d={ad(points)} />;
+
+    return <path class="moist" d={tempLine(points)} />;
   };
 
-  const WindArrows = ({ data }) => {
+  const WindArrows = ({ params }) => {
     const ySfcPx = yAxisScale(pointData.elevation);
-    const arrows = data.reduce((arrows, d) => {
-      const yPx = yScale(d.pressure);
+    const arrows = math.zip(params.wind_u, params.wind_v).reduce((arrows, uv, i) => {
+      const yPx = yScale(params.pressure[i]);
       if (yPx < ySfcPx) {
-        arrows.push(<WindArrow wind_u={d.wind_u} wind_v={d.wind_v} y={yPx} />);
+        arrows.push(<WindArrow wind_u={uv[0]} wind_v={uv[1]} y={yPx} />);
       }
       return arrows;
     }, []);
@@ -297,7 +279,7 @@ const init = (lat, lon) => {
     );
   };
 
-  const Parcel = ({ data }) => {
+  const Parcel = ({ params }) => {
     // Thermal 2h after sunrise to 2h before sunset
     const thermalStart = pointData.celestial.sunriseTs + 2 * 3600000;
     const thermalStop = pointData.celestial.sunsetTs - 2 * 3600000;
@@ -306,17 +288,10 @@ const init = (lat, lon) => {
     if (currentTs < thermalStart || (currentTs - thermalStart) % (24 * 3600000) > thermalDuration) {
       return null;
     }
-    const temps = [];
-    const dewpoints = [];
-    const pressures = [];
-    data.forEach(d => {
-      temps.push(d.temp);
-      dewpoints.push(d.dewpoint);
-      pressures.push(d.pressure);
-    });
+
     const sfcPressure = yScale.invert(yAxisScale(convertAlt(pointData.elevation)));
-    const sfcThermalTemp = 3 + math.sampleAt(pressures, temps, [sfcPressure])[0];
-    const sfcDewpoint = math.sampleAt(pressures, dewpoints, [sfcPressure])[0];
+    const sfcThermalTemp = 3 + math.sampleAt(params.pressure, params.temp, [sfcPressure])[0];
+    const sfcDewpoint = math.sampleAt(params.pressure, params.dewpoint, [sfcPressure])[0];
 
     const pdTemps = [];
     const pdDewpoints = [];
@@ -337,12 +312,12 @@ const init = (lat, lon) => {
       pdPressures,
       pdDewpoints
     );
-    const dryIntersection = math.firstIntersection(pdPressures, pdTemps, pressures, temps);
-
-    const line = math
-      .line()
-      .y(d => yScale(d[1]))
-      .x(d => xScale(d[0]) + skew * (chartHeight - yScale(d[1])));
+    const dryIntersection = math.firstIntersection(
+      pdPressures,
+      pdTemps,
+      params.pressure,
+      params.temp
+    );
 
     const children = [];
 
@@ -362,10 +337,15 @@ const init = (lat, lon) => {
 
       const isohumePoints = math.zip(pdDewpoints, pdPressures).filter(pt => pt[1] > thermalTop[0]);
       isohumePoints.push([moistIntersection[1], moistIntersection[0]]);
-      children.push(<path class="parcel isohume" d={line(isohumePoints)} />);
+      children.push(<path class="parcel isohume" d={tempLine(isohumePoints)} />);
 
       let cloudPoints = math.zip(pmTemps, pmPressures);
-      const equilibrium = math.firstIntersection(pmPressures, pmTemps, pressures, temps);
+      const equilibrium = math.firstIntersection(
+        pmPressures,
+        pmTemps,
+        params.pressure,
+        params.temp
+      );
 
       let cloudTopPx = 0;
       if (equilibrium) {
@@ -385,7 +365,7 @@ const init = (lat, lon) => {
         />
       );
       children.push(<Cumulus x={chartWidth} y={yScale(thermalTop[0])} />);
-      children.push(<path class="parcel moist" d={line(cloudPoints)} />);
+      children.push(<path class="parcel moist" d={tempLine(cloudPoints)} />);
     }
 
     const thermalTopPx = yScale(thermalTop[0]);
@@ -405,7 +385,7 @@ const init = (lat, lon) => {
         {thermalTopUsr}
       </text>
     );
-    children.push(<path class="parcel dry" d={line(dryPoints)} />);
+    children.push(<path class="parcel dry" d={tempLine(dryPoints)} />);
 
     return <g children={children} />;
   };
@@ -486,7 +466,10 @@ const init = (lat, lon) => {
     return <g children={children} />;
   };
 
-  Sounding = ({ data, elevation } = {}) => {
+  Sounding = ({ params, elevation } = {}) => {
+    const windSpeeds = params
+      ? math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind)
+      : null;
     return (
       <div>
         <svg id="sounding" onWheel={wheelHandler}>
@@ -505,7 +488,7 @@ const init = (lat, lon) => {
               <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
             </pattern>
           </defs>
-          {data ? (
+          {params ? (
             <g>
               <g class="wind">
                 <g class="chart" transform={`translate(${chartWidth + 30},0)`}>
@@ -549,9 +532,12 @@ const init = (lat, lon) => {
                     opacity="0.1"
                   />
                   <g class="chartArea">
-                    <path class="infoline wind" d={windLine(data)} />
+                    <path
+                      class="infoline wind"
+                      d={windLine(math.zip(windSpeeds, params.pressure))}
+                    />
                     <g transform={`translate(${chartWindWidth / 2},0)`}>
-                      <WindArrows data={data} />
+                      <WindArrows params={params} />
                     </g>
                   </g>
                   <Surface elevation={elevation} width={chartWindWidth} />
@@ -580,10 +566,16 @@ const init = (lat, lon) => {
                   {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
                     <IsoHume temp={t} />
                   ))}
-                  <Parcel data={data} />
+                  <Parcel params={params} />
                   <Clouds />
-                  <path class="infoline temperature" d={tempLine(data)} />
-                  <path class="infoline dewpoint" d={dewPointLine(data)} />
+                  <path
+                    class="infoline temperature"
+                    d={tempLine(math.zip(params.temp, params.pressure))}
+                  />
+                  <path
+                    class="infoline dewpoint"
+                    d={tempLine(math.zip(params.dewpoint, params.pressure))}
+                  />
                   <Surface elevation={elevation} width={chartWidth} />
                 </g>
                 <TemperatureAxis />
@@ -616,23 +608,18 @@ function updateScales(hrAlt) {
   let maxPressure = Number.MIN_VALUE;
   let maxWind = Number.MIN_VALUE;
 
-  for (let ts in pointData.data) {
-    const tsData = pointData.data[ts];
-    tsData.forEach((d, index) => {
-      if (index == 0) {
-        minGh = Math.min(minGh, d.gh);
-        maxPressure = Math.max(maxPressure, d.pressure);
-      }
-      if (index == tsData.length - 1) {
-        maxGh = Math.max(maxGh, d.gh);
-        minPressure = Math.min(minPressure, d.pressure);
-      }
-      // pt.dewpoint <= pt.temp
-      minTemp = Math.min(minTemp, d.dewpoint);
-      maxTemp = Math.max(maxTemp, d.temp);
-      const wind = utils.wind2obj([d.wind_u, d.wind_v]).wind;
-      maxWind = Math.max(maxWind, wind);
-    });
+  for (let ts in pointData.params) {
+    const params = pointData.params[ts];
+    const lastIndex = params.pressure.length - 1;
+    // Look for min/max gh/pressure at either ends only
+    minGh = Math.min(minGh, params.gh[0]);
+    maxPressure = Math.max(maxPressure, params.pressure[0]);
+    maxGh = Math.max(maxGh, params.gh[lastIndex]);
+    minPressure = Math.min(minPressure, params.pressure[lastIndex]);
+    minTemp = Math.min(minTemp, ...params.dewpoint);
+    maxTemp = Math.max(maxTemp, ...params.temp);
+    const windSpeeds = math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind);
+    maxWind = Math.max(maxWind, ...windSpeeds);
   }
 
   maxTemp += 8;
@@ -659,14 +646,18 @@ function updateScales(hrAlt) {
 }
 
 // Return the value of the parameter `name` at `level` for the given `tsIndex`
-function getParam(airData, name, levelName, tsIndex) {
-  const valueByTs = airData.data[`${name}-${levelName}`];
-  return Array.isArray(valueByTs) ? valueByTs[tsIndex] : null;
+function getParamAtLevel(airData, param, level, tsIndex) {
+  const valueByTs = airData.data[`${param}-${level}h`];
+  const value = Array.isArray(valueByTs) ? valueByTs[tsIndex] : null;
+  if (param === "gh" && value == null) {
+    // Approximate gh when not provided by the model
+    return Math.round(atm.getElevation(level));
+  }
+  return value;
 }
 
-function getGh(airData, levelName, tsIndex, p) {
-  const value = getParam(airData, "gh", levelName, tsIndex);
-  return value != null ? value : Math.round(atm.getElevation(p));
+function getParam(airData, param, levels, tsIndex) {
+  return levels.map(level => getParamAtLevel(airData, param, level, tsIndex));
 }
 
 // Handler for data request
@@ -676,28 +667,26 @@ const load = (airData, forecast, meteogram) => {
   // {
   //    temp-150h: [...]
   //    temp-surface: [...]
-  //    hours: [...]
+  //    hours: [timestamp0, ...]
   //    ...
   // }
   // to
   // {
   //    [timestamp0]: {
-  //      temp: ,
-  //      wind_u: ,
-  //      wind_v: ,
-  //      pressure: ,
+  //      temp: [...],
+  //      wind_u: [...],
+  //      wind_v: [...],
+  //      pressure: [...],
   //    }, ...
   // }
   const timestamps = airData.data.hours;
   // Some models do not provide modelElevation (ie GFS)
-  const paramNames = new Set();
   const paramLevels = new Set();
 
   // Extracts parameter names and levels.
   for (let name in airData.data) {
     const m = name.match(/([^-]+)-(.+)h$/);
     if (m !== null) {
-      paramNames.add(m[1]);
       paramLevels.add(Number(m[2]));
     }
   }
@@ -707,25 +696,18 @@ const load = (airData, forecast, meteogram) => {
     .filter(l => l >= upperLevel)
     .sort((a, b) => (Number(a) < Number(b) ? 1 : -1));
 
-  const levelDataByTs = {};
+  const paramsByTs = {};
   const sfcTempByTs = [];
-  timestamps.forEach((ts, index) => {
-    levelDataByTs[ts] = [];
-    sfcTempByTs.push(getParam(airData, "temp", "surface", index));
-    levels.forEach(level => {
-      let LevelName = `${level}h`;
-      const gh = getGh(airData, LevelName, index, level);
-
-      // Forecasts have the pressure in Pa - we want hPa.
-      levelDataByTs[ts].push({
-        temp: getParam(airData, "temp", LevelName, index),
-        dewpoint: getParam(airData, "dewpoint", LevelName, index),
-        gh,
-        wind_u: getParam(airData, "wind_u", LevelName, index),
-        wind_v: getParam(airData, "wind_v", LevelName, index),
-        pressure: level,
-      });
-    });
+  timestamps.forEach((ts, tsIndex) => {
+    sfcTempByTs.push(getParamAtLevel(airData, "temp", "surface", tsIndex));
+    paramsByTs[ts] = {
+      temp: getParam(airData, "temp", levels, tsIndex),
+      dewpoint: getParam(airData, "dewpoint", levels, tsIndex),
+      gh: getParam(airData, "gh", levels, tsIndex),
+      wind_u: getParam(airData, "wind_u", levels, tsIndex),
+      wind_v: getParam(airData, "wind_v", levels, tsIndex),
+      pressure: levels,
+    };
   });
 
   // Draw the clouds
@@ -740,7 +722,7 @@ const load = (airData, forecast, meteogram) => {
     .render(airData)
     .resetCanvas();
 
-  pointData.data = levelDataByTs;
+  pointData.params = paramsByTs;
   pointData.mgCanvas = canvas;
   pointData.hours = airData.data.hours;
   pointData.sfcTempByTs = sfcTempByTs;
@@ -762,38 +744,49 @@ const load = (airData, forecast, meteogram) => {
 
 // Update the sounding
 const redraw = () => {
-  currentData = null;
+  currentParams = null;
   pointData.sfcTemp = null;
-  if (pointData.data) {
+  if (pointData.params) {
     const ts = store.get("timestamp");
 
     let ts1, ts2;
     const hours = pointData.hours;
     const idx = hours.findIndex(x => x >= ts);
 
-    let w = 0;
     if (idx > -1) {
       if (idx == 0) {
         ts1 = ts2 = hours[0];
       } else {
         ts1 = hours[idx - 1];
         ts2 = hours[idx];
-        w = (ts - ts1) / (ts2 - ts1);
       }
 
       // Interpolate between two nearest hours
-      currentData = sUtils.interpolateArray(pointData.data[ts1], pointData.data[ts2], w);
+      const paramsTs1 = pointData.params[ts1];
+      const paramsTs2 = pointData.params[ts2];
+      currentParams = {};
+
+      Object.getOwnPropertyNames(paramsTs1).forEach(param => {
+        currentParams[param] = math.linearInterpolate(
+          ts1,
+          paramsTs1[param],
+          ts2,
+          paramsTs2[param],
+          ts
+        );
+      });
+
       // Surface temperature
       const temp1 = pointData.sfcTempByTs[idx - 1];
       if (temp1 != null) {
         const temp2 = pointData.sfcTempByTs[idx];
-        pointData.sfcTemp = (1 - w) * temp1 + w * temp2;
+        pointData.sfcTemp = math.linearInterpolate(ts1, temp1, ts2, temp2, ts);
       }
     }
   }
 
   root = render(
-    <Sounding data={currentData} elevation={pointData.elevation} display="block" />,
+    <Sounding params={currentParams} elevation={pointData.elevation} display="block" />,
     containerEl,
     root
   );

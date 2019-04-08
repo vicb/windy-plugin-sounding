@@ -1,9 +1,15 @@
 // Linear interpolation
+// The values (y1 and y2) can be arrays
 function linearInterpolate(x1, y1, x2, y2, x) {
   if (x1 == x2) {
     return y1;
   }
   const w = (x - x1) / (x2 - x1);
+
+  if (Array.isArray(y1)) {
+    return y1.map((y1, i) => y1 * (1 - w) + y2[i] * w);
+  }
+
   return y1 * (1 - w) + y2 * w;
 }
 
