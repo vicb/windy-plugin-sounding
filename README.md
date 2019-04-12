@@ -27,15 +27,16 @@ The sounding appears on the left side of screen:
 ![Context menu](docs/5_skewt.png)
 
 A few notes:
-- The title shows which model is used ("GFS" in this example - not all models are supported),
-- The axis units match your windy settings,
+- You can scroll (mouse wheel) on the sounding diagram to go forward/backward in time - (pressing ctrl or shift will jump to the next/previous day),
 - The blue line shows the dewpoint,
 - The red line shows air temperature,
 - The green line shows the temperature of an ascending parcel,
 - The hatched area across the graph shows the convective layer (cumulus clouds),
 - The left area shows clouds (excluding cumulus),
 - The top-most area show upper level clouds (i.e. up to ~15km),
-- The wind graph shows wind from 0-30km/h in the left part (white background) and from 30 to max speed in right part (red background).
+- The wind graph shows wind from 0-30km/h in the left part (white background) and from 30 to max speed in right part (red background),
+- The title shows which model is used ("GFS" in this example - note that not all models are supported),
+- The axis units match your windy settings.
 
 Credits:
 - [windy.com](https://www.windy.com) for their great web app and exposing the required data,
