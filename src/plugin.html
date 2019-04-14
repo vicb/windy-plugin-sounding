@@ -6,9 +6,11 @@
 
   <script>
     import map from "@windy/map";
+    import picker from "@windy/picker";
     import pluginDataLoader from "@windy/pluginDataLoader";
-    import store from "@windy/store";
     import plugins from "@windy/plugins";
+    import store from "@windy/store";
+
     import graph from "./soundingGraph.mjs";
 
     const options = {
@@ -19,7 +21,9 @@
     const load = pluginDataLoader(options);
 
     let marker = null;
-    let onProductChangeId;
+    let prodSub;
+    let pickerOpenSub;
+    let pickerMoveSub;
 
     const meteogram = plugins["detail-render"].load().then(() => {
       W.define("sMeteogram", ["meteogram", "Class"], function(m, c) {
@@ -72,10 +76,11 @@
 
       loadData(lat, lon);
 
-      if (onProductChangeId != null) {
-        store.off(onProductChangeId);
-      }
-      onProductChangeId = store.on("product", () => loadData(lat, lon));
+      cancelSubscriptions();
+
+      prodSub = store.on("product", () => loadData(lat, lon));
+      pickerOpenSub = picker.on("pickerOpened", ({ lat, lon }) => loadData(lat, lon));
+      pickerMoveSub = picker.on("pickerMoved", ({ lat, lon }) => loadData(lat, lon));
 
       this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
         ev.stopPropagation();
@@ -102,14 +107,27 @@
 
     // Called when closed
     this.onclose = () => {
-      if (onProductChangeId != null) {
-        store.off(onProductChangeId);
-        onProductChangeId = null;
-      }
+      cancelSubscriptions();
       if (marker) {
         map.removeLayer(marker);
         marker = null;
       }
     };
+
+    function cancelSubscriptions() {
+      if (prodSub) {
+        store.off(prodSub);
+        prodSub = null;
+      }
+      if (pickerOpenSub) {
+        picker.off(pickerOpenSub);
+        pickerOpenSub = null;
+      }
+
+      if (pickerMoveSub) {
+        picker.off(pickerMoveSub);
+        pickerMoveSub = null;
+      }
+    }
   </script>
 </plugin>
