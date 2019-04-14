@@ -467,13 +467,13 @@ const init = (lat, lon) => {
   };
 
   Sounding = ({ params, elevation } = {}) => {
-    if (!params) {
-      return null;
+    let windSpeeds;
+    if (params) {
+      windSpeeds = math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind);
+      const maxWindSpeed = Math.max(...windSpeeds);
+      xWindScale.domain([0, 30 / 3.6, Math.max(60 / 3.6, maxWindSpeed)]);
+      yAxisScale.domain([convertAlt(params.gh[0]), convertAlt(params.gh[params.gh.length - 1])]);
     }
-    const windSpeeds = math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind);
-    const maxWindSpeed = Math.max(...windSpeeds);
-    xWindScale.domain([0, 30 / 3.6, Math.max(60 / 3.6, maxWindSpeed)]);
-    yAxisScale.domain([convertAlt(params.gh[0]), convertAlt(params.gh[params.gh.length - 1])]);
 
     return (
       <div>
