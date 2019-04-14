@@ -58,7 +58,7 @@ const init = (lat, lon) => {
 
   // Scale for chart
   xScale = math.scaleLinear().range([0, chartWidth]);
-  xWindScale = math.scaleLinear().range([0, chartWindWidth]);
+  xWindScale = math.scaleLinear().range([0, chartWindWidth / 2, chartWindWidth]);
   yScale = math.scaleLog().range([chartHeight, 0]);
 
   // Scale for axis is different, because it can display custom units
@@ -467,9 +467,14 @@ const init = (lat, lon) => {
   };
 
   Sounding = ({ params, elevation } = {}) => {
-    const windSpeeds = params
-      ? math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind)
-      : null;
+    if (!params) {
+      return null;
+    }
+    const windSpeeds = math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind);
+    const maxWindSpeed = Math.max(...windSpeeds);
+    xWindScale.domain([0, 30 / 3.6, Math.max(60 / 3.6, maxWindSpeed)]);
+    yAxisScale.domain([convertAlt(params.gh[0]), convertAlt(params.gh[params.gh.length - 1])]);
+
     return (
       <div>
         <svg id="sounding" onWheel={wheelHandler}>
@@ -600,30 +605,21 @@ const init = (lat, lon) => {
 
 // Compute the min and max temp and pressure over the forecast range
 function updateScales(hrAlt) {
-  let minTemp = Number.MAX_VALUE;
   let maxTemp = Number.MIN_VALUE;
-  let minGh = Number.MAX_VALUE;
-  let maxGh = Number.MIN_VALUE;
   let minPressure = Number.MAX_VALUE;
   let maxPressure = Number.MIN_VALUE;
-  let maxWind = Number.MIN_VALUE;
 
   for (let ts in pointData.params) {
     const params = pointData.params[ts];
     const lastIndex = params.pressure.length - 1;
-    // Look for min/max gh/pressure at either ends only
-    minGh = Math.min(minGh, params.gh[0]);
+    // Look for min/max pressure at either ends only
     maxPressure = Math.max(maxPressure, params.pressure[0]);
-    maxGh = Math.max(maxGh, params.gh[lastIndex]);
     minPressure = Math.min(minPressure, params.pressure[lastIndex]);
-    minTemp = Math.min(minTemp, ...params.dewpoint);
     maxTemp = Math.max(maxTemp, ...params.temp);
-    const windSpeeds = math.zip(params.wind_u, params.wind_v).map(w => utils.wind2obj(w).wind);
-    maxWind = Math.max(maxWind, ...windSpeeds);
   }
 
   maxTemp += 8;
-  minTemp = maxTemp - 60;
+  const minTemp = maxTemp - 60;
 
   skew =
     ((76.53 * (3 - Math.log10(upperLevel))) / (maxTemp - minTemp)) * (chartWidth / chartHeight);
@@ -631,11 +627,7 @@ function updateScales(hrAlt) {
   xScale.domain([minTemp, maxTemp]);
   xAxisScale.domain([convertTemp(minTemp), convertTemp(maxTemp)]);
 
-  xWindScale.domain([0, 30 / 3.6, maxWind]);
-  xWindScale.range([0, chartWindWidth / 2, chartWindWidth]);
-
   yScale.domain([maxPressure, minPressure]);
-  yAxisScale.domain([convertAlt(minGh), convertAlt(maxGh)]);
 
   const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
   const levelsH = hrAlt.map(p => (pointData.mgCanvas.height - 1) * (1 - p / 100));
