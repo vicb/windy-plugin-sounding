@@ -92,8 +92,8 @@ const init = (lat, lon) => {
   const IsoHume = ({ temp }) => {
     const points = [];
     const mixingRatio = atm.mixingRatio(atm.saturationVaporPressure(temp + atm.celsiusToK), 1000);
-    const step = chartHeight / 6;
-    for (let y = chartHeight; y > -step; y -= step) {
+    const stepPx = chartHeight / 4;
+    for (let y = chartHeight; y > -stepPx; y -= stepPx) {
       const p = yScale.invert(y);
       const t = atm.dewpoint(atm.vaporPressure(p, mixingRatio));
       points.push([t, p]);
@@ -101,13 +101,13 @@ const init = (lat, lon) => {
     return <path class="isohume" d={tempLine(points)} />;
   };
 
-  const DryAdiabatic = ({ temp }) => {
+  const DryAdiabat = ({ temp }) => {
     const points = [];
     const tK0 = temp + atm.celsiusToK;
     const p0 = 1000;
 
-    const step = chartHeight / 15;
-    for (let y = chartHeight; y > -step; y -= step) {
+    const stepPx = chartHeight / 15;
+    for (let y = chartHeight; y > -stepPx; y -= stepPx) {
       const p = yScale.invert(y);
       const t = atm.dryLapse(p, tK0, p0);
       points.push([t, p]);
@@ -116,15 +116,15 @@ const init = (lat, lon) => {
     return <path class="dry" d={tempLine(points)} />;
   };
 
-  const MoistAdiabatic = ({ temp }) => {
+  const MoistAdiabat = ({ temp }) => {
     const points = [];
     const tK0 = temp + atm.celsiusToK;
     const p0 = 1000;
 
     let t = tK0;
     let previousP = p0;
-    const step = chartHeight / 15;
-    for (let y = chartHeight; y > -step; y -= step) {
+    const stepPx = chartHeight / 15;
+    for (let y = chartHeight; y > -stepPx; y -= stepPx) {
       const p = yScale.invert(y);
       t = t + (p - previousP) * atm.moistGradientT(p, t);
       previousP = p;
@@ -289,18 +289,19 @@ const init = (lat, lon) => {
       return null;
     }
 
-    const sfcPressure = yScale.invert(yAxisScale(convertAlt(pointData.elevation)));
+    const sfcPx = yAxisScale(convertAlt(pointData.elevation));
+    const sfcPressure = yScale.invert(sfcPx);
     const sfcThermalTemp = 3 + math.sampleAt(params.pressure, params.temp, [sfcPressure])[0];
     const sfcDewpoint = math.sampleAt(params.pressure, params.dewpoint, [sfcPressure])[0];
 
     const pdTemps = [];
     const pdDewpoints = [];
     const pdPressures = [];
-    // TODO: using pixel steps would make more sense
-    const pressureStep = 80;
+    const stepPx = chartHeight / 20;
     const mixingRatio = atm.mixingRatio(atm.saturationVaporPressure(sfcDewpoint), sfcPressure);
 
-    for (let p = sfcPressure; p >= upperLevel - pressureStep; p -= pressureStep) {
+    for (let y = sfcPx; y > -stepPx; y -= stepPx) {
+      const p = yScale.invert(y);
       pdPressures.push(p);
       pdTemps.push(atm.dryLapse(p, sfcThermalTemp, sfcPressure));
       pdDewpoints.push(atm.dewpoint(atm.vaporPressure(p, mixingRatio)));
@@ -329,10 +330,13 @@ const init = (lat, lon) => {
       const pmPressures = [];
       const pmTemps = [];
       let t = moistIntersection[1];
-      for (let p = thermalTop[0]; p >= upperLevel - pressureStep; p -= pressureStep) {
+      let previousP = moistIntersection[0];
+      for (let y = yScale(previousP); y > -stepPx; y -= stepPx) {
+        const p = yScale.invert(y);
+        t = t + (p - previousP) * atm.moistGradientT(p, t);
+        previousP = p;
         pmPressures.push(p);
         pmTemps.push(t);
-        t = t - pressureStep * atm.moistGradientT(p, t);
       }
 
       const isohumePoints = math.zip(pdDewpoints, pdPressures).filter(pt => pt[1] > thermalTop[0]);
@@ -563,10 +567,10 @@ const init = (lat, lon) => {
                     <IsoTherm temp={t} />
                   ))}
                   {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80].map(t => (
-                    <DryAdiabatic temp={t} />
+                    <DryAdiabat temp={t} />
                   ))}
                   {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
-                    <MoistAdiabatic temp={t} />
+                    <MoistAdiabat temp={t} />
                   ))}
                   {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
                     <IsoHume temp={t} />

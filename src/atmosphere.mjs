@@ -38,11 +38,7 @@ function saturationVaporPressure(tK) {
   return satPressure0c * Math.exp((17.67 * tC) / (tC + 243.5));
 }
 
-/**
- * Computes the temperature gradient assuming liquid saturation process.
- *
- * t0 is the starting temperature at p0 (degree Celsius).
- */
+// Computes the temperature gradient assuming liquid saturation process.
 function moistGradientT(p, tK) {
   const rs = saturationMixingRatio(p, tK);
   const n = Rd * tK + Lv * rs;
