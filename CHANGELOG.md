@@ -6,6 +6,11 @@
 [ ] Split components
 [ ] listen to metricChanged ?
 
+## 0.7.5 - April 14 2019
+
+- Change the location when the picker is opened and moved,
+- Update wind and altitude scales on each time change.
+
 ## 0.7.2 - April 7 2019
 
 - Derives the max temp on the graph from the actual max temp.

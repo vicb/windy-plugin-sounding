@@ -61,23 +61,9 @@
       const centerLon = lon - (deltaLng / map.getSize().x) * 300;
       map.panTo({ lng: centerLon, lat });
 
-      const leafletCoords = { lng: lon, lat };
-
-      if (marker) {
-        marker.setLatLng(leafletCoords);
-      } else {
-        marker = L.marker(leafletCoords, {
-          icon: map.myMarkers.pulsatingIcon,
-          zIndexOffset: -300,
-        }).addTo(map);
-      }
-
       graph.init(lat, lon);
-
       loadData(lat, lon);
-
       cancelSubscriptions();
-
       prodSub = store.on("product", () => loadData(lat, lon));
       pickerOpenSub = picker.on("pickerOpened", ({ lat, lon }) => loadData(lat, lon));
       pickerMoveSub = picker.on("pickerMoved", ({ lat, lon }) => loadData(lat, lon));
@@ -87,6 +73,7 @@
     };
 
     const loadData = (lat, lon) => {
+      moveMarkerTo(lat, lon);
       const supportedModels = /gfs|ecmwf|nam\w+|iconEu/;
       let model = store.get("product");
       if (!supportedModels.test(model)) {
@@ -127,6 +114,18 @@
       if (pickerMoveSub) {
         picker.off(pickerMoveSub);
         pickerMoveSub = null;
+      }
+    }
+
+    function moveMarkerTo(lat, lon) {
+      const leafletCoords = { lng: lon, lat };
+      if (marker) {
+        marker.setLatLng(leafletCoords);
+      } else {
+        marker = L.marker(leafletCoords, {
+          icon: map.myMarkers.pulsatingIcon,
+          zIndexOffset: -300,
+        }).addTo(map);
       }
     }
   </script>
