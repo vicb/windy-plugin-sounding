@@ -1,7 +1,3 @@
-.tmp
-nohup.out
-.DS_Store
 node_modules
-package-lock.json
-.vscode
-dist/plugin-dev.js
+dev/
+stats.html

@@ -1,9 +1,9 @@
 ## TODO
 
-[ ] Order favorite by distance to map center
-[ ] Loading indicator when changing model / time
-[ ] Cache data by location for 15mn {location: data1: {expires: } }}
-[ ] Split components
+Redux:
+[ ] Flush cache
+
+[ ] 10 closest favorites only when there are more
 [ ] listen to metricChanged ?
 
 ## 0.7.5 - April 14 2019

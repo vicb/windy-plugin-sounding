@@ -1,12 +1,11 @@
 {
     "env": {
         "es6": true,
-        "node": true,
         "browser": true,
         "jest": true
     },
     "parserOptions": {
-        "ecmaVersion": 2017,
+        "ecmaVersion": 2018,
         "sourceType": "module",
         "ecmaFeatures": {
           "jsx": true
@@ -15,12 +14,7 @@
     "globals": {
         "L": true,
         "W": true,
-        "console": true,
-        "cordova": true,
-        "riot": true,
-        "opts": true,
-        "d3": true,
-        "omnivore": true
+        "console": true
     },
     "extends": "eslint:recommended",
     "rules": {

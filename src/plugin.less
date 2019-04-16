@@ -1,11 +1,10 @@
-@import "dev/variables.less";
+@import "variables.less";
 
 @width: 600px;
-@chartHeight: 600px;
 
 .onwindy-plugin-sounding {
 	.left-border {
-        left: @width;
+    left: @width;
   }
 	#search {
 		display: none;
@@ -29,28 +28,34 @@
     display: block;
   }
 
-  .mobile(
-    {display: block; left: 0; top: 0; right: 0; width: ~"calc(100% - 20px)" ;
-      margin: 10px;}
-  );
-
   //=================================
   //
   // SVG items
   //
   //=================================
 
-  .axis path,
-  .axis line {
+  .axis {
+    path, line {
     fill: none;
     stroke: #000;
-    shape-rendering: crispEdges;
   }
 
+  .light {
+    stroke-width: .2;
+  }
+}
+
   #sounding-chart {
-    svg {
-      width: 100%;
-      height: @chartHeight;
+    padding: 0 .5em;
+
+    p.model {
+      margin: 0;
+    }
+
+    .chart .border {
+      fill: none;
+      stroke: gray;
+      stroke-width: 1;
     }
 
     .cumulus {
@@ -59,7 +64,7 @@
       fill: ivory;
     }
 
-    .infoline {
+    .line {
       stroke-width: 3;
       fill: none;
       stroke-linejoin: round;
@@ -72,10 +77,6 @@
       }
       &.wind {
         stroke: purple;
-      }
-      &.parcel {
-        stroke: darkorange;
-        stroke-width: 2;
       }
     }
 
@@ -109,9 +110,10 @@
 
     .parcel {
       stroke-width: 3;
-      stroke-dasharray: None;
+      fill: none;
+      stroke-linejoin: round;
 
-      &.moist, &.dry {
+      &.trajectory {
         stroke: rgb(89, 156, 0);
       }
       &.isohume {
