@@ -198,9 +198,17 @@ const init = (lat, lon) => {
     const canvas = pointData.mgCanvas;
     const w = canvas.width;
     const height = canvas.height;
-    const minTs = pointData.hours[0];
-    const maxTs = pointData.hours[pointData.hours.length - 1];
-    const x = Math.round(math.linearInterpolate(minTs, 0, maxTs, w - 1, ts));
+
+    const times = pointData.hours;
+    const next = times.findIndex(t => t >= ts);
+    if (next == -1) {
+      return null;
+    }
+    const prev = Math.max(0, next - 1);
+    const stepX = w / times.length;
+    const nextX = stepX / 2 + next * stepX;
+    const prevX = stepX / 2 + prev * stepX;
+    const x = Math.round(math.linearInterpolate(times[prev], prevX, times[next], nextX, ts));
     const data = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
     const maxY = Math.min(chartHeight, Math.round(yAxisScale(convertAlt(pointData.elevation))));
 
