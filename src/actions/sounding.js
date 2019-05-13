@@ -60,11 +60,9 @@ export const setLocation = (lat, lon) => dispatch => {
 };
 
 export const setModelName = modelName => dispatch => {
-  // TODO: sanitize model each time it is passed
-  // fallback to ecmwf if the model is not supported
-  const supportedModels = /^(gfs|ecmwf|nam|iconEu)/;
+  const supportedModels = /^(gfs|nam|iconEu)/;
   if (!supportedModels.test(modelName)) {
-    modelName = "ecmwf";
+    modelName = "gfs";
   }
 
   dispatch({

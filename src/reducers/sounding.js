@@ -23,7 +23,6 @@ import { windgram } from "./wind";
 import * as atm from "../atmosphere";
 
 const windyUtils = W.require("utils");
-import { modelName } from "../selectors/sounding";
 const windyMap = W.require("map");
 const windyProducts = W.require("products");
 
