@@ -24,6 +24,12 @@ export const SET_METEOGRAM = "SDG.SET_METEOGRAM";
 export const ADD_FAVORITE = "SDG.ADD_FAVORITE";
 export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
+export const SET_ZOOM = "SDG.SET_ZOOM";
+
+export const setZoom = zoom => ({
+  type: SET_ZOOM,
+  payload: { zoom },
+});
 
 export const addFavorite = favorite => ({
   type: ADD_FAVORITE,

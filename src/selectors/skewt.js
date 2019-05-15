@@ -7,6 +7,7 @@ import {
   altiMetric,
   tMetric,
   formatAltitude,
+  zoom,
 } from "./sounding";
 import * as math from "../math";
 
@@ -14,8 +15,14 @@ const windyUtils = W.require("utils");
 
 export const width = state => state.skewt.width;
 export const height = state => state.skewt.height;
-export const pMin = state => state.skewt.pMin;
+export const pZoomMin = state => state.skewt.pMin;
 export const pMax = state => state.skewt.pMax;
+
+export const pMin = createSelector(
+  pZoomMin,
+  zoom,
+  (pMin, zoom) => (zoom ? pMin : 150)
+);
 
 // Set of parameters at a given timestamp.
 // Interpolate from the two nearest times.

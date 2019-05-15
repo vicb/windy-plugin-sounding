@@ -21,6 +21,7 @@ export const SkewT = ({
   tAxisStep,
   ghMetric,
   ghAxisStep,
+  zoom,
 }) => {
   const sfcPx = pToPx(pSfc);
 
@@ -73,7 +74,14 @@ export const SkewT = ({
             step={tAxisStep}
             metric={tMetric}
           />
-          <Clouds width={width} height={height} cloudCover={cloudCover} pToPx={pToPx} pSfc={pSfc} />
+          <Clouds
+            width={width}
+            height={height}
+            cloudCover={cloudCover}
+            pToPx={pToPx}
+            pSfc={pSfc}
+            highClouds={zoom}
+          />
           <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
         </g>
         <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
@@ -169,23 +177,26 @@ const AltitudeAxis = ({ pAxisToPx, width, metric, step }) => {
   return <g>{children}</g>;
 };
 
-const Clouds = ({ width, cloudCover, pToPx, pSfc }) => {
+const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
   const rects = [];
 
-  let y = 30;
-  const upperPressure = pToPx.invert(y);
-  // TODO: 100
-  const upperCover = cloudCover(upperPressure, 100);
+  let y = 0;
 
-  if (upperCover > 0) {
-    rects.push(
-      <Cloud y="0" width={width} height="30" cover={upperCover} />,
-      <text class="tick" y={30 - 5} x={width - 5} text-anchor="end">
-        upper clouds
-      </text>,
+  if (highClouds) {
+    y = 30;
+    const upperPressure = pToPx.invert(y);
+    const upperCover = cloudCover(upperPressure, 150);
 
-      <line y1="30" y2="30" x2={width} class="boundary" />
-    );
+    if (upperCover > 0) {
+      rects.push(
+        <Cloud y="0" width={width} height="30" cover={upperCover} />,
+        <text class="tick" y={30 - 5} x={width - 5} text-anchor="end">
+          upper clouds
+        </text>,
+
+        <line y1="30" y2="30" x2={width} class="boundary" />
+      );
+    }
   }
 
   // Then respect the y scale

@@ -7,7 +7,7 @@ import * as skewTSel from "../selectors/skewt";
 import * as soundingSel from "../selectors/sounding";
 import * as windSel from "../selectors/wind";
 import { parcelTrajectory } from "../atmosphere";
-import { setLocation } from "../actions/sounding";
+import { setLocation, setZoom } from "../actions/sounding";
 import { h } from "preact";
 
 const windyCalendar = W.require("Calendar");
@@ -46,6 +46,7 @@ function stateToSkewTProp(state) {
     tAxisStep: skewTSel.tAxisStep(state),
     ghMetric: soundingSel.altiMetric(state),
     ghAxisStep: skewTSel.ghAxisStep(state),
+    zoom: soundingSel.zoom(state),
   };
 }
 
@@ -108,6 +109,7 @@ const stateToAppProps = state => {
     chart: () => <LoadingIndicator cx={width / 2} cy={height / 2} />,
     width,
     height,
+    zoom: soundingSel.zoom(state),
   };
 
   const isLoading = soundingSel.isLoading(state);
@@ -150,12 +152,15 @@ const stateToAppDispatch = dispatch => ({
     dispatch(setLocation(lat, lon));
     centerMap(lat, lon);
   },
+  onZoomClick: e => {
+    dispatch(setZoom(e.target.checked));
+  },
 });
 
 export const App = connect(
   stateToAppProps,
   stateToAppDispatch
-)(({ title, chart, centerMap, onFavSelected, wheelHandler, width, height }) => {
+)(({ title, chart, centerMap, onFavSelected, wheelHandler, width, height, zoom, onZoomClick }) => {
   return (
     <div>
       {title()}
@@ -163,6 +168,10 @@ export const App = connect(
         {chart()}
       </svg>
       <ConnectedFavorites onSelected={onFavSelected(centerMap)} />
+      <label>
+        <input type="checkbox" checked={zoom} onClick={onZoomClick} />
+        Zoom view
+      </label>
     </div>
   );
 });

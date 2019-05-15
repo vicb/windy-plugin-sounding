@@ -17,6 +17,7 @@ export const speedMetric = state => state.metrics.speed;
 export const favorites = state => state.plugin.favorites;
 export const width = state => state.plugin.width;
 export const height = state => state.plugin.height;
+export const zoom = state => state.plugin.zoom;
 
 // Format parameters
 

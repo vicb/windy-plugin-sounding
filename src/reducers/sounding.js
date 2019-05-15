@@ -17,6 +17,7 @@ import {
   SET_METRIC_SPEED,
   SET_METEOGRAM,
   ADD_FAVORITE,
+  SET_ZOOM,
 } from "../actions/sounding";
 import { skewt } from "./skewt";
 import { windgram } from "./wind";
@@ -104,6 +105,9 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
       const { favorite } = action.payload;
       return { ...state, favorites: [...state.favorites, favorite] };
     }
+    case SET_ZOOM:
+      const { zoom } = action.payload;
+      return { ...state, zoom };
     default:
       return state;
   }
