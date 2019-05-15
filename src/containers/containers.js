@@ -61,6 +61,7 @@ const stateToWindProp = state => ({
   pToPx: skewTSel.pToPx(state),
   speedToPx: windSel.speedToPx(state),
   line: windSel.line(state),
+  zoom: soundingSel.zoom(state),
 });
 
 const ConnectedWindgram = connect(stateToWindProp)(WindGram);

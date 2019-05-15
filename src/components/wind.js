@@ -12,17 +12,14 @@ export const WindGram = ({
   pToPx,
   speedToPx,
   line,
+  zoom,
 }) => {
-  if (!params) {
-    return null;
-  }
-
   const sfcPx = pToPx(pSfc);
 
   return (
     <g class="chart wind">
       <path class="line wind" d={line(math.zip(params.windSpeed, params.level))} />
-      <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format }} />
+      <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format, zoom }} />
       <g transform={`translate(${width / 2}, 0)`}>
         {params.level.map((level, i) =>
           level <= pSfc ? (
@@ -36,18 +33,36 @@ export const WindGram = ({
   );
 };
 
-const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed }) => {
-  const x15 = speedToPx(15 / 3.6);
-  const x30 = speedToPx(30 / 3.6);
+const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) => {
+  if (zoom) {
+    const x30 = speedToPx(30 / 3.6);
+    const x15 = x30 / 2;
+    return (
+      <g class="axis">
+        <line y1={height} x1={x15} x2={x15} class="light" />
+        <rect x={width / 2} width={width / 2} height={height} fill="red" opacity="0.1" />
+        <text class="tick" transform={`translate(${x15 - 5} 80) rotate(-90)`}>
+          {format(15 / 3.6)}
+        </text>
+        <text class="tick" transform={`translate(${x30 - 5} 80) rotate(-90)`}>
+          {format(30 / 3.6)}
+        </text>
+        <text class="tick" transform={`translate(${width - 5} 80) rotate(-90)`}>
+          {`${format(maxSpeed)} ${metric}`}
+        </text>
+      </g>
+    );
+  }
+
   return (
     <g class="axis">
-      <line y1={height} x1={x15} x2={x15} class="light" />
-      <rect x={width / 2} width={width / 2} height={height} fill="red" opacity="0.1" />
-      <text class="tick" transform={`translate(${x15 - 5} 80) rotate(-90)`}>
-        {format(15 / 3.6)}
+      <line y1={height} x1={width / 3} x2={width / 3} class="light" />
+      <text class="tick" transform={`translate(${width / 3 - 5} 80) rotate(-90)`}>
+        {format(maxSpeed / 3)}
       </text>
-      <text class="tick" transform={`translate(${x30 - 5} 80) rotate(-90)`}>
-        {format(30 / 3.6)}
+      <line y1={height} x1={(2 * width) / 3} x2={(2 * width) / 3} class="light" />
+      <text class="tick" transform={`translate(${(2 * width) / 3 - 5} 80) rotate(-90)`}>
+        {format((2 * maxSpeed) / 3)}
       </text>
       <text class="tick" transform={`translate(${width - 5} 80) rotate(-90)`}>
         {`${format(maxSpeed)} ${metric}`}
