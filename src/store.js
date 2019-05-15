@@ -13,9 +13,9 @@ const plugins = W.require("plugins");
 const windyStore = W.require("store");
 const favorites = W.require("favs");
 
-export let store;
+let store;
 
-export const initStore = () => {
+export function getStore() {
   if (store) {
     return store;
   }
@@ -29,9 +29,7 @@ export const initStore = () => {
   const container = $("#sounding-chart");
   store.dispatch(soundingAct.setWidth(container.clientWidth));
   store.dispatch(soundingAct.setHeight(600));
-  store.dispatch(soundingAct.setMetricTemp(windyStore.get('metric_temp')));
-  store.dispatch(soundingAct.setMetricAltitude(windyStore.get('metric_gh')));
-  store.dispatch(soundingAct.setMetricSpeed(windyStore.get('metric_wind')));
+  updateMetrics(store);
   favorites.getArray().forEach(f => {
     store.dispatch(soundingAct.addFavorite(f));
   });
@@ -55,4 +53,12 @@ export const initStore = () => {
   });
 
   return store;
+}
+
+export function updateMetrics() {
+  if (store) {
+    store.dispatch(soundingAct.setMetricTemp(windyStore.get('metric_temp')));
+    store.dispatch(soundingAct.setMetricAltitude(windyStore.get('metric_altitude')));
+    store.dispatch(soundingAct.setMetricSpeed(windyStore.get('metric_wind')));
+  }
 }

@@ -5,7 +5,7 @@ import {centerMap} from './selectors/sounding';
 import {Provider} from 'preact-redux';
 import {h, render} from 'preact';
 import {App} from './containers/containers'
-import {initStore} from './store';
+import {getStore, updateMetrics} from './store';
 
 const map = W.require("map");
 
@@ -33,7 +33,12 @@ W.loadPlugin(
     const picker = W.require("picker");
     const windyStore = W.require("store");
 
-    let store;
+    const store = getStore();
+    const container = $("#sounding-chart");
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>, container);
 
     // Called when the plugin is opened
     this.onopen = location => {
@@ -48,18 +53,6 @@ W.loadPlugin(
       } else {
         lat = location.lat;
         lon = location.lon;
-      }
-
-      if (!store) {
-        // The plugin is opened for the first time
-        const container = $("#sounding-chart");
-
-        store = initStore();
-
-        render(
-        <Provider store={store}>
-          <App />
-        </Provider>, container);
       }
 
       if (!store.getState().plugin.active) {
@@ -91,6 +84,7 @@ W.loadPlugin(
         store.dispatch(setActive(true));
       }
 
+      updateMetrics();
       store.dispatch(setLocation(lat, lon));
       store.dispatch(setModelName(windyStore.get("product")));
       store.dispatch(setTime(windyStore.get("timestamp")));

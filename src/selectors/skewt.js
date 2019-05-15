@@ -1,5 +1,13 @@
 import { createSelector } from "reselect";
-import { elevation, forecasts, timestamp, formatTemp, ghMetric, tMetric } from "./sounding";
+import {
+  elevation,
+  forecasts,
+  timestamp,
+  formatTemp,
+  altiMetric,
+  tMetric,
+  formatAltitude,
+} from "./sounding";
 import * as math from "../math";
 
 const windyUtils = W.require("utils");
@@ -111,7 +119,9 @@ export const pAxisToPx = createSelector(
   pToGh,
   height,
   pMin,
-  (params, pToGh, height, pMin) => math.scaleLinear([params.gh[0], pToGh(pMin)], [height, 0])
+  formatAltitude,
+  (params, pToGh, height, pMin, formatAltitude) =>
+    math.scaleLinear([params.gh[0], pToGh(pMin)].map(formatAltitude), [height, 0])
 );
 
 export const line = createSelector(
@@ -129,7 +139,6 @@ export const pSfc = createSelector(
   pToGh,
   (elevation, params, pToGh) => {
     const levels = params.level;
-    const gh = params.gh;
     return Math.min(pToGh.invert(elevation), levels[0]);
   }
 );
@@ -157,7 +166,7 @@ export const dewpointSfc = createSelector(
 );
 
 export const ghAxisStep = createSelector(
-  ghMetric,
+  altiMetric,
   m => (m === "m" ? 1000 : 3000)
 );
 

@@ -44,7 +44,7 @@ function stateToSkewTProp(state) {
     line: skewTSel.line(state),
     tMetric: soundingSel.tMetric(state),
     tAxisStep: skewTSel.tAxisStep(state),
-    ghMetric: soundingSel.ghMetric(state),
+    ghMetric: soundingSel.altiMetric(state),
     ghAxisStep: skewTSel.ghAxisStep(state),
   };
 }

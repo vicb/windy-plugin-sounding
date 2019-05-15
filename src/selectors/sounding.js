@@ -12,7 +12,7 @@ export const modelName = state => state.plugin.modelName;
 export const timestamp = state => state.plugin.timestamp;
 export const tMetric = state => state.metrics.temp;
 export const pMetric = state => state.metrics.pressure;
-export const ghMetric = state => state.metrics.altitude;
+export const altiMetric = state => state.metrics.altitude;
 export const speedMetric = state => state.metrics.speed;
 export const favorites = state => state.plugin.favorites;
 export const width = state => state.plugin.width;
@@ -31,8 +31,8 @@ export const formatPressure = createSelector(
 );
 
 export const formatAltitude = createSelector(
-  ghMetric,
-  metric => v => Math.round(windyMetrics.gh.conv[metric].conversion(v) / 100) * 100
+  altiMetric,
+  metric => v => Math.round(windyMetrics.altitude.conv[metric].conversion(v) / 100) * 100
 );
 
 export const formatSpeed = createSelector(
