@@ -66,7 +66,7 @@ export const setLocation = (lat, lon) => dispatch => {
 };
 
 export const setModelName = modelName => dispatch => {
-  const supportedModels = /^(gfs|nam|iconEu)/;
+  const supportedModels = /^(ecmwf|gfs|nam|iconEu)/;
   if (!supportedModels.test(modelName)) {
     modelName = "gfs";
   }
