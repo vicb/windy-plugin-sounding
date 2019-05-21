@@ -1,5 +1,6 @@
 import { createSelector } from "reselect";
 import { pToPx, params } from "./skewt";
+import { zoom } from "./sounding";
 import * as math from "../math";
 
 export const width = state => state.windgram.width;
@@ -12,7 +13,11 @@ export const windSpeedMax = createSelector(
 export const speedToPx = createSelector(
   windSpeedMax,
   width,
-  (speedMax, width) => math.scaleLinear([0, 30 / 3.6, speedMax], [0, width / 2, width])
+  zoom,
+  (speedMax, width, zoom) =>
+    zoom
+      ? math.scaleLinear([0, 30 / 3.6, speedMax], [0, width / 2, width])
+      : math.scaleLinear([0, speedMax], [0, width])
 );
 
 export const line = createSelector(
