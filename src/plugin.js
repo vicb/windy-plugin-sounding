@@ -34,7 +34,7 @@ W.loadPlugin(
     const windyStore = W.require("store");
 
     const store = getStore();
-    const container = $("#sounding-chart");
+    const container = $("#bsounding-chart");
     render(
       <Provider store={store}>
         <App />

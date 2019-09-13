@@ -26,7 +26,7 @@ export function getStore() {
   /* end-strip-from-prod */
   store = createStore(rootReducer, applyMiddleware(...middlewares));
 
-  const container = $("#sounding-chart");
+  const container = $("#bsounding-chart");
   store.dispatch(soundingAct.setWidth(container.clientWidth));
   store.dispatch(soundingAct.setHeight(600));
   updateMetrics(store);

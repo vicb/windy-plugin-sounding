@@ -2,9 +2,11 @@
 
 Redux:
 [ ] Flush cache
-
 [ ] 10 closest favorites only when there are more
-[ ] listen to metricChanged ?
+
+## 1.0.0 - Sep 13 2019
+
+- Works even after opened after the built-in sounding plugin
 
 ## 0.7.5 - April 14 2019
 
