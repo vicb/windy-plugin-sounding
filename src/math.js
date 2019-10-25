@@ -15,7 +15,7 @@ export function linearInterpolate(x1, y1, x2, y2, x) {
 
 // Sampling at at targetXs with linear interpolation
 // xs and ys must have the same length.
-export function sampleAt(xs, ys, targetXs) {
+function sampleAt(xs, ys, targetXs) {
   const descOrder = xs[0] > xs[1];
   return targetXs.map(tx => {
     let index = xs.findIndex(x => (descOrder ? x <= tx : x >= tx));
