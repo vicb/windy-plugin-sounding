@@ -1,16 +1,16 @@
-import { SkewT } from "../components/skewt";
-import { WindGram } from "../components/wind";
-import { Favorites } from "../components/favorites";
-import { LoadingIndicator } from "../components/loading";
-import { connect } from "preact-redux";
 import * as skewTSel from "../selectors/skewt";
 import * as soundingSel from "../selectors/sounding";
 import * as windSel from "../selectors/wind";
-import { parcelTrajectory } from "../atmosphere";
-import { setLocation, setZoom } from "../actions/sounding";
-import { h } from "preact";
 
-const windyCalendar = W.require("Calendar");
+import { setLocation, setZoom } from "../actions/sounding";
+
+import { Favorites } from "../components/favorites";
+import { LoadingIndicator } from "../components/loading";
+import { SkewT } from "../components/skewt";
+import { WindGram } from "../components/wind";
+import { connect } from "preact-redux";
+import { h } from "preact";
+import { parcelTrajectory } from "../atmosphere";
 
 function stateToSkewTProp(state) {
   const parameters = skewTSel.params(state);

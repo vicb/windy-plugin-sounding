@@ -1,15 +1,17 @@
-import { createSelector } from "reselect";
+import * as math from "../math";
+
 import {
+  altiMetric,
   elevation,
   forecasts,
-  timestamp,
-  formatTemp,
-  altiMetric,
-  tMetric,
   formatAltitude,
+  formatTemp,
+  tMetric,
+  timestamp,
   zoom,
 } from "./sounding";
-import * as math from "../math";
+
+import { createSelector } from "reselect";
 
 const windyUtils = W.require("utils");
 
