@@ -14,9 +14,9 @@ Sounding forecast for paraglider pilots.
 
 ![Install plugins](docs/2_install.png)
 
-3) Type the name of the plugin "windy-plugin-sounding" and click on "Load plugin":
+3) Load the "Sounding" plugin:
 
-![Load windy-plugin-sounding](docs/3_sounding.png)
+![Load windy-plugin-sounding](docs/3_sounding.jpg)
 
 4) Right-click anywhere on the map and select "Better Sounding" to display the sounding forecast:
 
