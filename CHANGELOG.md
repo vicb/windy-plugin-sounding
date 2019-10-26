@@ -1,8 +1,6 @@
-## TODO
+## 1.1.0 - Oct 25 2019
 
-Redux:
-[ ] Flush cache
-[ ] 10 closest favorites only when there are more
+- Display wind speed when the mouse enters the windgram.
 
 ## 1.0.0 - Sep 13 2019
 

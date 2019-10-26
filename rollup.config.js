@@ -1,14 +1,15 @@
 import babel from "rollup-plugin-babel";
+import cjs from "rollup-plugin-commonjs";
+import html from "rollup-plugin-html";
+import less from "rollup-plugin-less-modules";
+import minify from "rollup-plugin-babel-minify";
+import pkg from "./package.json";
+import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
 import serve from "rollup-plugin-serve";
-import less from "rollup-plugin-less-modules";
-import html from "rollup-plugin-html";
-import replace from "rollup-plugin-replace";
-import minify from "rollup-plugin-babel-minify";
-import cjs from "rollup-plugin-commonjs";
-import pkg from "./package.json";
-import visualizer from 'rollup-plugin-visualizer';
 import stripCode from "rollup-plugin-strip-code"
+import visualizer from 'rollup-plugin-visualizer';
+const fs = require('fs');
 
 const prod = !process.env.ROLLUP_WATCH;
 
@@ -55,6 +56,10 @@ export default {
       serve({
         contentBase: "dev",
         port: 9999,
+        https: {
+          key: fs.readFileSync('key.pem'),
+          cert: fs.readFileSync('certificate.pem'),
+        }
       }),
     babel({
       presets: [

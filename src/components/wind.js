@@ -1,37 +1,75 @@
 import * as math from "../math";
+
+import { PureComponent } from "./pure";
 import { h } from "preact";
+import { sampleAt } from "../math";
 
-export const WindGram = ({
-  params,
-  width,
-  height,
-  windSpeedMax,
-  metric,
-  format,
-  pSfc,
-  pToPx,
-  speedToPx,
-  line,
-  zoom,
-}) => {
-  const sfcPx = pToPx(pSfc);
+export class WindGram extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { yCursor: 100 };
+  }
 
-  return (
-    <g class="chart wind">
-      <path class="line wind" d={line(math.zip(params.windSpeed, params.level))} />
-      <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format, zoom }} />
-      <g transform={`translate(${width / 2}, 0)`}>
-        {params.level.map((level, i) =>
-          level <= pSfc ? (
-            <WindArrow direction={params.windDir[i]} speed={params.windSpeed[i]} y={pToPx(level)} />
-          ) : null
-        )}
+  render(
+    {
+      isLoading,
+      params,
+      width,
+      height,
+      windSpeedMax,
+      metric,
+      format,
+      pSfc,
+      pToPx,
+      speedToPx,
+      line,
+      zoom,
+    },
+    { yCursor }
+  ) {
+    if (isLoading) {
+      return;
+    }
+    const sfcPx = pToPx(pSfc);
+
+    let windAtCursor = 0;
+    if (yCursor != null) {
+      windAtCursor = sampleAt(params.level, params.windSpeed, [pToPx.invert(yCursor)])[0];
+    }
+
+    return (
+      <g
+        class="chart wind"
+        onMouseLeave={() => this.setState({ yCursor: null })}
+        onMouseMove={e => this.setState({ yCursor: e.offsetY })}
+      >
+        <path class="line wind" d={line(math.zip(params.windSpeed, params.level))} />
+        <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format, zoom }} />
+        <g transform={`translate(${width / 2}, 0)`}>
+          {params.level.map((level, i) =>
+            level <= pSfc ? (
+              <WindArrow
+                direction={params.windDir[i]}
+                speed={params.windSpeed[i]}
+                y={pToPx(level)}
+              />
+            ) : null
+          )}
+        </g>
+        {yCursor != null ? (
+          <g>
+            <text textAnchor="end" style="fill: black;" x={width - 20} y={yCursor - 5}>
+              {format(windAtCursor)}
+            </text>
+            <line id="wind-hint-line" y1={yCursor} y2={yCursor} x2={width} class="boundary" />
+          </g>
+        ) : null}
+        <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
+        <rect class="border" height={height} width={width} />
       </g>
-      <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
-      <rect class="border" height={height} width={width} />
-    </g>
-  );
-};
+    );
+  }
+}
 
 const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) => {
   if (zoom) {
@@ -40,6 +78,7 @@ const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) 
     return (
       <g class="axis">
         <line y1={height} x1={x15} x2={x15} class="light" />
+        <rect width={width / 2} height={height} fill="white" opacity="0.1" />
         <rect x={width / 2} width={width / 2} height={height} fill="red" opacity="0.1" />
         <text class="tick" transform={`translate(${x15 - 5} 80) rotate(-90)`}>
           {format(15 / 3.6)}

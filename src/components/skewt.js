@@ -1,10 +1,12 @@
-import * as math from "../math";
 import * as atm from "../atmosphere";
+import * as math from "../math";
+
 import { Parcel } from "../components/parcel";
-import { h } from "preact";
 import { PureComponent } from "./pure";
+import { h } from "preact";
 
 export const SkewT = ({
+  isLoading,
   params,
   pMax,
   width,
@@ -23,6 +25,9 @@ export const SkewT = ({
   ghAxisStep,
   zoom,
 }) => {
+  if (isLoading) {
+    return;
+  }
   const sfcPx = pToPx(pSfc);
 
   return (

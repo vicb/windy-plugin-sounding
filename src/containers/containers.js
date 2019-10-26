@@ -1,18 +1,21 @@
-import { SkewT } from "../components/skewt";
-import { WindGram } from "../components/wind";
-import { Favorites } from "../components/favorites";
-import { LoadingIndicator } from "../components/loading";
-import { connect } from "preact-redux";
 import * as skewTSel from "../selectors/skewt";
 import * as soundingSel from "../selectors/sounding";
 import * as windSel from "../selectors/wind";
-import { parcelTrajectory } from "../atmosphere";
-import { setLocation, setZoom } from "../actions/sounding";
-import { h } from "preact";
 
-const windyCalendar = W.require("Calendar");
+import { setLocation, setZoom } from "../actions/sounding";
+
+import { Favorites } from "../components/favorites";
+import { LoadingIndicator } from "../components/loading";
+import { SkewT } from "../components/skewt";
+import { WindGram } from "../components/wind";
+import { connect } from "preact-redux";
+import { h } from "preact";
+import { parcelTrajectory } from "../atmosphere";
 
 function stateToSkewTProp(state) {
+  if (soundingSel.isLoading(state)) {
+    return { isLoading: true };
+  }
   const parameters = skewTSel.params(state);
   const pSfc = skewTSel.pSfc(state);
   let parcel;
@@ -32,6 +35,7 @@ function stateToSkewTProp(state) {
   }
 
   return {
+    isLoading: false,
     params: parameters,
     pMax: skewTSel.pMax(state),
     cloudCover: soundingSel.cloudCover(state),
@@ -52,17 +56,24 @@ function stateToSkewTProp(state) {
 
 const ConnectedSkewT = connect(stateToSkewTProp)(SkewT);
 
-const stateToWindProp = state => ({
-  params: skewTSel.params(state),
-  windSpeedMax: windSel.windSpeedMax(state),
-  format: soundingSel.formatSpeed(state),
-  metric: soundingSel.speedMetric(state),
-  pSfc: skewTSel.pSfc(state),
-  pToPx: skewTSel.pToPx(state),
-  speedToPx: windSel.speedToPx(state),
-  line: windSel.line(state),
-  zoom: soundingSel.zoom(state),
-});
+const stateToWindProp = state => {
+  return soundingSel.isLoading(state)
+    ? {
+        isLoading: true,
+      }
+    : {
+        isLoading: false,
+        params: skewTSel.params(state),
+        windSpeedMax: windSel.windSpeedMax(state),
+        format: soundingSel.formatSpeed(state),
+        metric: soundingSel.speedMetric(state),
+        pSfc: skewTSel.pSfc(state),
+        pToPx: skewTSel.pToPx(state),
+        speedToPx: windSel.speedToPx(state),
+        line: windSel.line(state),
+        zoom: soundingSel.zoom(state),
+      };
+};
 
 const ConnectedWindgram = connect(stateToWindProp)(WindGram);
 
@@ -73,11 +84,16 @@ const stateToFavProp = state => ({
 
 export const ConnectedFavorites = connect(stateToFavProp)(Favorites);
 
-const stateToTitleProps = state => ({
-  modelName: soundingSel.modelName(state),
-  updated: soundingSel.modelUpdated(state),
-  nextUpdate: soundingSel.modelNextUpdate(state),
-});
+const stateToTitleProps = state => {
+  return soundingSel.isLoading(state)
+    ? { isLoading: true }
+    : {
+        isLoading: false,
+        modelName: soundingSel.modelName(state),
+        updated: soundingSel.modelUpdated(state),
+        nextUpdate: soundingSel.modelNextUpdate(state),
+      };
+};
 
 function formatTimestamp(ts) {
   return new Date(ts).toLocaleString([], {
@@ -88,16 +104,21 @@ function formatTimestamp(ts) {
   });
 }
 
-const SoundingTitle = connect(stateToTitleProps)(({ modelName, updated, nextUpdate }) => {
-  const updateStr = formatTimestamp(updated);
-  const nextStr = formatTimestamp(nextUpdate);
+const SoundingTitle = connect(stateToTitleProps)(
+  ({ isLoading, modelName, updated, nextUpdate }) => {
+    if (isLoading) {
+      return;
+    }
+    const updateStr = formatTimestamp(updated);
+    const nextStr = formatTimestamp(nextUpdate);
 
-  return (
-    <p class="model">
-      Model <strong>{modelName.toUpperCase()}</strong> ({updateStr}). Next update on {nextStr}.
-    </p>
-  );
-});
+    return (
+      <p class="model">
+        Model <strong>{modelName.toUpperCase()}</strong> ({updateStr}). Next update on {nextStr}.
+      </p>
+    );
+  }
+);
 
 const stateToAppProps = state => {
   const width = soundingSel.width(state);
