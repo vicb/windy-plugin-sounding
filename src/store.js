@@ -1,12 +1,11 @@
-import {createStore, applyMiddleware} from 'redux';
-import thunk from 'redux-thunk';
-import {rootReducer} from './reducers/sounding';
-import * as soundingAct from './actions/sounding';
 import * as skewTAct from './actions/skewt';
+import * as soundingAct from './actions/sounding';
 import * as windAct from './actions/wind';
-/* strip-from-prod */
-import logger from 'redux-logger';
-/* end-strip-from-prod */
+
+import {applyMiddleware, compose, createStore} from 'redux';
+
+import {rootReducer} from './reducers/sounding';
+import thunk from 'redux-thunk';
 
 const $ = W.require("$");
 const plugins = W.require("plugins");
@@ -20,11 +19,9 @@ export function getStore() {
     return store;
   }
 
-  const middlewares = [thunk];
-  /* strip-from-prod */
-  middlewares.push(logger);
-  /* end-strip-from-prod */
-  store = createStore(rootReducer, applyMiddleware(...middlewares));
+  const middlewares = [thunk, ];
+  const composeEnhancers = (process.env.NODE_ENV == 'development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) || compose;
+  store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
 
   const container = $("#bsounding-chart");
   store.dispatch(soundingAct.setWidth(container.clientWidth));
