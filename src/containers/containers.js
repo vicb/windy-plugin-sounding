@@ -8,7 +8,7 @@ import { Favorites } from "../components/favorites";
 import { LoadingIndicator } from "../components/loading";
 import { SkewT } from "../components/skewt";
 import { WindGram } from "../components/wind";
-import { connect } from "preact-redux";
+import { connect } from "react-redux";
 import { h } from "preact";
 import { parcelTrajectory } from "../atmosphere";
 

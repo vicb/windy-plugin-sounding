@@ -1,11 +1,12 @@
-import pluginHtml from "./plugin.html";
-import pluginCss from "./plugin.less";
-import {setLocation, setModelName, setTime, addSubscription, cancelSubscriptions, setActive, removeMarker} from './actions/sounding';
-import {centerMap} from './selectors/sounding';
-import {Provider} from 'preact-redux';
-import {h, render} from 'preact';
-import {App} from './containers/containers'
+import {addSubscription, cancelSubscriptions, removeMarker, setActive, setLocation, setModelName, setTime} from './actions/sounding';
 import {getStore, updateMetrics} from './store';
+import {h, render} from 'preact';
+
+import {App} from './containers/containers'
+import {Provider} from 'react-redux';
+import {centerMap} from './selectors/sounding';
+import pluginCss from "./plugin.less";
+import pluginHtml from "./plugin.html";
 
 const map = W.require("map");
 

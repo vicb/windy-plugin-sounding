@@ -1,3 +1,4 @@
+import alias from 'rollup-plugin-alias';
 import babel from "rollup-plugin-babel";
 import cjs from "rollup-plugin-commonjs";
 import html from "rollup-plugin-html";
@@ -10,6 +11,7 @@ import serve from "rollup-plugin-serve";
 import stripCode from "rollup-plugin-strip-code"
 import visualizer from 'rollup-plugin-visualizer';
 const fs = require('fs');
+const path = require('path');
 
 const prod = !process.env.ROLLUP_WATCH;
 
@@ -49,8 +51,18 @@ export default {
       },
     }),
     resolve(),
+    alias({
+      entries: {
+        react: path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
+        'react-dom': path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
+        'react-is': path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
+      }
+    }),    
     cjs({
-      include: "node_modules/**"
+      include: "node_modules/**",
+      namedExports: {
+        'node_modules/react-is/index.js': ['isValidElementType', 'isContextConsumer']
+      }      
     }),
     !prod &&
       serve({
