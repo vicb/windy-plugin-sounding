@@ -1,3 +1,7 @@
+## 1.1.5 - Nov 1 2019
+
+- Display temperatures when the mouse enters the skewt diagram.
+
 ## 1.1.0 - Oct 25 2019
 
 - Display wind speed when the mouse enters the windgram.

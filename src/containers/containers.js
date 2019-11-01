@@ -42,6 +42,7 @@ function stateToSkewTProp(state) {
     pSfc,
     parcel,
     formatAltitude: soundingSel.formatAltitude(state),
+    formatTemp: soundingSel.formatTemp(state),
     tAxisToPx: skewTSel.tAxisToPx(state),
     pToPx: skewTSel.pToPx(state),
     pAxisToPx: skewTSel.pAxisToPx(state),
@@ -51,6 +52,7 @@ function stateToSkewTProp(state) {
     ghMetric: soundingSel.altiMetric(state),
     ghAxisStep: skewTSel.ghAxisStep(state),
     zoom: soundingSel.zoom(state),
+    skew: skewTSel.skew(state),
   };
 }
 

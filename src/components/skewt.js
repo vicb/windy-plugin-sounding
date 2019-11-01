@@ -5,98 +5,155 @@ import { Parcel } from "../components/parcel";
 import { PureComponent } from "./pure";
 import { h } from "preact";
 
-export const SkewT = ({
-  isLoading,
-  params,
-  pMax,
-  width,
-  height,
-  cloudCover,
-  pSfc,
-  parcel,
-  formatAltitude,
-  tAxisToPx,
-  pToPx,
-  pAxisToPx,
-  line,
-  tMetric,
-  tAxisStep,
-  ghMetric,
-  ghAxisStep,
-  zoom,
-}) => {
-  if (isLoading) {
-    return;
+export class SkewT extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { yCursor: null };
   }
-  const sfcPx = pToPx(pSfc);
 
-  return (
-    <svg width={width} height={height + 20}>
-      <defs>
-        <pattern
-          id="diag-hatch"
-          patternUnits="userSpaceOnUse"
-          width="8"
-          height="8"
-          patternTransform="rotate(45 2 2)"
+  render(
+    {
+      isLoading,
+      params,
+      pMax,
+      width,
+      height,
+      cloudCover,
+      pSfc,
+      parcel,
+      formatAltitude,
+      formatTemp,
+      tAxisToPx,
+      pToPx,
+      pAxisToPx,
+      line,
+      tMetric,
+      tAxisStep,
+      ghMetric,
+      ghAxisStep,
+      zoom,
+      skew,
+    },
+    { yCursor }
+  ) {
+    if (isLoading) {
+      return;
+    }
+    const sfcPx = pToPx(pSfc);
+    let tAtCursor = 0;
+    let dpAtCursor = 0;
+    if (yCursor != null) {
+      tAtCursor = math.sampleAt(params.level, params.temp, [pToPx.invert(yCursor)])[0];
+      dpAtCursor = math.sampleAt(params.level, params.dewpoint, [pToPx.invert(yCursor)])[0];
+    }
+
+    return (
+      <svg width={width} height={height + 20}>
+        <defs>
+          <pattern
+            id="diag-hatch"
+            patternUnits="userSpaceOnUse"
+            width="8"
+            height="8"
+            patternTransform="rotate(45 2 2)"
+          >
+            <rect width="8" height="8" fill="#f8f8f8" opacity="0.7" />
+            <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
+          </pattern>
+        </defs>
+
+        <g
+          class="chart skewt"
+          onMouseLeave={() => this.setState({ yCursor: null })}
+          onMouseMove={e => this.setState({ yCursor: e.offsetY })}
         >
-          <rect width="8" height="8" fill="#f8f8f8" opacity="0.7" />
-          <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
-        </pattern>
-      </defs>
-
-      <g class="chart skewt">
-        <g class="axis">
-          {[-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80].map(t => (
-            <DryAdiabat
-              temp={t + 273.15}
-              pressure={pMax}
+          <rect width={width} height={height} fill="white" opacity="0.1" />
+          <g class="axis">
+            {[-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80].map(t => (
+              <DryAdiabat
+                temp={t + 273.15}
+                pressure={pMax}
+                height={height}
+                pToPx={pToPx}
+                line={line}
+              />
+            ))}
+            {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
+              <MoistAdiabat
+                temp={t + 273.15}
+                pressure={pMax}
+                height={height}
+                pToPx={pToPx}
+                line={line}
+              />
+            ))}
+            {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
+              <IsoHume temp={t + 273.15} pressure={pMax} {...{ height, pToPx, line }} />
+            ))}
+            {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40].map(t => (
+              <IsoTherm temp={t + 273.15} {...{ height, pToPx, line }} />
+            ))}
+            {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude }} />}
+            <TemperatureAxis
+              width={width}
               height={height}
-              pToPx={pToPx}
-              line={line}
+              tAxisToPx={tAxisToPx}
+              step={tAxisStep}
+              metric={tMetric}
             />
-          ))}
-          {[-20, -10, 0, 5, 10, 15, 20, 25, 30, 35].map(t => (
-            <MoistAdiabat
-              temp={t + 273.15}
-              pressure={pMax}
+            <Clouds
+              width={width}
               height={height}
+              cloudCover={cloudCover}
               pToPx={pToPx}
-              line={line}
+              pSfc={pSfc}
+              highClouds={zoom}
             />
-          ))}
-          {[-20, -15, -10, -5, 0, 5, 10, 15, 20].map(t => (
-            <IsoHume temp={t + 273.15} pressure={pMax} {...{ height, pToPx, line }} />
-          ))}
-          {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40].map(t => (
-            <IsoTherm temp={t + 273.15} {...{ height, pToPx, line }} />
-          ))}
-          {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude }} />}
-          <TemperatureAxis
-            width={width}
-            height={height}
-            tAxisToPx={tAxisToPx}
-            step={tAxisStep}
-            metric={tMetric}
-          />
-          <Clouds
-            width={width}
-            height={height}
-            cloudCover={cloudCover}
-            pToPx={pToPx}
-            pSfc={pSfc}
-            highClouds={zoom}
-          />
-          <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
+            <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
+          </g>
+          <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
+          <path class="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
+          {yCursor != null ? (
+            <g>
+              <text
+                class="tick"
+                text-anchor="end"
+                style="fill: black;"
+                dominant-baseline="hanging"
+                x={width - 7}
+                y={yCursor + 4}
+              >
+                {formatAltitude(pAxisToPx.invert(yCursor))}
+              </text>
+              <text
+                class="tick"
+                style="fill: red;"
+                dominant-baseline="hanging"
+                x={tAxisToPx(tAtCursor - 273.15) + skew * (height - yCursor) + 10}
+                y={yCursor + 4}
+              >
+                {formatTemp(tAtCursor)}
+              </text>
+              <text
+                class="tick"
+                style="fill: steelblue;"
+                dominant-baseline="hanging"
+                x={tAxisToPx(dpAtCursor - 273.15) + skew * (height - yCursor) + 10}
+                y={yCursor + 4}
+              >
+                {formatTemp(dpAtCursor)}
+              </text>
+              <line y1={yCursor} y2={yCursor} x2={width} class="boundary" />
+            </g>
+          ) : null}
+          <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
+          <rect class="border" height={height} width={width} />
         </g>
-        <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
-        <path class="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
-        <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
-        <rect class="border" height={height} width={width} />
-      </g>
-    </svg>
-  );
-};
+      </svg>
+    );
+  }
+}
+
 class DryAdiabat extends PureComponent {
   render({ temp, pressure, height, pToPx, line }) {
     const points = [];

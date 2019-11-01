@@ -7,7 +7,7 @@ import { sampleAt } from "../math";
 export class WindGram extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { yCursor: 100 };
+    this.state = { yCursor: null };
   }
 
   render(
@@ -58,7 +58,7 @@ export class WindGram extends PureComponent {
         </g>
         {yCursor != null ? (
           <g>
-            <text textAnchor="end" style="fill: black;" x={width - 20} y={yCursor - 5}>
+            <text class="tick" text-anchor="end" style="fill: black;" x={width - 5} y={yCursor - 5}>
               {format(windAtCursor)}
             </text>
             <line id="wind-hint-line" y1={yCursor} y2={yCursor} x2={width} class="boundary" />
