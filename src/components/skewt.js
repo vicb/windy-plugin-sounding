@@ -123,7 +123,7 @@ export class SkewT extends PureComponent {
                 x={width - 7}
                 y={yCursor + 4}
               >
-                {formatAltitude(pAxisToPx.invert(yCursor))}
+                {Math.round(pAxisToPx.invert(yCursor) / 100) * 100}
               </text>
               <text
                 class="tick"
