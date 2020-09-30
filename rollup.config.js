@@ -3,7 +3,6 @@ import babel from "@rollup/plugin-babel";
 import cjs from "rollup-plugin-commonjs";
 import html from "rollup-plugin-html";
 import less from "rollup-plugin-less-modules";
-import minify from "rollup-plugin-babel-minify";
 import pkg from "./package.json";
 import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
@@ -84,6 +83,7 @@ export default {
         ],
       ],
       plugins: [["@babel/plugin-transform-react-jsx", { pragma: "h" }]],
+      babelHelpers: 'bundled',
     }),
     visualizer(),
     prod && terser({ output: { comments: false } }),
