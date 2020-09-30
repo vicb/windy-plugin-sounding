@@ -9,6 +9,7 @@ import replace from "rollup-plugin-replace";
 import resolve from "rollup-plugin-node-resolve";
 import serve from "rollup-plugin-serve";
 import stripCode from "rollup-plugin-strip-code"
+import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 const fs = require('fs');
 const path = require('path');
@@ -85,9 +86,6 @@ export default {
       plugins: [["@babel/plugin-transform-react-jsx", { pragma: "h" }]],
     }),
     visualizer(),
-    prod && minify({
-      comments: !prod,
-      keepFnName: false,
-    }),
+    prod && terser({ output: { comments: false } }),
   ],
 };
