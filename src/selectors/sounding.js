@@ -1,5 +1,6 @@
-import { createSelector } from "reselect";
 import * as math from "../math";
+
+import { createSelector } from "reselect";
 
 const windyMetrics = W.require("metrics");
 const windyUtils = W.require("utils");
@@ -59,79 +60,9 @@ export const forecasts = createSelector(
   }
 );
 
-const meteogram = state => state.plugin.meteogram;
-
-const cloudCanvas = createSelector(
-  meteogram,
-  forecasts,
-  (meteogram, forecasts) => {
-    // Draw the clouds
-    const canvas = document.createElement("canvas");
-    const times = forecasts.times;
-    // 300px whatever the pixel density
-    const height = 300 / meteogram.canvasRatio;
-    meteogram
-      .init(canvas, times.length, 6, height)
-      .setHeight(height)
-      .setOffset(0)
-      .render(forecasts.airData)
-      .resetCanvas();
-
-    return canvas;
-  }
-);
-
-const cloudSlice = createSelector(
-  cloudCanvas,
-  timestamp,
-  forecasts,
-  (canvas, timestamp, forecasts) => {
-    const times = forecasts.times;
-    const width = canvas.width;
-    const next = times.findIndex(t => t >= timestamp);
-    if (next == -1) {
-      return null;
-    }
-    const prev = Math.max(0, next - 1);
-    const stepX = width / times.length;
-    const nextX = stepX / 2 + next * stepX;
-    const prevX = stepX / 2 + prev * stepX;
-    const x = Math.round(math.linearInterpolate(times[prev], prevX, times[next], nextX, timestamp));
-    const height = canvas.height;
-    const slice = canvas.getContext("2d").getImageData(x, 0, 1, height).data;
-    const cover = [];
-    for (let y = 0; y < height; y++) {
-      cover.push(slice[4 * y]);
-    }
-    return cover;
-  }
-);
-
-export const cloudCover = createSelector(
-  meteogram,
-  cloudSlice,
-  (meteogram, slice) => {
-    const length = slice.length;
-    const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
-    // lower indexes correspond to lower pressures
-    const indexes = meteogram.hrAlt.map(p => (length - 1) * (1 - p / 100));
-    const pToIndex = math.scaleLinear(levels, indexes);
-    return (pFrom, pTo) => {
-      const idxFrom = Math.round(pToIndex(pFrom));
-      if (pTo == null) {
-        return slice[idxFrom];
-      }
-      const idxTo = Math.round(pToIndex(pTo));
-      const covers = slice.slice(idxTo, idxFrom).filter(v => v > 0);
-      return covers.length > 0 ? Math.min(...covers) : 0;
-    };
-  }
-);
-
 export const isLoading = createSelector(
   forecasts,
-  meteogram,
-  (f, m) => !m || !f || f.isLoading === true
+  (f) => !f || f.isLoading === true
 );
 
 export const tMax = createSelector(

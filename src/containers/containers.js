@@ -38,7 +38,6 @@ function stateToSkewTProp(state) {
     isLoading: false,
     params: parameters,
     pMax: skewTSel.pMax(state),
-    cloudCover: soundingSel.cloudCover(state),
     pSfc,
     parcel,
     formatAltitude: soundingSel.formatAltitude(state),

@@ -42,15 +42,6 @@ export function getStore() {
 
   store.dispatch(soundingAct.setZoom(true));
 
-  plugins["detail-render"].load().then(() => {
-    W.define("meteogram-ext", ["meteogram", "Class"], function(m, c) {
-      return c.extend(m, {
-        legend: () => this,
-      });
-    });
-    store.dispatch(soundingAct.setMeteogram(W.require("meteogram-ext")));
-  });
-
   return store;
 }
 

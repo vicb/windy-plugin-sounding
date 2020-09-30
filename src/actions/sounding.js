@@ -4,7 +4,7 @@ const loaderOptions = {
   key: "QKlmnpLWr2rZSyFaT7LpxZc0d5bo34D4",
   plugin: PKG_NAME /* eslint-disable-line */,
 };
-const windyLoader = W.require("pluginDataLoader")(loaderOptions);
+const windyLoader = W.require("@plugins/plugin-data-loader")(loaderOptions);
 
 // plugin
 export const SET_LOCATION = "SDG.SET_LOCATION";
@@ -20,7 +20,6 @@ export const SET_HEIGHT = "SDG.SET_HEIGHT";
 export const SET_METRIC_TEMP = "SDG.SET_METRIC_TEMP";
 export const SET_METRIC_ALTITUDE = "SDG.SET_METRIC_ALTITUDE";
 export const SET_METRIC_SPEED = "SDG.SET_METRIC_SPEED";
-export const SET_METEOGRAM = "SDG.SET_METEOGRAM";
 export const ADD_FAVORITE = "SDG.ADD_FAVORITE";
 export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
@@ -34,11 +33,6 @@ export const setZoom = zoom => ({
 export const addFavorite = favorite => ({
   type: ADD_FAVORITE,
   payload: { favorite },
-});
-
-export const setMeteogram = meteogram => ({
-  type: SET_METEOGRAM,
-  payload: { meteogram },
 });
 
 export const setMetricTemp = metric => ({

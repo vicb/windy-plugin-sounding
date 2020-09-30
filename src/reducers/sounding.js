@@ -1,27 +1,28 @@
-import { combineReducers } from "redux";
+import * as atm from "../atmosphere";
+
 import {
-  SET_LOCATION,
-  SET_MODELNAME,
-  SET_TIME,
-  FETCH_PARAMS,
-  RECEIVE_PARAMS,
+  ADD_FAVORITE,
   ADD_SUBSCRIPTION,
   DELETE_SUBSCRIPTION,
-  SET_ACTIVE,
+  FETCH_PARAMS,
   MOVE_MARKER,
+  RECEIVE_PARAMS,
   REMOVE_MARKER,
-  SET_WIDTH,
+  SET_ACTIVE,
   SET_HEIGHT,
-  SET_METRIC_TEMP,
+  SET_LOCATION,
   SET_METRIC_ALTITUDE,
   SET_METRIC_SPEED,
-  SET_METEOGRAM,
-  ADD_FAVORITE,
+  SET_METRIC_TEMP,
+  SET_MODELNAME,
+  SET_TIME,
+  SET_WIDTH,
   SET_ZOOM,
 } from "../actions/sounding";
+
+import { combineReducers } from "redux";
 import { skewt } from "./skewt";
 import { windgram } from "./wind";
-import * as atm from "../atmosphere";
 
 const windyUtils = W.require("utils");
 const windyMap = W.require("map");
@@ -98,9 +99,6 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
     case SET_HEIGHT:
       const { height } = action.payload;
       return { ...state, height };
-    case SET_METEOGRAM:
-      const { meteogram } = action.payload;
-      return { ...state, meteogram };
     case ADD_FAVORITE: {
       const { favorite } = action.payload;
       return { ...state, favorites: [...state.favorites, favorite] };
