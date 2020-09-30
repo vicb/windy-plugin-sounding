@@ -1,3 +1,7 @@
+## 1.1.8 - Sep 30 2020
+
+- Disable cloud cover after [build change](https://community.windy.com/topic/7523/load-our-meteorological-data-into-your-windy-plugin/10).
+
 ## 1.1.5 - Nov 1 2019
 
 - Display temperatures when the mouse enters the skewt diagram.
