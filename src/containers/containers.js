@@ -57,7 +57,7 @@ function stateToSkewTProp(state) {
 
 const ConnectedSkewT = connect(stateToSkewTProp)(SkewT);
 
-const stateToWindProp = state => {
+const stateToWindProp = (state) => {
   return soundingSel.isLoading(state)
     ? {
         isLoading: true,
@@ -78,14 +78,14 @@ const stateToWindProp = state => {
 
 const ConnectedWindgram = connect(stateToWindProp)(WindGram);
 
-const stateToFavProp = state => ({
+const stateToFavProp = (state) => ({
   favorites: soundingSel.favorites(state),
   location: soundingSel.locationKey(state),
 });
 
 export const ConnectedFavorites = connect(stateToFavProp)(Favorites);
 
-const stateToTitleProps = state => {
+const stateToTitleProps = (state) => {
   return soundingSel.isLoading(state)
     ? { isLoading: true }
     : {
@@ -121,7 +121,7 @@ const SoundingTitle = connect(stateToTitleProps)(
   }
 );
 
-const stateToAppProps = state => {
+const stateToAppProps = (state) => {
   const width = soundingSel.width(state);
   const height = soundingSel.height(state);
 
@@ -170,12 +170,12 @@ const stateToAppProps = state => {
   };
 };
 
-const stateToAppDispatch = dispatch => ({
-  onFavSelected: centerMap => ({ lat, lon }) => {
+const stateToAppDispatch = (dispatch) => ({
+  onFavSelected: (centerMap) => ({ lat, lon }) => {
     dispatch(setLocation(lat, lon));
     centerMap(lat, lon);
   },
-  onZoomClick: e => {
+  onZoomClick: (e) => {
     dispatch(setZoom(e.target.checked));
   },
 });

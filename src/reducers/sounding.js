@@ -66,7 +66,7 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
     }
     case DELETE_SUBSCRIPTION: {
       const { cb } = action.payload;
-      return { ...state, subscriptions: state.subscriptions.filter(fn => fn != cb) };
+      return { ...state, subscriptions: state.subscriptions.filter((fn) => fn != cb) };
     }
     case SET_ACTIVE:
       const { active } = action.payload;
@@ -113,7 +113,7 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
 
 // params
 function extractAirDataParam(airData, param, levels, tsIndex) {
-  return levels.map(level => {
+  return levels.map((level) => {
     const valueByTs = airData.data[`${param}-${level}h`];
     const value = Array.isArray(valueByTs) ? valueByTs[tsIndex] : null;
     if (param === "gh" && value == null) {

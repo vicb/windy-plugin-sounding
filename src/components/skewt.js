@@ -18,7 +18,6 @@ export class SkewT extends PureComponent {
       pMax,
       width,
       height,
-      cloudCover,
       pSfc,
       parcel,
       formatAltitude,
@@ -31,7 +30,6 @@ export class SkewT extends PureComponent {
       tAxisStep,
       ghMetric,
       ghAxisStep,
-      zoom,
       skew,
     },
     { yCursor }
@@ -100,14 +98,6 @@ export class SkewT extends PureComponent {
               tAxisToPx={tAxisToPx}
               step={tAxisStep}
               metric={tMetric}
-            />
-            <Clouds
-              width={width}
-              height={height}
-              cloudCover={cloudCover}
-              pToPx={pToPx}
-              pSfc={pSfc}
-              highClouds={zoom}
             />
             <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
           </g>
@@ -200,7 +190,10 @@ class IsoHume extends PureComponent {
 
 class IsoTherm extends PureComponent {
   render({ temp, height, pToPx, line }) {
-    const points = [[temp, pToPx.invert(height)], [temp, pToPx.invert(0)]];
+    const points = [
+      [temp, pToPx.invert(height)],
+      [temp, pToPx.invert(0)],
+    ];
     return <path class="isotherm" d={line(points)} />;
   }
 }
@@ -238,4 +231,3 @@ const AltitudeAxis = ({ pAxisToPx, width, metric, step }) => {
 
   return <g>{children}</g>;
 };
-

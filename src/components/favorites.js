@@ -9,11 +9,11 @@ export class Favorites extends PureComponent {
         {favorites.length == 0 ? (
           <span data-icon="m">Add favorites to enable fly to.</span>
         ) : (
-          favorites.map(f => {
+          favorites.map((f) => {
             return (
               <span
                 class={"location" + (utils.latLon2str(f) == location ? " selected" : "")}
-                onClick={e => onSelected(f, e)}
+                onClick={(e) => onSelected(f, e)}
               >
                 {f.title || f.name}
               </span>

@@ -25,32 +25,32 @@ export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
 export const SET_ZOOM = "SDG.SET_ZOOM";
 
-export const setZoom = zoom => ({
+export const setZoom = (zoom) => ({
   type: SET_ZOOM,
   payload: { zoom },
 });
 
-export const addFavorite = favorite => ({
+export const addFavorite = (favorite) => ({
   type: ADD_FAVORITE,
   payload: { favorite },
 });
 
-export const setMetricTemp = metric => ({
+export const setMetricTemp = (metric) => ({
   type: SET_METRIC_TEMP,
   payload: { metric },
 });
 
-export const setMetricAltitude = metric => ({
+export const setMetricAltitude = (metric) => ({
   type: SET_METRIC_ALTITUDE,
   payload: { metric },
 });
 
-export const setMetricSpeed = metric => ({
+export const setMetricSpeed = (metric) => ({
   type: SET_METRIC_SPEED,
   payload: { metric },
 });
 
-export const setLocation = (lat, lon) => dispatch => {
+export const setLocation = (lat, lon) => (dispatch) => {
   dispatch({
     type: SET_LOCATION,
     payload: { lat, lon },
@@ -59,7 +59,7 @@ export const setLocation = (lat, lon) => dispatch => {
   dispatch(maybeFetchParams());
 };
 
-export const setModelName = modelName => dispatch => {
+export const setModelName = (modelName) => (dispatch) => {
   const supportedModels = /^(ecmwf|gfs|nam|iconEu)/;
   if (!supportedModels.test(modelName)) {
     modelName = "gfs";
@@ -72,12 +72,12 @@ export const setModelName = modelName => dispatch => {
   dispatch(maybeFetchParams());
 };
 
-export const setTime = timestamp => ({
+export const setTime = (timestamp) => ({
   type: SET_TIME,
   payload: { timestamp },
 });
 
-export const addSubscription = cb => ({
+export const addSubscription = (cb) => ({
   type: ADD_SUBSCRIPTION,
   payload: { cb },
 });
@@ -90,13 +90,13 @@ function deleteSubscription(cb) {
 }
 
 export const cancelSubscriptions = () => (dispatch, getState) => {
-  getState().plugin.subscriptions.forEach(cb => {
+  getState().plugin.subscriptions.forEach((cb) => {
     cb();
     dispatch(deleteSubscription(cb));
   });
 };
 
-export const setActive = active => ({
+export const setActive = (active) => ({
   type: SET_ACTIVE,
   payload: { active },
 });
@@ -110,12 +110,12 @@ export const removeMarker = () => ({
   type: REMOVE_MARKER,
 });
 
-export const setWidth = width => ({
+export const setWidth = (width) => ({
   type: SET_WIDTH,
   payload: { width },
 });
 
-export const setHeight = height => ({
+export const setHeight = (height) => ({
   type: SET_HEIGHT,
   payload: { height },
 });
