@@ -1,3 +1,8 @@
+## 1.2.0 - Oct 14 2020
+
+- Re-enable cloud cover,
+- Redux code cleanup.
+
 ## 1.1.8 - Sep 30 2020
 
 - Disable cloud cover after [build change](https://community.windy.com/topic/7523/load-our-meteorological-data-into-your-windy-plugin/10).
