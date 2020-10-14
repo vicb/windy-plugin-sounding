@@ -1,4 +1,4 @@
-import * as math from './math';
+import * as math from "./math";
 
 // Gas constant for dry air at the surface of the Earth
 const Rd = 287;
@@ -114,7 +114,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
       moistTemps.push(t);
     }
 
-    const isohume = math.zip(dryDewpoints, dryPressures).filter(pt => pt[1] > pCloudBase);
+    const isohume = math.zip(dryDewpoints, dryPressures).filter((pt) => pt[1] > pCloudBase);
     isohume.push([cloudBase[1], pCloudBase]);
 
     let moist = math.zip(moistTemps, moistPressures);
@@ -123,7 +123,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
     parcel.pCloudTop = params.level[params.level.length - 1];
     if (equilibrium) {
       const pCloudTop = pToEl.invert(equilibrium[0]);
-      moist = moist.filter(pt => pt[1] >= pCloudTop);
+      moist = moist.filter((pt) => pt[1] >= pCloudTop);
       moist.push([equilibrium[1], pCloudTop]);
       parcel.pCloudTop = pCloudTop;
     }
@@ -132,7 +132,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
   }
 
   const pThermalTop = pToEl.invert(thermalTop[0]);
-  const dry = math.zip(dryTemps, dryPressures).filter(pt => pt[1] > pThermalTop);
+  const dry = math.zip(dryTemps, dryPressures).filter((pt) => pt[1] > pThermalTop);
   dry.push([thermalTop[1], pThermalTop]);
 
   parcel.dry = dry;

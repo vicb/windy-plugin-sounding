@@ -1,11 +1,11 @@
-import * as skewTAct from './actions/skewt';
-import * as soundingAct from './actions/sounding';
-import * as windAct from './actions/wind';
+import * as skewTAct from "./actions/skewt";
+import * as soundingAct from "./actions/sounding";
+import * as windAct from "./actions/wind";
 
-import {applyMiddleware, compose, createStore} from 'redux';
+import { applyMiddleware, compose, createStore } from "redux";
 
-import {rootReducer} from './reducers/sounding';
-import thunk from 'redux-thunk';
+import { rootReducer } from "./reducers/sounding";
+import thunk from "redux-thunk";
 
 const $ = W.require("$");
 const plugins = W.require("plugins");
@@ -19,15 +19,17 @@ export function getStore() {
     return store;
   }
 
-  const middlewares = [thunk, ];
-  const composeEnhancers = (process.env.NODE_ENV == 'development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) || compose;
+  const middlewares = [thunk];
+  const composeEnhancers =
+    (process.env.NODE_ENV == "development" ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) ||
+    compose;
   store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
 
   const container = $("#bsounding-chart");
   store.dispatch(soundingAct.setWidth(container.clientWidth));
   store.dispatch(soundingAct.setHeight(600));
   updateMetrics(store);
-  favorites.getArray().forEach(f => {
+  favorites.getArray().forEach((f) => {
     store.dispatch(soundingAct.addFavorite(f));
   });
 
@@ -47,8 +49,8 @@ export function getStore() {
 
 export function updateMetrics() {
   if (store) {
-    store.dispatch(soundingAct.setMetricTemp(windyStore.get('metric_temp')));
-    store.dispatch(soundingAct.setMetricAltitude(windyStore.get('metric_altitude')));
-    store.dispatch(soundingAct.setMetricSpeed(windyStore.get('metric_wind')));
+    store.dispatch(soundingAct.setMetricTemp(windyStore.get("metric_temp")));
+    store.dispatch(soundingAct.setMetricAltitude(windyStore.get("metric_altitude")));
+    store.dispatch(soundingAct.setMetricSpeed(windyStore.get("metric_wind")));
   }
 }

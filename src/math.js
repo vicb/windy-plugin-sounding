@@ -17,8 +17,8 @@ export function linearInterpolate(x1, y1, x2, y2, x) {
 // xs and ys must have the same length.
 export function sampleAt(xs, ys, targetXs) {
   const descOrder = xs[0] > xs[1];
-  return targetXs.map(tx => {
-    let index = xs.findIndex(x => (descOrder ? x <= tx : x >= tx));
+  return targetXs.map((tx) => {
+    let index = xs.findIndex((x) => (descOrder ? x <= tx : x >= tx));
     if (index == -1) {
       index = xs.length - 1;
     } else if (index == 0) {
@@ -36,7 +36,7 @@ export function firstIntersection(x1s, y1s, x2s, y2s) {
   const min = Math.max(x1s[0], x2s[0]);
   const max = Math.min(x1s[x1s.length - 1], x2s[x2s.length - 1]);
   const xs = Array.from(new Set([...x1s, ...x2s]))
-    .filter(x => x >= min && x <= max)
+    .filter((x) => x >= min && x <= max)
     .sort((a, b) => (Number(a) > Number(b) ? 1 : -1));
   // Interpolate the lines for all the points of that intersection
   const iy1s = sampleAt(x1s, y1s, xs);
@@ -69,21 +69,25 @@ export function zip(a, b) {
 }
 
 export function scaleLinear(from, to) {
-  const scale = v => sampleAt(from, to, [v])[0];
-  scale.invert = v => sampleAt(to, from, [v])[0];
+  const scale = (v) => sampleAt(from, to, [v])[0];
+  scale.invert = (v) => sampleAt(to, from, [v])[0];
   return scale;
 }
 
 export function scaleLog(from, to) {
   from = from.map(Math.log);
-  const scale = v => sampleAt(from, to, [Math.log(v)])[0];
-  scale.invert = v => Math.exp(sampleAt(to, from, [v])[0]);
+  const scale = (v) => sampleAt(from, to, [Math.log(v)])[0];
+  scale.invert = (v) => Math.exp(sampleAt(to, from, [v])[0]);
   return scale;
 }
 
 export function line(x, y) {
-  return d => {
-    const points = d.map(v => x(v).toFixed(1) + "," + y(v).toFixed(1));
+  return (d) => {
+    const points = d.map((v) => x(v).toFixed(1) + "," + y(v).toFixed(1));
     return "M" + points.join("L");
   };
+}
+
+export function lerp(v0, v1, weight) {
+  return v0 + weight * (v1 - v0);
 }

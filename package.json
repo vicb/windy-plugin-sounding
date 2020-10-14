@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "npx rollup -c --watch",
     "build": "npx rollup -c",
-    "lint": "npx eslint src/**/*.{js,html} --fix",
-    "format": "npx prettier src/**/*.{js,html} --write"
+    "lint": "npx eslint src/**/*.{js,html} src/*.{js,html} --fix",
+    "format": "npx prettier src/*.{js,html} src/**/*.{js,html} --write"
   },
   "repository": {
     "type": "git",

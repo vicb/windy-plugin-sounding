@@ -1,10 +1,18 @@
-import {addSubscription, cancelSubscriptions, removeMarker, setActive, setLocation, setModelName, setTime} from './actions/sounding';
-import {getStore, updateMetrics} from './store';
-import {h, render} from 'preact';
+import {
+  addSubscription,
+  cancelSubscriptions,
+  removeMarker,
+  setActive,
+  setLocation,
+  setModelName,
+  setTime,
+} from "./actions/sounding";
+import { getStore, updateMetrics } from "./store";
+import { h, render } from "preact";
 
-import {App} from './containers/containers'
-import {Provider} from 'react-redux';
-import {centerMap} from './selectors/sounding';
+import { App } from "./containers/containers";
+import { Provider } from "react-redux";
+import { centerMap } from "./selectors/sounding";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
 
@@ -28,8 +36,10 @@ W.loadPlugin(
   },
   /* eslint-enable */
   pluginHtml,
-  process.env.NODE_ENV == "development" ? pluginCss + "#plugins #plugin-dev {left: 70%}" : pluginCss,
-  function() {
+  process.env.NODE_ENV == "development"
+    ? pluginCss + "#plugins #plugin-dev {left: 70%}"
+    : pluginCss,
+  function () {
     const $ = W.require("$");
     const picker = W.require("picker");
     const windyStore = W.require("store");
@@ -39,10 +49,12 @@ W.loadPlugin(
     render(
       <Provider store={store}>
         <App />
-      </Provider>, container);
+      </Provider>,
+      container
+    );
 
     // Called when the plugin is opened
-    this.onopen = location => {
+    this.onopen = (location) => {
       let lat;
       let lon;
 
@@ -71,13 +83,13 @@ W.loadPlugin(
         });
         store.dispatch(addSubscription(() => windyStore.off(productChanged)));
 
-        const pickerOpened = picker.on("pickerOpened", ({lat, lon}) => {
+        const pickerOpened = picker.on("pickerOpened", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
-        }) ;
+        });
 
         store.dispatch(addSubscription(() => picker.off(pickerOpened)));
 
-        const pickerMoved = picker.on("pickerMoved", ({lat, lon}) => {
+        const pickerMoved = picker.on("pickerMoved", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
         });
         store.dispatch(addSubscription(() => picker.off(pickerMoved)));
@@ -92,7 +104,7 @@ W.loadPlugin(
 
       centerMap(store.getState())(lat, lon);
 
-      this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = ev =>
+      this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = (ev) =>
         ev.stopPropagation();
     };
 

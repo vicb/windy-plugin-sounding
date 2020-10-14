@@ -1,5 +1,7 @@
 import * as math from "../math";
 
+import { computeClouds, hrAlt } from "../clouds";
+
 import { createSelector } from "reselect";
 
 const windyMetrics = W.require("metrics");
@@ -53,6 +55,50 @@ export const forecasts = createSelector(
     return (models[modelName] || {})[key];
   }
 );
+
+const clouds = createSelector(forecasts, (forecasts) => computeClouds(forecasts.airData.data));
+
+const cloudSlice = createSelector(
+  clouds,
+  timestamp,
+  forecasts,
+  (cloudsData, timestamp, forecasts) => {
+    const { clouds, width, height } = cloudsData;
+    const times = forecasts.times;
+    const next = times.findIndex((t) => t >= timestamp);
+    if (next == -1) {
+      return null;
+    }
+    const prev = Math.max(0, next - 1);
+    const stepX = width / times.length;
+    const nextX = stepX / 2 + next * stepX;
+    const prevX = stepX / 2 + prev * stepX;
+    const x = Math.round(math.linearInterpolate(times[prev], prevX, times[next], nextX, timestamp));
+    const cover = [];
+    for (let y = 0; y < height; y++) {
+      cover.push(clouds[x + y * width]);
+    }
+    console.log(cover);
+    return cover;
+  }
+);
+
+export const cloudCover = createSelector(cloudSlice, (slice) => {
+  const length = slice.length;
+  const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
+  // lower indexes correspond to lower pressures
+  const indexes = hrAlt.map((p) => (length - 1) * (1 - p / 100));
+  const pToIndex = math.scaleLinear(levels, indexes);
+  return (pFrom, pTo) => {
+    const idxFrom = Math.round(pToIndex(pFrom));
+    if (pTo == null) {
+      return slice[idxFrom];
+    }
+    const idxTo = Math.round(pToIndex(pTo));
+    const covers = slice.slice(idxTo, idxFrom).filter((v) => v > 0);
+    return covers.length > 0 ? Math.min(...covers) : 0;
+  };
+});
 
 export const isLoading = createSelector(forecasts, (f) => !f || f.isLoading === true);
 
