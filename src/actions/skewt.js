@@ -4,15 +4,15 @@ export const SET_P_MIN = "SKT.SET_P_MIN";
 
 export const setWidth = (width) => ({
   type: SET_WIDTH,
-  payload: { width },
+  payload: width,
 });
 
 export const setHeight = (height) => ({
   type: SET_HEIGHT,
-  payload: { height },
+  payload: height,
 });
 
 export const setPMin = (pMin) => ({
   type: SET_P_MIN,
-  payload: { pMin },
+  payload: pMin,
 });

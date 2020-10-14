@@ -27,27 +27,27 @@ export const SET_ZOOM = "SDG.SET_ZOOM";
 
 export const setZoom = (zoom) => ({
   type: SET_ZOOM,
-  payload: { zoom },
+  payload: zoom,
 });
 
 export const addFavorite = (favorite) => ({
   type: ADD_FAVORITE,
-  payload: { favorite },
+  payload: favorite,
 });
 
 export const setMetricTemp = (metric) => ({
   type: SET_METRIC_TEMP,
-  payload: { metric },
+  payload: metric,
 });
 
 export const setMetricAltitude = (metric) => ({
   type: SET_METRIC_ALTITUDE,
-  payload: { metric },
+  payload: metric,
 });
 
 export const setMetricSpeed = (metric) => ({
   type: SET_METRIC_SPEED,
-  payload: { metric },
+  payload: metric,
 });
 
 export const setLocation = (lat, lon) => (dispatch) => {
@@ -67,25 +67,25 @@ export const setModelName = (modelName) => (dispatch) => {
 
   dispatch({
     type: SET_MODELNAME,
-    payload: { modelName },
+    payload: modelName,
   });
   dispatch(maybeFetchParams());
 };
 
 export const setTime = (timestamp) => ({
   type: SET_TIME,
-  payload: { timestamp },
+  payload: timestamp,
 });
 
 export const addSubscription = (cb) => ({
   type: ADD_SUBSCRIPTION,
-  payload: { cb },
+  payload: cb,
 });
 
 function deleteSubscription(cb) {
   return {
     type: DELETE_SUBSCRIPTION,
-    payload: { cb },
+    payload: cb,
   };
 }
 
@@ -98,7 +98,7 @@ export const cancelSubscriptions = () => (dispatch, getState) => {
 
 export const setActive = (active) => ({
   type: SET_ACTIVE,
-  payload: { active },
+  payload: active,
 });
 
 export const moveMarker = (lat, lon) => ({
@@ -112,12 +112,12 @@ export const removeMarker = () => ({
 
 export const setWidth = (width) => ({
   type: SET_WIDTH,
-  payload: { width },
+  payload: width,
 });
 
 export const setHeight = (height) => ({
   type: SET_HEIGHT,
-  payload: { height },
+  payload: height,
 });
 
 // params

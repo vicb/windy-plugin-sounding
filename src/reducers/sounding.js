@@ -31,16 +31,13 @@ const windyProducts = W.require("products");
 function metrics(state = {}, action) {
   switch (action.type) {
     case SET_METRIC_TEMP: {
-      const { metric } = action.payload;
-      return { ...state, temp: metric };
+      return { ...state, temp: action.payload };
     }
     case SET_METRIC_ALTITUDE: {
-      const { metric } = action.payload;
-      return { ...state, altitude: metric };
+      return { ...state, altitude: action.payload };
     }
     case SET_METRIC_SPEED: {
-      const { metric } = action.payload;
-      return { ...state, speed: metric };
+      return { ...state, speed: action.payload };
     }
     default:
       return state;
@@ -52,25 +49,19 @@ function metrics(state = {}, action) {
 function plugin(state = { subscriptions: [], favorites: [] }, action) {
   switch (action.type) {
     case SET_LOCATION:
-      const { lat, lon } = action.payload;
-      return { ...state, lat, lon };
+      return { ...state, ...action.payload };
     case SET_MODELNAME:
-      const { modelName } = action.payload;
-      return { ...state, modelName };
+      return { ...state, modelName: action.payload };
     case SET_TIME:
-      const { timestamp } = action.payload;
-      return { ...state, timestamp };
+      return { ...state, timestamp: action.payload };
     case ADD_SUBSCRIPTION: {
-      const { cb } = action.payload;
-      return { ...state, subscriptions: state.subscriptions.concat(cb) };
+      return { ...state, subscriptions: state.subscriptions.concat(action.payload) };
     }
     case DELETE_SUBSCRIPTION: {
-      const { cb } = action.payload;
-      return { ...state, subscriptions: state.subscriptions.filter((fn) => fn != cb) };
+      return { ...state, subscriptions: state.subscriptions.filter((fn) => fn != action.payload) };
     }
     case SET_ACTIVE:
-      const { active } = action.payload;
-      return { ...state, active };
+      return { ...state, active: action.payload };
     case MOVE_MARKER: {
       let { marker } = state;
       const { lon: lng, lat } = action.payload;
@@ -87,25 +78,22 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
       marker.setLatLng({ lat, lng });
       return state;
     }
-    case REMOVE_MARKER:
+    case REMOVE_MARKER: {
       const { marker } = state;
       if (marker) {
         windyMap.removeLayer(marker);
       }
       return { ...state, marker: null };
+    }
     case SET_WIDTH:
-      const { width } = action.payload;
-      return { ...state, width };
+      return { ...state, width: action.payload };
     case SET_HEIGHT:
-      const { height } = action.payload;
-      return { ...state, height };
+      return { ...state, height: action.payload };
     case ADD_FAVORITE: {
-      const { favorite } = action.payload;
-      return { ...state, favorites: [...state.favorites, favorite] };
+      return { ...state, favorites: [...state.favorites, action.payload] };
     }
     case SET_ZOOM:
-      const { zoom } = action.payload;
-      return { ...state, zoom };
+      return { ...state, zoom: action.payload };
     default:
       return state;
   }
@@ -178,10 +166,11 @@ function forecasts(state = { isLoading: false }, action, modelName) {
   switch (action.type) {
     case FETCH_PARAMS:
       return { ...state, isLoading: true };
-    case RECEIVE_PARAMS:
+    case RECEIVE_PARAMS: {
       const { airData, forecast } = action.payload;
       const forecasts = computeForecasts(modelName, airData, forecast);
       return { ...state, ...forecasts, isLoading: false, loaded: Date.now() };
+    }
     default:
       return state;
   }
@@ -190,7 +179,7 @@ function forecasts(state = { isLoading: false }, action, modelName) {
 function models(state = {}, action) {
   switch (action.type) {
     case FETCH_PARAMS:
-    case RECEIVE_PARAMS:
+    case RECEIVE_PARAMS: {
       const { modelName } = action.payload;
       const model = state[modelName] || {};
       const key = windyUtils.latLon2str(action.payload);
@@ -198,6 +187,7 @@ function models(state = {}, action) {
         ...state,
         [modelName]: { ...model, [key]: forecasts(model[key], action, modelName) },
       };
+    }
     default:
       return state;
   }

@@ -1,13 +1,11 @@
-import { SET_WIDTH, SET_HEIGHT } from "../actions/wind";
+import { SET_HEIGHT, SET_WIDTH } from "../actions/wind";
 
 export function windgram(state = {}, action) {
   switch (action.type) {
     case SET_WIDTH:
-      const { width } = action.payload;
-      return { ...state, width };
+      return { ...state, width: action.payload };
     case SET_HEIGHT:
-      const { height } = action.payload;
-      return { ...state, height };
+      return { ...state, height: action.payload };
     default:
       return state;
   }

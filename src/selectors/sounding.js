@@ -78,7 +78,6 @@ const cloudSlice = createSelector(
     for (let y = 0; y < height; y++) {
       cover.push(clouds[x + y * width]);
     }
-    console.log(cover);
     return cover;
   }
 );

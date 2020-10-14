@@ -1,16 +1,13 @@
-import { SET_WIDTH, SET_HEIGHT, SET_P_MIN } from "../actions/skewt";
+import { SET_HEIGHT, SET_P_MIN, SET_WIDTH } from "../actions/skewt";
 
 export function skewt(state = { pMax: 1000 }, action) {
   switch (action.type) {
     case SET_WIDTH:
-      const { width } = action.payload;
-      return { ...state, width };
+      return { ...state, width: action.payload };
     case SET_HEIGHT:
-      const { height } = action.payload;
-      return { ...state, height };
+      return { ...state, height: action.payload };
     case SET_P_MIN:
-      const { pMin } = action.payload;
-      return { ...state, pMin };
+      return { ...state, pMin: action.payload };
     default:
       return state;
   }
