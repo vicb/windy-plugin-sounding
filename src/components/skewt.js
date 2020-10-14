@@ -252,16 +252,18 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
     const upperPressure = pToPx.invert(y);
     const upperCover = cloudCover(upperPressure, 150);
 
-    if (upperCover > 0) {
-      rects.push(
-        <Cloud y="0" width={width} height="30" cover={upperCover} />,
-        <text class="tick" y={30 - 5} x={width - 5} text-anchor="end">
-          upper clouds
-        </text>,
-
-        <line y1="30" y2="30" x2={width} class="boundary" />
-      );
+    if (upperCover == 255) {
+      return;
     }
+
+    rects.push(
+      <Cloud y="0" width={width} height="30" cover={upperCover} />,
+      <text class="tick" y={30 - 5} x={width - 5} text-anchor="end">
+        upper clouds
+      </text>,
+
+      <line y1="30" y2="30" x2={width} class="boundary" />
+    );
   }
 
   // Then respect the y scale
