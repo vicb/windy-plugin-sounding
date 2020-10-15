@@ -27,6 +27,7 @@ import { windgram } from "./wind";
 const windyUtils = W.require("utils");
 const windyMap = W.require("map");
 const windyProducts = W.require("products");
+const windySubscription = W.require("subscription");
 
 function metrics(state = {}, action) {
   switch (action.type) {
@@ -145,7 +146,9 @@ function computeForecasts(modelName, airData, forecast) {
     });
   }
 
-  const { interval } = windyProducts[modelName];
+  const interval = windySubscription.hasAny()
+    ? windyProducts[modelName].intervalPremium || windyProducts[modelName].interval
+    : windyProducts[modelName].interval;
   const nextUpdate = forecast.header.updateTs + (interval + 60) * 60 * 1000;
 
   return {
