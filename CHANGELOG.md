@@ -1,3 +1,7 @@
+## 1.2.2 - Oct 15 2020
+
+- fix model update intervals for premium members.
+
 ## 1.2.0 - Oct 14 2020
 
 - Re-enable cloud cover,
