@@ -1,3 +1,7 @@
+## 1.3.0 - Oct 21 2020
+
+- Use premium forecasts for registered users.
+
 ## 1.2.2 - Oct 15 2020
 
 - fix model update intervals for premium members.
