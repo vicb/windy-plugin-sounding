@@ -1,10 +1,6 @@
 const windyUtils = W.require("utils");
-
-const loaderOptions = {
-  key: "QKlmnpLWr2rZSyFaT7LpxZc0d5bo34D4",
-  plugin: PKG_NAME /* eslint-disable-line */,
-};
-const windyLoader = W.require("@plugins/plugin-data-loader")(loaderOptions);
+const windyUrls = W.require("urls");
+const windyHttp = W.require("http");
 
 // plugin
 export const SET_LOCATION = "SDG.SET_LOCATION";
@@ -151,8 +147,11 @@ export function maybeFetchParams() {
       shouldFetchForecasts(getState().models[modelName], lat, lon)
     ) {
       dispatch(fetchParams(lat, lon, modelName));
-      const query = { model: modelName, lat, lon };
-      Promise.all([windyLoader("airData", query), windyLoader("forecast", query)]).then(
+      const step = 3;
+      const forecastUrl = windyUrls.getPointForecast(modelName, {lat, lon, step}, "detail");
+      const meteogramUrl = windyUrls.getMeteogramForecast(modelName, {lat, lon, step});
+
+      Promise.all([windyHttp.get(meteogramUrl), windyHttp.get(forecastUrl)]).then(
         ([airData, forecast]) => {
           dispatch(receiveParams(lat, lon, modelName, airData.data, forecast.data));
         }
