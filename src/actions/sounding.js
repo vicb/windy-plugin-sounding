@@ -19,11 +19,10 @@ export const SET_METRIC_SPEED = "SDG.SET_METRIC_SPEED";
 export const ADD_FAVORITE = "SDG.ADD_FAVORITE";
 export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
-export const SET_ZOOM = "SDG.SET_ZOOM";
+export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 
-export const setZoom = (zoom) => ({
-  type: SET_ZOOM,
-  payload: zoom,
+export const toggleZoom = () => ({
+  type: TOGGLE_ZOOM,
 });
 
 export const addFavorite = (favorite) => ({

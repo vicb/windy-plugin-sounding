@@ -17,7 +17,7 @@ import {
   SET_MODELNAME,
   SET_TIME,
   SET_WIDTH,
-  SET_ZOOM,
+  TOGGLE_ZOOM,
 } from "../actions/sounding";
 
 import { combineReducers } from "redux";
@@ -47,7 +47,7 @@ function metrics(state = {}, action) {
 
 // plugin
 
-function plugin(state = { subscriptions: [], favorites: [] }, action) {
+function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action) {
   switch (action.type) {
     case SET_LOCATION:
       return { ...state, ...action.payload };
@@ -93,8 +93,8 @@ function plugin(state = { subscriptions: [], favorites: [] }, action) {
     case ADD_FAVORITE: {
       return { ...state, favorites: [...state.favorites, action.payload] };
     }
-    case SET_ZOOM:
-      return { ...state, zoom: action.payload };
+    case TOGGLE_ZOOM:
+      return { ...state, zoom: !state.zoom };
     default:
       return state;
   }

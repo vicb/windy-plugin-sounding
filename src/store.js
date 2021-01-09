@@ -42,8 +42,6 @@ export function getStore() {
   store.dispatch(windAct.setWidth(100));
   store.dispatch(windAct.setHeight(580));
 
-  store.dispatch(soundingAct.setZoom(true));
-
   return store;
 }
 

@@ -2,7 +2,7 @@ import * as skewTSel from "../selectors/skewt";
 import * as soundingSel from "../selectors/sounding";
 import * as windSel from "../selectors/wind";
 
-import { setLocation, setZoom } from "../actions/sounding";
+import { setLocation, toggleZoom } from "../actions/sounding";
 
 import { Favorites } from "../components/favorites";
 import { LoadingIndicator } from "../components/loading";
@@ -176,8 +176,8 @@ const stateToAppDispatch = (dispatch) => ({
     dispatch(setLocation(lat, lon));
     centerMap(lat, lon);
   },
-  onZoomClick: (e) => {
-    dispatch(setZoom(e.target.checked));
+  onZoomClick: () => {
+    dispatch(toggleZoom());
   },
 });
 
@@ -189,14 +189,13 @@ export const App = connect(
     <div>
       {title()}
       <img src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel" />
-      <svg {...{ width, height }} onWheel={wheelHandler}>
-        {chart()}
-      </svg>
+      <div style="position:relative">        
+        <svg {...{ width, height }} onWheel={wheelHandler}>
+          {chart()}
+        </svg>
+        <div id="wsp-zoom" class="iconfont clickable-size" onClick={onZoomClick}>{zoom ? '\uE03D' : '\uE03B'}</div>
+      </div>
       <ConnectedFavorites onSelected={onFavSelected(centerMap)} />
-      <label>
-        <input type="checkbox" checked={zoom} onClick={onZoomClick} />
-        Zoom view
-      </label>
     </div>
   );
 });
