@@ -9,6 +9,13 @@ const windyUtils = W.require("utils");
 const windyMap = W.require("map");
 const windyStore = W.require("store");
 
+// Extra space at the bottom to draw the ticks.
+export const GRAPH_BOTTOM_MARGIN_PX = 20;
+export const GRAPH_WINDGRAM_WIDTH_PERCENT = 17;
+// Gap between the skewT and the windgram.
+export const GRAPH_GAP_PX = 5;
+
+
 export const lat = (state) => state.plugin.lat;
 export const lon = (state) => state.plugin.lon;
 export const modelName = (state) => state.plugin.modelName;
@@ -18,8 +25,11 @@ export const pMetric = (state) => state.metrics.pressure;
 export const altiMetric = (state) => state.metrics.altitude;
 export const speedMetric = (state) => state.metrics.speed;
 export const favorites = (state) => state.plugin.favorites;
+// width * height of the graphs (skewT and windgram).
 export const width = (state) => state.plugin.width;
 export const height = (state) => state.plugin.height;
+// excluding the bottom area use to draw the ticks.
+export const graphHeight = (state) => state.plugin.height - GRAPH_BOTTOM_MARGIN_PX;
 export const zoom = (state) => state.plugin.zoom;
 
 // Format parameters

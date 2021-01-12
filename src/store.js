@@ -1,6 +1,5 @@
 import * as skewTAct from "./actions/skewt";
 import * as soundingAct from "./actions/sounding";
-import * as windAct from "./actions/wind";
 
 import { applyMiddleware, compose, createStore } from "redux";
 
@@ -8,7 +7,6 @@ import { rootReducer } from "./reducers/sounding";
 import thunk from "redux-thunk";
 
 const $ = W.require("$");
-const plugins = W.require("plugins");
 const windyStore = W.require("store");
 const favorites = W.require("favs");
 
@@ -26,21 +24,17 @@ export function getStore() {
   store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
 
   const container = $("#bsounding-chart");
-  store.dispatch(soundingAct.setWidth(container.clientWidth));
-  store.dispatch(soundingAct.setHeight(600));
+  const graphSize = container.clientWidth - 10;
+  store.dispatch(soundingAct.setWidth(graphSize));
+  store.dispatch(soundingAct.setHeight(graphSize));
+  
   updateMetrics(store);
+
   favorites.getArray().forEach((f) => {
     store.dispatch(soundingAct.addFavorite(f));
   });
 
-  // TODO - compute this from container geom.
-  // Do we need to keep wxh for the sounding ?
-  store.dispatch(skewTAct.setWidth(460));
-  store.dispatch(skewTAct.setHeight(580));
   store.dispatch(skewTAct.setPMin(400));
-
-  store.dispatch(windAct.setWidth(100));
-  store.dispatch(windAct.setHeight(580));
 
   return store;
 }

@@ -133,6 +133,9 @@ const stateToAppProps = (state) => {
     chart: () => <LoadingIndicator cx={width / 2} cy={height / 2} />,
     width,
     height,
+    graphHeight: soundingSel.graphHeight(state),
+    skewTWidth: skewTSel.width(state),
+    windgramWidth: windSel.width(state),
     zoom: soundingSel.zoom(state),
   };
 
@@ -159,11 +162,11 @@ const stateToAppProps = (state) => {
   return {
     ...props,
     title: () => <SoundingTitle />,
-    chart: () => (
+    chart: ({skewTWidth, windgramWidth, height}) => (
       <g>
-        <ConnectedSkewT width={460} height={580} />
-        <g transform="translate(480, 0)">
-          <ConnectedWindgram width={100} height={580} />
+        <ConnectedSkewT width={skewTWidth} height={height} />
+        <g transform={`translate(${skewTWidth + soundingSel.GRAPH_GAP_PX}, 0)`}>
+          <ConnectedWindgram width={windgramWidth} height={height} />
         </g>
       </g>
     ),
@@ -184,14 +187,14 @@ const stateToAppDispatch = (dispatch) => ({
 export const App = connect(
   stateToAppProps,
   stateToAppDispatch
-)(({ title, chart, centerMap, onFavSelected, wheelHandler, width, height, zoom, onZoomClick }) => {
+)(({ title, chart, centerMap, onFavSelected, wheelHandler, width, height, zoom, onZoomClick, graphHeight, skewTWidth, windgramWidth }) => {
   return (
     <div>
       {title()}
       <img src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel" />
       <div style="position:relative">        
         <svg {...{ width, height }} onWheel={wheelHandler}>
-          {chart()}
+          {chart({height: graphHeight, skewTWidth, windgramWidth})}
         </svg>
         <div id="wsp-zoom" class="iconfont clickable-size" onClick={onZoomClick}>{zoom ? '\uE03D' : '\uE03B'}</div>
       </div>

@@ -1,13 +1,17 @@
 import * as math from "../math";
 
 import {
+  GRAPH_GAP_PX,
+  GRAPH_WINDGRAM_WIDTH_PERCENT,
   altiMetric,
   elevation,
   forecasts,
   formatAltitude,
   formatTemp,
+  graphHeight,
   tMetric,
   timestamp,
+  width as totalWidth,
   zoom,
 } from "./sounding";
 
@@ -15,8 +19,7 @@ import { createSelector } from "reselect";
 
 const windyUtils = W.require("utils");
 
-export const width = (state) => state.skewt.width;
-export const height = (state) => state.skewt.height;
+export const width = (state) => Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT/100) - GRAPH_GAP_PX);
 export const pZoomMin = (state) => state.skewt.pMin;
 export const pMax = (state) => state.skewt.pMax;
 
@@ -72,7 +75,7 @@ export const tMin = createSelector(tMax, (tMax) => tMax - 60);
 
 export const skew = createSelector(
   width,
-  height,
+  graphHeight,
   pMax,
   pMin,
   tMax,
@@ -93,7 +96,7 @@ export const tAxisToPx = createSelector(
   (width, tMax, tMin, format) => math.scaleLinear([tMin, tMax].map(format), [0, width])
 );
 
-export const pToPx = createSelector(height, pMax, pMin, (height, pMax, pMin) =>
+export const pToPx = createSelector(graphHeight, pMax, pMin, (height, pMax, pMin) =>
   math.scaleLog([pMax, pMin], [height, 0])
 );
 
@@ -102,14 +105,14 @@ export const pToGh = createSelector(params, (p) => math.scaleLog(p.level, p.gh))
 export const pAxisToPx = createSelector(
   params,
   pToGh,
-  height,
+  graphHeight,
   pMin,
   formatAltitude,
   (params, pToGh, height, pMin, formatAltitude) =>
     math.scaleLinear([params.gh[0], pToGh(pMin)].map(formatAltitude), [height, 0])
 );
 
-export const line = createSelector(tToPx, skew, height, pToPx, (tToPx, skew, height, pToPx) =>
+export const line = createSelector(tToPx, skew, graphHeight, pToPx, (tToPx, skew, height, pToPx) =>
   math.line(
     (v) => tToPx(v[0]) + skew * (height - pToPx(v[1])),
     (v) => pToPx(v[1])

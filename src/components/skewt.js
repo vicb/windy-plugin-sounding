@@ -1,6 +1,7 @@
 import * as atm from "../atmosphere";
 import * as math from "../math";
 
+import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding";
 import { Parcel } from "../components/parcel";
 import { PureComponent } from "./pure";
 import { h } from "preact";
@@ -48,7 +49,7 @@ export class SkewT extends PureComponent {
     }
 
     return (
-      <svg width={width} height={height + 20}>
+      <svg width={width} height={height + GRAPH_BOTTOM_MARGIN_PX}>
         <defs>
           <pattern
             id="diag-hatch"

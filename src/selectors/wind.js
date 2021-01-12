@@ -1,9 +1,11 @@
-import { createSelector } from "reselect";
-import { pToPx, params } from "./skewt";
-import { zoom } from "./sounding";
 import * as math from "../math";
 
-export const width = (state) => state.windgram.width;
+import { GRAPH_WINDGRAM_WIDTH_PERCENT, width as totalWidth, zoom } from "./sounding";
+import { pToPx, params } from "./skewt";
+
+import { createSelector } from "reselect";
+
+export const width = (state) => Math.floor(totalWidth(state) * GRAPH_WINDGRAM_WIDTH_PERCENT / 100);
 
 export const windSpeedMax = createSelector(params, (params) =>
   params ? Math.max(60 / 3.6, ...params.windSpeed) : 0
