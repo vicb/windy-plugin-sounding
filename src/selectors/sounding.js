@@ -8,6 +8,7 @@ const windyMetrics = W.require("metrics");
 const windyUtils = W.require("utils");
 const windyMap = W.require("map");
 const windyStore = W.require("store");
+const windyRootScope = W.require("rootScope");
 
 // Extra space at the bottom to draw the ticks.
 export const GRAPH_BOTTOM_MARGIN_PX = 20;
@@ -156,9 +157,25 @@ export const isThermalHours = createSelector(
 
 export const centerMap = createSelector(width, (width) => (lat, lon) => {
   const bounds = windyMap.getBounds();
-  const deltaLng = bounds.getEast() - bounds.getWest();
-  const centerLon = lon - ((deltaLng / windyMap.getSize().x) * width) / 2;
-  windyMap.panTo({ lng: centerLon, lat });
+  
+  if (windyRootScope.isMobile) {
+    const pluginContent = document.querySelector('#windy-plugin-sounding .plugin-content');
+    if (!pluginContent) {
+      console.error('plugin div not found');
+      return;
+    }
+    // Portrait.
+    const pluginHeight = pluginContent.offsetHeight;
+    const mapHeight = windyMap.getSize().y;
+    const deltaLat = bounds.getSouth() - bounds.getNorth(); 
+    const centerLat = lat - ((deltaLat / mapHeight) * pluginHeight) / 2;
+    windyMap.panTo({ lng: lon, lat: centerLat });
+  } else {
+    const deltaLng = bounds.getEast() - bounds.getWest();  
+    const mapWidth = windyMap.getSize().x;  
+    const centerLon = lon - ((deltaLng / mapWidth) * width) / 2;
+    windyMap.panTo({ lng: centerLon, lat });  
+  }
 });
 
 let nextWheelMove = Date.now();
@@ -166,7 +183,7 @@ export const wheelHandler = createSelector(tzOffset, (tzOffset) => (e) => {
   if (Date.now() > nextWheelMove) {
     let ts = windyStore.get("timestamp");
     let next = 100;
-    const direction = Math.sign(event.deltaY);
+    const direction = Math.sign(e.deltaY);
     if (e.shiftKey || e.ctrlKey) {
       next = 1000;
       const d = new Date(ts);

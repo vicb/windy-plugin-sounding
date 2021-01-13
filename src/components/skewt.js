@@ -65,8 +65,8 @@ export class SkewT extends PureComponent {
 
         <g
           class="chart skewt"
-          onMouseLeave={() => this.setState({ yCursor: null })}
-          onMouseMove={(e) => this.setState({ yCursor: e.offsetY })}
+          onPointerLeave={() => this.setState({ yCursor: null })}
+          onPointerMove={(e) => this.setState({ yCursor: e.offsetY })}
         >
           <rect width={width} height={height} fill="white" opacity="0.1" />
           <g class="axis">

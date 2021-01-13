@@ -12,6 +12,8 @@ import { connect } from "react-redux";
 import { h } from "preact";
 import { parcelTrajectory } from "../atmosphere";
 
+const windyRootScope = W.require("rootScope");
+
 function stateToSkewTProp(state) {
   if (soundingSel.isLoading(state)) {
     return { isLoading: true };
@@ -82,6 +84,7 @@ const ConnectedWindgram = connect(stateToWindProp)(WindGram);
 const stateToFavProp = (state) => ({
   favorites: soundingSel.favorites(state),
   location: soundingSel.locationKey(state),
+  isMobile: windyRootScope.isMobile,
 });
 
 export const ConnectedFavorites = connect(stateToFavProp)(Favorites);
@@ -191,7 +194,7 @@ export const App = connect(
   return (
     <div>
       {title()}
-      <img src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel" />
+      <img class="wsp-abs" src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel" width="1" height="1" />
       <div style="position:relative">        
         <svg {...{ width, height }} onWheel={wheelHandler}>
           {chart({height: graphHeight, skewTWidth, windgramWidth})}

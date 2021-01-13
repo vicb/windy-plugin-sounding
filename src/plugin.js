@@ -31,8 +31,10 @@ W.loadPlugin(
     description: PKG_DESCRIPTION,
     displayName: "Better Sounding",
     hook: "contextmenu",
-    className: "plugin-lhpane plugin-mobile-fullscreen",
+    className: "plugin-lhpane",
+    classNameMobile: "window",
     exclusive: "lhpane",
+    attachPointMobile: '#plugins'
   },
   /* eslint-enable */
   pluginHtml,
@@ -41,7 +43,7 @@ W.loadPlugin(
     : pluginCss,
   function () {
     const $ = W.require("$");
-    const picker = W.require("picker");
+    const windyPicker = W.require("picker");
     const windyStore = W.require("store");
 
     const store = getStore();
@@ -83,16 +85,16 @@ W.loadPlugin(
         });
         store.dispatch(addSubscription(() => windyStore.off(productChanged)));
 
-        const pickerOpened = picker.on("pickerOpened", ({ lat, lon }) => {
+        const pickerOpened = windyPicker.on("pickerOpened", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
         });
 
-        store.dispatch(addSubscription(() => picker.off(pickerOpened)));
+        store.dispatch(addSubscription(() => windyPicker.off(pickerOpened)));
 
-        const pickerMoved = picker.on("pickerMoved", ({ lat, lon }) => {
+        const pickerMoved = windyPicker.on("pickerMoved", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
         });
-        store.dispatch(addSubscription(() => picker.off(pickerMoved)));
+        store.dispatch(addSubscription(() => windyPicker.off(pickerMoved)));
 
         store.dispatch(setActive(true));
       }

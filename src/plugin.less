@@ -25,9 +25,39 @@
     font-size: 16px;
   }
 
+  .mobile({
+    display: block; 
+    left: 0; 
+    top: 0; 
+    right: 0; 
+    width: 100%;
+    height: auto;
+    margin: 0;
+
+    .plugin-content {
+      // The window must be sized from its content.
+      bottom: auto;
+    }
+
+    .title {
+      margin: 0 0 2px 5px;
+      font-size: 16px;
+    }
+
+    p.model {
+      // Do not display model details on mobiles.
+      display: none;
+    }
+  });  
+
   .closing-x {
     display: block;
   }
+
+  .wsp-abs {
+    // So that the 1x1 img do not take space.
+    position: absolute;
+  }  
 
   #wsp-zoom {
     position: absolute;
@@ -35,7 +65,11 @@
     left: 60px;
     font-size: 25px;
     user-select: none;
-    color: #9d0300;    
+    color: @myred;    
+  }
+
+  #wsp-select-fav {
+    font-size: 1rem;
   }
 
   //=================================
@@ -58,14 +92,20 @@
   #bsounding-chart {
     padding: 0 5px;
 
+    svg {
+      touch-action: none;
+    }
+
     p.model {
       margin: 0;
     }
 
-    .chart .border {
-      fill: none;
-      stroke: gray;
-      stroke-width: 1;
+    .chart {
+      .border {
+        fill: none;
+        stroke: gray;
+        stroke-width: 1;
+      }
     }
 
     .cumulus {
@@ -75,6 +115,7 @@
     }
 
     .line {
+      pointer-events: none;
       stroke-width: 3;
       fill: none;
       stroke-linejoin: round;

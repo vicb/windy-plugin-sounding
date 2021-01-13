@@ -40,8 +40,8 @@ export class WindGram extends PureComponent {
     return (
       <g
         class="chart wind"
-        onMouseLeave={() => this.setState({ yCursor: null })}
-        onMouseMove={(e) => this.setState({ yCursor: e.offsetY })}
+        onPointerLeave={() => this.setState({ yCursor: null })}
+        onPointerMove={(e) => this.setState({ yCursor: e.offsetY })}
       >
         <path class="line wind" d={line(math.zip(params.windSpeed, params.level))} />
         <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format, zoom }} />
