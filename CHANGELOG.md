@@ -1,3 +1,9 @@
+## 1.4.3 - Jan 16, 2021
+
+- Add support for mobiles & tablets
+  You have to visit `https://www.windy.com/plugins/windy-plugin-sounding`.
+  Plugins do not work with the installed mobile app.
+
 ## 1.3.0 - Oct 21 2020
 
 - Use premium forecasts for registered users.

@@ -2,6 +2,9 @@
 
 Sounding forecast for paraglider pilots.
 
+You can load the plugin on mobiles and tablets by visiting [https://www.windy.com/plugins/windy-plugin-sounding](https://www.windy.com/plugins/windy-plugin-sounding).
+(Note that the mobile application does not support plugins for security reasons).
+
 ![Example Sounding](docs/sounding.png)
 
 ## How to use the plugin
@@ -27,7 +30,8 @@ The sounding appears on the left side of screen:
 ![Context menu](docs/5_skewt.png)
 
 A few notes:
-- You can scroll (mouse wheel) on the sounding diagram to go forward/backward in time - (pressing ctrl or shift will jump to the next/previous day),
+- On desktop, you can scroll (mouse wheel) on the sounding diagram to go forward/backward in time - (pressing ctrl or shift will jump to the next/previous day),
+- On touch devices, swiping left or right on the plugin will go backward or forward in time,
 - The blue line shows the dewpoint,
 - The red line shows air temperature,
 - The green line shows the temperature of an ascending parcel,
@@ -35,7 +39,7 @@ A few notes:
 - The left area shows clouds (excluding cumulus),
 - The top-most area show upper level clouds (i.e. up to ~15km),
 - The wind graph shows wind from 0-30km/h in the left part (white background) and from 30 to max speed in right part (red background),
-- The title shows which model is used ("GFS" in this example - note that not all models are supported),
+- On desktop, the subtitle shows which model is used ("GFS" in this example - note that not all models are supported),
 - The axis units match your windy settings.
 
 Credits:
