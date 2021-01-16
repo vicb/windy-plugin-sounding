@@ -56,9 +56,11 @@ W.loadPlugin(
       container
     );
 
-    // Add a class to <body> for mobile specific styling.
-    if (windyRootScope.isMobile) {
-      document.querySelector("body").classList.add("wsp-mobile");
+    // Tablets would use the className.
+    if (windyRootScope.isTablet) {
+      const classes = document.querySelector("#windy-plugin-sounding").classList;
+      classes.remove("plugin-lhpane");
+      classes.add("window");
     }
 
     // Called when the plugin is opened

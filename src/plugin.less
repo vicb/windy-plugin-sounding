@@ -3,18 +3,12 @@
 @width: 550px;
 
 .onwindy-plugin-sounding {
-	.left-border {
+  .left-border {
     left: @width;
   }
 	#search {
 		display: none;
 	}
-}
-
-.onwindy-plugin-sounding.wsp-mobile {
-	.left-border {
-    left: 0;
-  }
 }
 
 #windy-plugin-sounding {
@@ -31,7 +25,7 @@
     font-size: 16px;
   }
 
-  .mobile({
+  .mobileTablet({
     display: block; 
     left: 0; 
     top: 0; 
@@ -39,6 +33,12 @@
     width: 100%;
     height: auto;
     margin: 0;
+
+    .onwindy-plugin-sounding {
+      .left-border {
+        left: 0;
+      }
+    }
 
     .plugin-content {
       // The window must be sized from its content.

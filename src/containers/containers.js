@@ -84,7 +84,7 @@ const ConnectedWindgram = connect(stateToWindProp)(WindGram);
 const stateToFavProp = (state) => ({
   favorites: soundingSel.favorites(state),
   location: soundingSel.locationKey(state),
-  isMobile: windyRootScope.isMobile,
+  isMobile: windyRootScope.isMobile || windyRootScope.isTablet,
 });
 
 export const ConnectedFavorites = connect(stateToFavProp)(Favorites);
