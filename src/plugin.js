@@ -16,7 +16,8 @@ import { centerMap } from "./selectors/sounding";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
 
-const map = W.require("map");
+const windyMap = W.require("map");
+const windyRootScope = W.require("rootScope");
 
 W.loadPlugin(
   /* eslint-disable */
@@ -55,6 +56,11 @@ W.loadPlugin(
       container
     );
 
+    // Add a class to <body> for mobile specific styling.
+    if (windyRootScope.isMobile) {
+      document.querySelector("body").classList.add("wsp-mobile");
+    }
+
     // Called when the plugin is opened
     this.onopen = (location) => {
       let lat;
@@ -62,7 +68,7 @@ W.loadPlugin(
 
       // Opening from other location than contextmenu
       if (!location) {
-        const c = map.getCenter();
+        const c = windyMap.getCenter();
         lat = c.lat;
         lon = c.lng;
       } else {
@@ -72,7 +78,7 @@ W.loadPlugin(
 
       if (!store.getState().plugin.active) {
         // The plugin was previously closed
-        map.setZoom(10, { animate: false });
+        windyMap.setZoom(10, { animate: false });
         windyStore.set("overlay", "clouds");
 
         const timeChanged = windyStore.on("timestamp", () => {
