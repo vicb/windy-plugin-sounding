@@ -16,7 +16,6 @@ export const GRAPH_WINDGRAM_WIDTH_PERCENT = 17;
 // Gap between the skewT and the windgram.
 export const GRAPH_GAP_PX = 5;
 
-
 export const lat = (state) => state.plugin.lat;
 export const lon = (state) => state.plugin.lon;
 export const modelName = (state) => state.plugin.modelName;
@@ -157,24 +156,24 @@ export const isThermalHours = createSelector(
 
 export const centerMap = createSelector(width, (width) => (lat, lon) => {
   const bounds = windyMap.getBounds();
-  
+
   if (windyRootScope.isMobile) {
-    const pluginContent = document.querySelector('#windy-plugin-sounding .plugin-content');
+    const pluginContent = document.querySelector("#windy-plugin-sounding .plugin-content");
     if (!pluginContent) {
-      console.error('plugin div not found');
+      console.error("plugin div not found");
       return;
     }
     // Portrait.
     const pluginHeight = pluginContent.offsetHeight;
     const mapHeight = windyMap.getSize().y;
-    const deltaLat = bounds.getSouth() - bounds.getNorth(); 
+    const deltaLat = bounds.getSouth() - bounds.getNorth();
     const centerLat = lat - ((deltaLat / mapHeight) * pluginHeight) / 2;
     windyMap.panTo({ lng: lon, lat: centerLat });
   } else {
-    const deltaLng = bounds.getEast() - bounds.getWest();  
-    const mapWidth = windyMap.getSize().x;  
+    const deltaLng = bounds.getEast() - bounds.getWest();
+    const mapWidth = windyMap.getSize().x;
     const centerLon = lon - ((deltaLng / mapWidth) * width) / 2;
-    windyMap.panTo({ lng: centerLon, lat });  
+    windyMap.panTo({ lng: centerLon, lat });
   }
 });
 

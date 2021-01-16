@@ -19,7 +19,8 @@ import { createSelector } from "reselect";
 
 const windyUtils = W.require("utils");
 
-export const width = (state) => Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT/100) - GRAPH_GAP_PX);
+export const width = (state) =>
+  Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT / 100) - GRAPH_GAP_PX);
 export const pZoomMin = (state) => state.skewt.pMin;
 export const pMax = (state) => state.skewt.pMax;
 

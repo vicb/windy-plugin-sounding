@@ -27,7 +27,7 @@ export function getStore() {
   const graphSize = container.clientWidth - 10;
   store.dispatch(soundingAct.setWidth(graphSize));
   store.dispatch(soundingAct.setHeight(graphSize));
-  
+
   updateMetrics(store);
 
   favorites.getArray().forEach((f) => {

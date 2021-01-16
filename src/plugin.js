@@ -34,7 +34,7 @@ W.loadPlugin(
     className: "plugin-lhpane",
     classNameMobile: "window",
     exclusive: "lhpane",
-    attachPointMobile: '#plugins'
+    attachPointMobile: "#plugins",
   },
   /* eslint-enable */
   pluginHtml,
