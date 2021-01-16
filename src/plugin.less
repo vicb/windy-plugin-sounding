@@ -3,9 +3,12 @@
 @width: 550px;
 
 .onwindy-plugin-sounding {
-  .left-border {
-    left: @width;
-  }
+  .desktop({
+    .left-border {
+      left: @width;
+    }
+  });  
+
 	#search {
 		display: none;
 	}
@@ -33,12 +36,6 @@
     width: 100%;
     height: auto;
     margin: 0;
-
-    .onwindy-plugin-sounding {
-      .left-border {
-        left: 0;
-      }
-    }
 
     .plugin-content {
       // The window must be sized from its content.

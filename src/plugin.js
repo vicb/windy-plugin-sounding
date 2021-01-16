@@ -7,17 +7,18 @@ import {
   setModelName,
   setTime,
 } from "./actions/sounding";
+import { centerMap, updateTime } from "./selectors/sounding";
 import { getStore, updateMetrics } from "./store";
 import { h, render } from "preact";
 
 import { App } from "./containers/containers";
 import { Provider } from "react-redux";
-import { centerMap } from "./selectors/sounding";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
 
 const windyMap = W.require("map");
 const windyRootScope = W.require("rootScope");
+const windyUtils = W.require("utils");
 
 W.loadPlugin(
   /* eslint-disable */
@@ -56,11 +57,25 @@ W.loadPlugin(
       container
     );
 
-    // Tablets would use the className.
-    if (windyRootScope.isTablet) {
-      const classes = document.querySelector("#windy-plugin-sounding").classList;
+    if (windyRootScope.isMobileOrTablet) {
+      // Tablets use the className instead of classNameMobile.
+      const el = document.querySelector("#windy-plugin-sounding");
+      const classes = el.classList;
       classes.remove("plugin-lhpane");
       classes.add("window");
+      // Swipe Left/Right on the plugin to change the time.
+      windyUtils
+        .loadScript("https://unpkg.com/swipe-listener@1.3.0/dist/swipe-listener.min.js")
+        .then(() => {
+          // Make minHorizontal big enough to avoid false positives.
+          SwipeListener(el, { minHorizontal: el.offsetWidth / 4, mouse: false });
+          el.addEventListener("swipe", (e) => {
+            const { right, left } = e.detail.directions;
+            const direction = left ? -1 : right ? 1 : 0;
+            updateTime(getStore().getState())({ direction, changeDay: true });
+          });
+        })
+        .catch((e) => console.error(e));
     }
 
     // Called when the plugin is opened

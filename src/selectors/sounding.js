@@ -177,31 +177,39 @@ export const centerMap = createSelector(width, (width) => (lat, lon) => {
   }
 });
 
-let nextWheelMove = Date.now();
-export const wheelHandler = createSelector(tzOffset, (tzOffset) => (e) => {
-  if (Date.now() > nextWheelMove) {
-    let ts = windyStore.get("timestamp");
-    let next = 100;
-    const direction = Math.sign(e.deltaY);
-    if (e.shiftKey || e.ctrlKey) {
-      next = 1000;
-      const d = new Date(ts);
-      const h = d.getUTCHours();
-      d.setUTCMinutes(0);
-      ts = d.getTime();
-      const refTime = (13 - tzOffset + 24) % 24;
-      const dh = (refTime - h) * direction;
-      if (dh <= 0) {
-        ts += direction * (24 + dh) * 3600 * 1000;
-      } else {
-        ts += direction * dh * 3600 * 1000;
-      }
+// Returns a function used to update the time.
+//
+// - direction: +1 (forward) or -1 (backward),
+// - changeDay: true to update to the next/previous day.
+export const updateTime = createSelector(tzOffset, (tzOffset) => ({ direction, changeDay }) => {
+  let ts = windyStore.get("timestamp");
+  if (changeDay) {
+    const d = new Date(ts);
+    const h = d.getUTCHours();
+    d.setUTCMinutes(0);
+    ts = d.getTime();
+    const refTime = (13 - tzOffset + 24) % 24;
+    const dh = (refTime - h) * direction;
+    if (dh <= 0) {
+      ts += direction * (24 + dh) * 3600 * 1000;
     } else {
-      ts += direction * 3600 * 1000;
+      ts += direction * dh * 3600 * 1000;
     }
+  } else {
+    ts += direction * 3600 * 1000;
+  }
 
-    windyStore.set("timestamp", ts);
-    nextWheelMove = Date.now() + next;
+  windyStore.set("timestamp", ts);
+});
+
+// Updates the time on mouse wheel events.
+let nextWheelMove = Date.now();
+export const wheelHandler = createSelector(updateTime, (updateTime) => (e) => {
+  if (Date.now() > nextWheelMove) {
+    const changeDay = e.shiftKey || e.ctrlKey;
+    const direction = Math.sign(e.deltaY);
+    updateTime({ direction, changeDay });
+    nextWheelMove = Date.now() + changeDay ? 1000 : 100;
   }
   e.stopPropagation();
   e.preventDefault();
