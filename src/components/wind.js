@@ -102,13 +102,25 @@ const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) 
         <line y1={height} x1={x15} x2={x15} class="light" />
         <rect width={width / 2} height={height} fill="white" opacity="0.1" />
         <rect x={width / 2} width={width / 2} height={height} fill="red" opacity="0.1" />
-        <text class="tick" transform={`translate(${x15 - 5} 80) rotate(-90)`}>
+        <text
+          class="tick"
+          transform={`translate(${x15 - 5} 80) rotate(-90)`}
+          filter="url(#whiteOutlineEffect)"
+        >
           {format(15 / 3.6)}
         </text>
-        <text class="tick" transform={`translate(${x30 - 5} 80) rotate(-90)`}>
+        <text
+          class="tick"
+          transform={`translate(${x30 - 5} 80) rotate(-90)`}
+          filter="url(#whiteOutlineEffect)"
+        >
           {format(30 / 3.6)}
         </text>
-        <text class="tick" transform={`translate(${width - 5} 80) rotate(-90)`}>
+        <text
+          class="tick"
+          transform={`translate(${width - 5} 80) rotate(-90)`}
+          filter="url(#whiteOutlineEffect)"
+        >
           {`${format(maxSpeed)} ${metric}`}
         </text>
       </g>
@@ -117,15 +129,28 @@ const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) 
 
   return (
     <g class="axis">
+      <rect width={width} height={height} fill="white" opacity="0.1" />
       <line y1={height} x1={width / 3} x2={width / 3} class="light" />
-      <text class="tick" transform={`translate(${width / 3 - 5} 80) rotate(-90)`}>
+      <text
+        class="tick"
+        transform={`translate(${width / 3 - 5} 80) rotate(-90)`}
+        filter="url(#whiteOutlineEffect)"
+      >
         {format(maxSpeed / 3)}
       </text>
       <line y1={height} x1={(2 * width) / 3} x2={(2 * width) / 3} class="light" />
-      <text class="tick" transform={`translate(${(2 * width) / 3 - 5} 80) rotate(-90)`}>
+      <text
+        class="tick"
+        transform={`translate(${(2 * width) / 3 - 5} 80) rotate(-90)`}
+        filter="url(#whiteOutlineEffect)"
+      >
         {format((2 * maxSpeed) / 3)}
       </text>
-      <text class="tick" transform={`translate(${width - 5} 80) rotate(-90)`}>
+      <text
+        class="tick"
+        transform={`translate(${width - 5} 80) rotate(-90)`}
+        filter="url(#whiteOutlineEffect)"
+      >
         {`${format(maxSpeed)} ${metric}`}
       </text>
     </g>

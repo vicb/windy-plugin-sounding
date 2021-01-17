@@ -68,7 +68,7 @@ W.loadPlugin(
         .loadScript("https://unpkg.com/swipe-listener@1.3.0/dist/swipe-listener.min.js")
         .then(() => {
           // Make minHorizontal big enough to avoid false positives.
-          SwipeListener(el, { minHorizontal: el.offsetWidth / 4, mouse: false });
+          SwipeListener(el, { minHorizontal: el.offsetWidth / 6, mouse: false });
           el.addEventListener("swipe", (e) => {
             const { right, left } = e.detail.directions;
             const direction = left ? -1 : right ? 1 : 0;

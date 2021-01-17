@@ -250,7 +250,7 @@ const AltitudeAxis = ({ pAxisToPx, width, metric, step }) => {
     isLast = pAxisToPx(alti + step) < 20;
     children.push(
       <line y1={yPx} x2={width} y2={yPx} class="light" />,
-      <text class="tick" y={yPx - 5} x={5}>
+      <text class="tick" y={yPx - 5} x={5} filter="url(#whiteOutlineEffect)">
         {alti + " " + (isLast ? " " + metric : "")}
       </text>
     );
@@ -275,7 +275,13 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
 
     rects.push(
       <Cloud y="0" width={width} height="30" cover={upperCover} />,
-      <text class="tick" y={30 - 5} x={width - 5} text-anchor="end">
+      <text
+        class="tick"
+        y={30 - 5}
+        x={width - 5}
+        text-anchor="end"
+        filter="url(#whiteOutlineEffect)"
+      >
         upper clouds
       </text>,
 

@@ -1,5 +1,5 @@
-import { h } from "preact";
 import { PureComponent } from "./pure";
+import { h } from "preact";
 
 export function Parcel({ parcel, width, line, pToPx, formatAltitude }) {
   const { trajectory, isohume, elevThermalTop, pThermalTop, pCloudTop } = parcel;
@@ -23,6 +23,7 @@ export function Parcel({ parcel, width, line, pToPx, formatAltitude }) {
         dominant-baseline="hanging"
         y={thtY + 4}
         x={width - 7}
+        filter="url(#whiteOutlineEffect)"
       >
         {formatAltitude(elevThermalTop)}
       </text>,
