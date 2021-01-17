@@ -1,13 +1,13 @@
-import alias from 'rollup-plugin-alias';
+import alias from '@rollup/plugin-alias';
 import babel from "@rollup/plugin-babel";
-import cjs from "rollup-plugin-commonjs";
+import cjs from "@rollup/plugin-commonjs";
 import html from "rollup-plugin-html";
 import less from "rollup-plugin-less-modules";
 import pkg from "./package.json";
-import replace from "rollup-plugin-replace";
-import resolve from "rollup-plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import resolve from "@rollup/plugin-node-resolve";
 import serve from "rollup-plugin-serve";
-import stripCode from "rollup-plugin-strip-code"
+import stripCode from "rollup-plugin-strip-code";
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 const fs = require('fs');
@@ -60,9 +60,6 @@ export default {
     }),    
     cjs({
       include: "node_modules/**",
-      namedExports: {
-        'node_modules/react-is/index.js': ['isValidElementType', 'isContextConsumer']
-      }      
     }),
     !prod &&
       serve({
