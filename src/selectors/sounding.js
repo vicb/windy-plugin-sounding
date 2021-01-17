@@ -157,7 +157,7 @@ export const isThermalHours = createSelector(
 export const centerMap = createSelector(width, (width) => (lat, lon) => {
   const bounds = windyMap.getBounds();
 
-  if (windyRootScope.isMobile) {
+  if (windyRootScope.isMobileOrTablet) {
     const pluginContent = document.querySelector("#windy-plugin-sounding .plugin-content");
     if (!pluginContent) {
       console.error("plugin div not found");
