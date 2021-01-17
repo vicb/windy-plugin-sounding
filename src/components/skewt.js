@@ -61,6 +61,19 @@ export class SkewT extends PureComponent {
             <rect width="8" height="8" fill="#f8f8f8" opacity="0.7" />
             <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
           </pattern>
+          <filter id="whiteOutlineEffect" color-interpolation-filters="sRGB">
+            <feMorphology in="SourceAlpha" result="MORPH" operator="dilate" radius="2" />
+            <feColorMatrix
+              in="MORPH"
+              result="WHITENED"
+              type="matrix"
+              values="-1 0 0 0 1, 0 -1 0 0 1, 0 0 -1 0 1, 0 0 0 1 0"
+            />
+            <feMerge>
+              <feMergeNode in="WHITENED" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
         <g
@@ -114,7 +127,8 @@ export class SkewT extends PureComponent {
           </g>
           <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
           <path class="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
-          {yCursor != null ? (
+          <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
+          {yCursor != null && yCursor < sfcPx ? (
             <g>
               <text
                 class="tick"
@@ -123,6 +137,7 @@ export class SkewT extends PureComponent {
                 dominant-baseline="hanging"
                 x={width - 7}
                 y={yCursor + 4}
+                filter="url(#whiteOutlineEffect)"
               >
                 {Math.round(pAxisToPx.invert(yCursor) / 100) * 100}
               </text>
@@ -132,6 +147,7 @@ export class SkewT extends PureComponent {
                 dominant-baseline="hanging"
                 x={tAxisToPx(tAtCursor - 273.15) + skew * (height - yCursor) + 10}
                 y={yCursor + 4}
+                filter="url(#whiteOutlineEffect)"
               >
                 {formatTemp(tAtCursor)}
               </text>
@@ -141,13 +157,13 @@ export class SkewT extends PureComponent {
                 dominant-baseline="hanging"
                 x={tAxisToPx(dpAtCursor - 273.15) + skew * (height - yCursor) + 10}
                 y={yCursor + 4}
+                filter="url(#whiteOutlineEffect)"
               >
                 {formatTemp(dpAtCursor)}
               </text>
               <line y1={yCursor} y2={yCursor} x2={width} class="boundary" />
             </g>
           ) : null}
-          <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
           <rect class="border" height={height} width={width} />
         </g>
       </svg>

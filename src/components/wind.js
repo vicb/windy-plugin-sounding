@@ -43,6 +43,21 @@ export class WindGram extends PureComponent {
         onPointerLeave={() => this.setState({ yCursor: null })}
         onPointerMove={(e) => this.setState({ yCursor: e.offsetY })}
       >
+        <defs>
+          <filter id="whiteOutlineEffect" color-interpolation-filters="sRGB">
+            <feMorphology in="SourceAlpha" result="MORPH" operator="dilate" radius="2" />
+            <feColorMatrix
+              in="MORPH"
+              result="WHITENED"
+              type="matrix"
+              values="-1 0 0 0 1, 0 -1 0 0 1, 0 0 -1 0 1, 0 0 0 1 0"
+            />
+            <feMerge>
+              <feMergeNode in="WHITENED" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <path class="line wind" d={line(math.zip(params.windSpeed, params.level))} />
         <WindAxis {...{ speedToPx, width, height, maxSpeed: windSpeedMax, metric, format, zoom }} />
         <g transform={`translate(${width / 2}, 0)`}>
@@ -56,15 +71,22 @@ export class WindGram extends PureComponent {
             ) : null
           )}
         </g>
-        {yCursor != null ? (
+        <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
+        {yCursor != null && yCursor < sfcPx ? (
           <g>
-            <text class="tick" text-anchor="end" style="fill: black;" x={width - 5} y={yCursor - 5}>
+            <text
+              class="tick"
+              text-anchor="end"
+              style="fill: black;"
+              x={width - 5}
+              y={yCursor - 5}
+              filter="url(#whiteOutlineEffect)"
+            >
               {format(windAtCursor)}
             </text>
             <line id="wind-hint-line" y1={yCursor} y2={yCursor} x2={width} class="boundary" />
           </g>
         ) : null}
-        <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
         <rect class="border" height={height} width={width} />
       </g>
     );
