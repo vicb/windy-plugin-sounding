@@ -1,6 +1,6 @@
 import * as math from "../math";
 
-import { computeClouds, hrAlt } from "../clouds";
+import { cloudsToCanvas, computeClouds, hrAlt } from "../clouds";
 
 import { createSelector } from "reselect";
 
@@ -68,6 +68,10 @@ export const forecasts = createSelector(
 
 const clouds = createSelector(forecasts, (forecasts) => computeClouds(forecasts.airData.data));
 
+// Set to true to debug the cloud cover.
+const debugClouds = false;
+let canvas = null;
+
 const cloudSlice = createSelector(
   clouds,
   timestamp,
@@ -87,6 +91,19 @@ const cloudSlice = createSelector(
     const cover = [];
     for (let y = 0; y < height; y++) {
       cover.push(clouds[x + y * width]);
+    }
+    if (debugClouds == true) {
+      canvas = cloudsToCanvas({canvas, clouds, width, height});
+      document.body.append(canvas);
+      canvas.style.position = "fixed";
+      canvas.style.top = "80px";
+      canvas.style.right = "180px";
+      canvas.style.backgroundColor = "white";
+      const ctx = canvas.getContext("2d");
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
     }
     return cover;
   }

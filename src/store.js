@@ -26,7 +26,6 @@ export function getStore() {
   const container = $("#bsounding-chart");
   const graphWith = container.clientWidth - 10;
   const graphHeight = Math.min(graphWith, window.innerHeight * 0.7);
-  console.log(graphWith, graphHeight);
   store.dispatch(soundingAct.setWidth(graphWith));
   store.dispatch(soundingAct.setHeight(graphHeight));
 

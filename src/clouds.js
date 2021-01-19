@@ -145,8 +145,10 @@ function bicubicFiltering(m, s, t) {
 
 // Draw the clouds on a canvas.
 // This function is useful for debugging.
-export function cloudsToCanvas({ clouds, width, height }) {
-  const canvas = document.createElement("canvas");
+export function cloudsToCanvas({ clouds, width, height, canvas }) {
+  if (canvas == null) {
+    canvas = document.createElement("canvas");
+  }
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");

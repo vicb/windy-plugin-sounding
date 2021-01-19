@@ -269,10 +269,6 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
     const upperPressure = pToPx.invert(y);
     const upperCover = cloudCover(upperPressure, 150);
 
-    if (upperCover == 255) {
-      return;
-    }
-
     rects.push(
       <Cloud y="0" width={width} height="30" cover={upperCover} />,
       <text
@@ -298,9 +294,6 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
     while (y++ < sfcY && cloudCover(pToPx.invert(y)) == cover) {
       layerHeight++;
     }
-    if (cover == 255) {
-      continue;
-    }
     rects.push(<Cloud y={startY} width={100} height={layerHeight} cover={cover} />);
   }
 
@@ -308,5 +301,10 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
 };
 
 const Cloud = ({ y, height, width, cover }) => {
+  if (cover == 255) {
+    // We do not want to display a white background for no cloud but nothing.
+    // It is more efficient than setting opacity to 0.
+    return;
+  }
   return <rect {...{ y, height, width }} fill={`rgba(${cover}, ${cover}, ${cover}, 0.7)`} />;
 };
