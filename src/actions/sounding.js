@@ -21,6 +21,10 @@ export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
 export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 
+// Subset of W.store.get("availProducts") with sounding data.
+export const SUPPORTED_MODELS = new Set(["ecmwf", "gfs", "nam", "icon", "iconEu"]);
+const DEFAULT_MODEL = "ecmwf";
+
 export const toggleZoom = () => ({
   type: TOGGLE_ZOOM,
 });
@@ -55,10 +59,7 @@ export const setLocation = (lat, lon) => (dispatch) => {
 };
 
 export const setModelName = (modelName) => (dispatch) => {
-  const supportedModels = /^(ecmwf|gfs|nam|iconEu)/;
-  if (!supportedModels.test(modelName)) {
-    modelName = "gfs";
-  }
+  modelName = SUPPORTED_MODELS.has(modelName) ? modelName : DEFAULT_MODEL;
 
   dispatch({
     type: SET_MODELNAME,

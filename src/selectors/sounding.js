@@ -93,7 +93,7 @@ const cloudSlice = createSelector(
       cover.push(clouds[x + y * width]);
     }
     if (debugClouds == true) {
-      canvas = cloudsToCanvas({canvas, clouds, width, height});
+      canvas = cloudsToCanvas({ canvas, clouds, width, height });
       document.body.append(canvas);
       canvas.style.position = "fixed";
       canvas.style.top = "80px";
