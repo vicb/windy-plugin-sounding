@@ -1,4 +1,4 @@
-import { SUPPORTED_MODELS, setModelName } from "../actions/sounding";
+import { SUPPORTED_MODEL_PREFIXES, setModelName } from "../actions/sounding";
 
 import { PureComponent } from "./pure";
 import { getStore } from "../store";
@@ -24,7 +24,11 @@ export class Favorites extends PureComponent {
 
     if (isMobile) {
       const currentModel = windyStore.get("product");
-      const models = windyStore.get("visibleProducts").filter((p) => SUPPORTED_MODELS.has(p));
+      const models = windyStore
+        .get("visibleProducts")
+        .filter((p) =>
+          SUPPORTED_MODEL_PREFIXES.some((prefix) => p.startsWith(prefix) && !p.endsWith("Waves"))
+        );
       models.sort();
 
       return (

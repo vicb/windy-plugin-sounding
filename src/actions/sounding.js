@@ -22,7 +22,8 @@ export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
 export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 
 // Subset of W.store.get("availProducts") with sounding data.
-export const SUPPORTED_MODELS = new Set(["ecmwf", "gfs", "nam", "icon", "iconEu"]);
+// Models ending with "Waves" should be filtered out.
+export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "iconEu"];
 const DEFAULT_MODEL = "ecmwf";
 
 export const toggleZoom = () => ({
@@ -59,11 +60,13 @@ export const setLocation = (lat, lon) => (dispatch) => {
 };
 
 export const setModelName = (modelName) => (dispatch) => {
-  modelName = SUPPORTED_MODELS.has(modelName) ? modelName : DEFAULT_MODEL;
+  const model = SUPPORTED_MODEL_PREFIXES.some((prefix) => modelName.startsWith(prefix))
+    ? modelName
+    : DEFAULT_MODEL;
 
   dispatch({
     type: SET_MODELNAME,
-    payload: modelName,
+    payload: model,
   });
   dispatch(maybeFetchParams());
 };
