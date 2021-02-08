@@ -1,6 +1,7 @@
 import * as math from "../math";
 
 import { PureComponent } from "./pure";
+// eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 import { sampleAt } from "../math";
 

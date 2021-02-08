@@ -2,6 +2,7 @@ import { SUPPORTED_MODEL_PREFIXES, setModelName } from "../actions/sounding";
 
 import { PureComponent } from "./pure";
 import { getStore } from "../store";
+// eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 
 const windyUtils = W.require("utils");

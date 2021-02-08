@@ -1,5 +1,6 @@
-import { h } from "preact";
 import { PureComponent } from "./pure";
+// eslint-disable-next-line no-unused-vars
+import { h } from "preact";
 
 export class LoadingIndicator extends PureComponent {
   render({ cx, cy }) {

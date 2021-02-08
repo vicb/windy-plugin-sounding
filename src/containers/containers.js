@@ -5,10 +5,12 @@ import * as windSel from "../selectors/wind";
 import { setLocation, toggleZoom } from "../actions/sounding";
 
 import { Favorites } from "../components/favorites";
+// eslint-disable-next-line no-unused-vars
 import { LoadingIndicator } from "../components/loading";
 import { SkewT } from "../components/skewt";
 import { WindGram } from "../components/wind";
 import { connect } from "react-redux";
+// eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 import { parcelTrajectory } from "../atmosphere";
 

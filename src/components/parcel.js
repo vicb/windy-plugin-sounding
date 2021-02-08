@@ -1,4 +1,5 @@
 import { PureComponent } from "./pure";
+// eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 
 export function Parcel({ parcel, width, line, pToPx, formatAltitude }) {

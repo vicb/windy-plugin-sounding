@@ -9,9 +9,12 @@ import {
 } from "./actions/sounding";
 import { centerMap, updateTime } from "./selectors/sounding";
 import { getStore, updateMetrics } from "./store";
+// eslint-disable-next-line no-unused-vars
 import { h, render } from "preact";
 
+// eslint-disable-next-line no-unused-vars
 import { App } from "./containers/containers";
+// eslint-disable-next-line no-unused-vars
 import { Provider } from "react-redux";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
@@ -77,6 +80,8 @@ W.loadPlugin(
         })
         .catch((e) => console.error(e));
     }
+
+    
 
     // Called when the plugin is opened
     this.onopen = (location) => {

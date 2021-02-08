@@ -2,8 +2,10 @@ import * as atm from "../atmosphere";
 import * as math from "../math";
 
 import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding";
+// eslint-disable-next-line no-unused-vars
 import { Parcel } from "../components/parcel";
 import { PureComponent } from "./pure";
+// eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 
 export class SkewT extends PureComponent {
