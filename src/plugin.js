@@ -81,18 +81,25 @@ W.loadPlugin(
         .catch((e) => console.error(e));
     }
 
-    
-
     // Called when the plugin is opened
     this.onopen = (location) => {
       let lat;
       let lon;
 
-      // Opening from other location than contextmenu
+      // Get location from:
+      // - the opening location,
+      // - the query location,
+      // - the map center.
       if (!location) {
-        const c = windyMap.getCenter();
-        lat = c.lat;
-        lon = c.lng;
+        const q = this.query || {};
+        if (q.lat == null || q.lon == null) {          
+          const c = windyMap.getCenter();
+          lat = c.lat;
+          lon = c.lng;          
+        } else {
+          lat = Number(q.lat);
+          lon = Number(q.lon);          
+        }
       } else {
         lat = location.lat;
         lon = location.lon;
