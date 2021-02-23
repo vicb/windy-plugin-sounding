@@ -161,10 +161,10 @@ export const isThermalHours = createSelector(
   sunset,
   timestamp,
   (sunrise, sunset, timestamp) => {
-    const start = sunrise + 2 * 3600000;
-    const stop = sunset - 2 * 3600000;
-    const duration = stop - start;
-    if (timestamp < start || (timestamp - start) % (24 * 3600000) > duration) {
+    const startMillis = sunrise + 2 * 3600000;
+    const stopMillis = sunset - 3600000;
+    const durationMillis = stopMillis - startMillis;
+    if (timestamp < startMillis || (timestamp - startMillis) % (24 * 3600000) > durationMillis) {
       return false;
     }
     return true;
