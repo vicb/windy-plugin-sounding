@@ -223,7 +223,8 @@ class IsoTherm extends PureComponent {
       [temp, pToPx.invert(height)],
       [temp, pToPx.invert(0)],
     ];
-    return <path class="isotherm" d={line(points)} />;
+    const classname = `isotherm ${Math.round(temp) == 273 ? 'zero' : ''}`;
+    return <path class={classname} d={line(points)} />;
   }
 }
 
