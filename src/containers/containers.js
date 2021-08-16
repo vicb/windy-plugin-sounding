@@ -180,10 +180,12 @@ const stateToAppProps = (state) => {
 };
 
 const stateToAppDispatch = (dispatch) => ({
-  onFavSelected: (centerMap) => ({ lat, lon }) => {
-    dispatch(setLocation(lat, lon));
-    centerMap(lat, lon);
-  },
+  onFavSelected:
+    (centerMap) =>
+    ({ lat, lon }) => {
+      dispatch(setLocation(lat, lon));
+      centerMap(lat, lon);
+    },
   onZoomClick: () => {
     dispatch(toggleZoom());
   },

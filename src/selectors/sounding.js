@@ -34,20 +34,24 @@ export const zoom = (state) => state.plugin.zoom;
 
 // Format parameters
 
-export const formatTemp = createSelector(tMetric, (metric) => (v) =>
-  Math.round(windyMetrics.temp.conv[metric].conversion(v))
+export const formatTemp = createSelector(
+  tMetric,
+  (metric) => (v) => Math.round(windyMetrics.temp.conv[metric].conversion(v))
 );
 
-export const formatPressure = createSelector(pMetric, (metric) => (v) =>
-  Math.round(windyMetrics.pressure.conv[metric].conversion(v))
+export const formatPressure = createSelector(
+  pMetric,
+  (metric) => (v) => Math.round(windyMetrics.pressure.conv[metric].conversion(v))
 );
 
-export const formatAltitude = createSelector(altiMetric, (metric) => (v) =>
-  Math.round(windyMetrics.altitude.conv[metric].conversion(v) / 100) * 100
+export const formatAltitude = createSelector(
+  altiMetric,
+  (metric) => (v) => Math.round(windyMetrics.altitude.conv[metric].conversion(v) / 100) * 100
 );
 
-export const formatSpeed = createSelector(speedMetric, (metric) => (v) =>
-  Math.round(windyMetrics.wind.conv[metric].conversion(v))
+export const formatSpeed = createSelector(
+  speedMetric,
+  (metric) => (v) => Math.round(windyMetrics.wind.conv[metric].conversion(v))
 );
 
 export const locationKey = createSelector(lat, lon, (lat, lon) =>

@@ -92,13 +92,13 @@ W.loadPlugin(
       // - the map center.
       if (!location) {
         const q = this.query || {};
-        if (q.lat == null || q.lon == null) {          
+        if (q.lat == null || q.lon == null) {
           const c = windyMap.getCenter();
           lat = c.lat;
-          lon = c.lng;          
+          lon = c.lng;
         } else {
           lat = Number(q.lat);
-          lon = Number(q.lon);          
+          lon = Number(q.lon);
         }
       } else {
         lat = location.lat;
@@ -141,8 +141,10 @@ W.loadPlugin(
 
       centerMap(store.getState())(lat, lon);
 
-      this.node.oncontextmenu = this.node.ondblclick = this.node.onclick = (ev) =>
-        ev.stopPropagation();
+      this.node.oncontextmenu =
+        this.node.ondblclick =
+        this.node.onclick =
+          (ev) => ev.stopPropagation();
     };
 
     // Called when closed
