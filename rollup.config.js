@@ -32,6 +32,7 @@ export default {
         PKG_REPO_TYPE: JSON.stringify(pkg.repository.type),
         PKG_REPO_URL: JSON.stringify(pkg.repository.url),
       },
+      preventAssignment: true,
     }),
     prod && stripCode({
       start_comment: 'strip-from-prod',
