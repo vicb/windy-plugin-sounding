@@ -47,7 +47,8 @@ W.loadPlugin(
     ? pluginCss + "#plugins #plugin-dev {left: 70%}"
     : pluginCss,
   function () {
-    const $ = W.require("$");
+    // TODO: remove `W.require("$")` after the TS windy API is released.
+    const $ = W.require("utils").$ || W.require("$");
     const windyPicker = W.require("picker");
     const windyStore = W.require("store");
 

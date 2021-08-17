@@ -6,7 +6,8 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { rootReducer } from "./reducers/sounding";
 import thunk from "redux-thunk";
 
-const $ = W.require("$");
+// TODO: remove `W.require("$")` after the TS windy API is released.
+const $ = W.require("utils").$ || W.require("$");
 const windyStore = W.require("store");
 const favorites = W.require("favs");
 
