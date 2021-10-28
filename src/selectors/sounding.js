@@ -231,7 +231,7 @@ export const wheelHandler = createSelector(updateTime, (updateTime) => (e) => {
     const changeDay = e.shiftKey || e.ctrlKey;
     const direction = Math.sign(e.deltaY);
     updateTime({ direction, changeDay });
-    nextWheelMove = Date.now() + changeDay ? 1000 : 100;
+    nextWheelMove = Date.now() + (changeDay ? 800 : 100);
   }
   e.stopPropagation();
   e.preventDefault();
