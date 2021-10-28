@@ -25,7 +25,9 @@ import { skewt } from "./skewt";
 import { windgram } from "./wind";
 
 const windyUtils = W.require("utils");
-const windyMap = W.require("map");
+// TODO: Cleanup after TS release
+const windyMap = W.require("map").map || W.require("map");
+const pulsatingIcon = windyMap?.myMarkers?.pulsatingIcon || W.require("map").markers.pulsatingIcon;
 const windyProducts = W.require("products");
 const windySubscription = W.require("subscription");
 
@@ -70,7 +72,7 @@ function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action
         marker = L.marker(
           { lat, lng },
           {
-            icon: windyMap.myMarkers.pulsatingIcon,
+            icon: pulsatingIcon,
             zIndexOffset: -300,
           }
         ).addTo(windyMap);

@@ -32,9 +32,11 @@ export function getStore() {
 
   updateMetrics(store);
 
-  favorites.getArray().forEach((f) => {
-    store.dispatch(soundingAct.addFavorite(f));
-  });
+  setTimeout(() => {
+    favorites.getArray().forEach((f) => {
+      store.dispatch(soundingAct.addFavorite(f));
+    });
+  }, 1000);
 
   store.dispatch(skewTAct.setPMin(400));
 

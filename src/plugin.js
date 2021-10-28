@@ -19,7 +19,8 @@ import { Provider } from "react-redux";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
 
-const windyMap = W.require("map");
+// TODO: Cleanup after TS release
+const windyMap = W.require("map").map || W.require("map");
 const windyRootScope = W.require("rootScope");
 const windyUtils = W.require("utils");
 
