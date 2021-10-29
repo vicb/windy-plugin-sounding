@@ -1,7 +1,6 @@
 import * as atm from "../atmosphere";
 
 import {
-  ADD_FAVORITE,
   ADD_SUBSCRIPTION,
   DELETE_SUBSCRIPTION,
   FETCH_PARAMS,
@@ -9,6 +8,7 @@ import {
   RECEIVE_PARAMS,
   REMOVE_MARKER,
   SET_ACTIVE,
+  SET_FAVORITES,
   SET_HEIGHT,
   SET_LOCATION,
   SET_METRIC_ALTITUDE,
@@ -92,8 +92,8 @@ function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action
       return { ...state, width: action.payload };
     case SET_HEIGHT:
       return { ...state, height: action.payload };
-    case ADD_FAVORITE: {
-      return { ...state, favorites: [...state.favorites, action.payload] };
+    case SET_FAVORITES: {
+      return { ...state, favorites: [...action.payload] };
     }
     case TOGGLE_ZOOM:
       return { ...state, zoom: !state.zoom };

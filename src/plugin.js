@@ -3,6 +3,7 @@ import {
   cancelSubscriptions,
   removeMarker,
   setActive,
+  setFavorites,
   setLocation,
   setModelName,
   setTime,
@@ -23,6 +24,7 @@ import pluginHtml from "./plugin.html";
 const windyMap = W.require("map").map || W.require("map");
 const windyRootScope = W.require("rootScope");
 const windyUtils = W.require("utils");
+const windyFavs = W.require("favs");
 
 W.loadPlugin(
   /* eslint-disable */
@@ -125,13 +127,17 @@ W.loadPlugin(
         const pickerOpened = windyPicker.on("pickerOpened", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
         });
-
         store.dispatch(addSubscription(() => windyPicker.off(pickerOpened)));
 
         const pickerMoved = windyPicker.on("pickerMoved", ({ lat, lon }) => {
           store.dispatch(setLocation(lat, lon));
         });
         store.dispatch(addSubscription(() => windyPicker.off(pickerMoved)));
+
+        const favsChanged = windyFavs.on("favsChanged", () => {
+          store.dispatch(setFavorites(windyFavs.getArray()));
+        });
+        store.dispatch(addSubscription(() => windyFavs.off(favsChanged)));
 
         store.dispatch(setActive(true));
       }

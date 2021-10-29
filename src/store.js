@@ -9,7 +9,6 @@ import thunk from "redux-thunk";
 // TODO: remove `W.require("$")` after the TS windy API is released.
 const $ = W.require("utils").$ || W.require("$");
 const windyStore = W.require("store");
-const favorites = W.require("favs");
 
 let store;
 
@@ -31,12 +30,6 @@ export function getStore() {
   store.dispatch(soundingAct.setHeight(graphHeight));
 
   updateMetrics(store);
-
-  setTimeout(() => {
-    favorites.getArray().forEach((f) => {
-      store.dispatch(soundingAct.addFavorite(f));
-    });
-  }, 1000);
 
   store.dispatch(skewTAct.setPMin(400));
 
