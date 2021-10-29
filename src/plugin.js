@@ -138,7 +138,8 @@ W.loadPlugin(
           store.dispatch(setFavorites(windyFavs.getArray()));
         });
         store.dispatch(addSubscription(() => windyFavs.off(favsChanged)));
-
+        store.dispatch(setFavorites(windyFavs.getArray()));
+        
         store.dispatch(setActive(true));
       }
 
