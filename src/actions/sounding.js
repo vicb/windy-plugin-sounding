@@ -23,7 +23,7 @@ export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 
 // Subset of W.store.get("availProducts") with sounding data.
 // Models ending with "Waves" should be filtered out.
-export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "iconEu"];
+export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "iconEu", "hrrr"];
 const DEFAULT_MODEL = "ecmwf";
 
 export const toggleZoom = () => ({
