@@ -17,6 +17,7 @@ import {
   SET_MODELNAME,
   SET_TIME,
   SET_WIDTH,
+  SET_Y_POINTER,
   TOGGLE_ZOOM,
 } from "../actions/sounding";
 
@@ -94,6 +95,10 @@ function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action
       return { ...state, height: action.payload };
     case SET_FAVORITES: {
       return { ...state, favorites: [...action.payload] };
+    }
+    case SET_Y_POINTER: {
+      return { ...state, yPointer: action.payload };
+
     }
     case TOGGLE_ZOOM:
       return { ...state, zoom: !state.zoom };

@@ -11,7 +11,6 @@ import { h } from "preact";
 export class SkewT extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { yCursor: null };
   }
 
   render(
@@ -36,8 +35,9 @@ export class SkewT extends PureComponent {
       ghAxisStep,
       zoom,
       skew,
-    },
-    { yCursor }
+      yPointer, 
+      setYPointer
+    }
   ) {
     if (isLoading) {
       return;
@@ -45,9 +45,9 @@ export class SkewT extends PureComponent {
     const sfcPx = pToPx(pSfc);
     let tAtCursor = 0;
     let dpAtCursor = 0;
-    if (yCursor != null) {
-      tAtCursor = math.sampleAt(params.level, params.temp, [pToPx.invert(yCursor)])[0];
-      dpAtCursor = math.sampleAt(params.level, params.dewpoint, [pToPx.invert(yCursor)])[0];
+    if (yPointer != null) {
+      tAtCursor = math.sampleAt(params.level, params.temp, [pToPx.invert(yPointer)])[0];
+      dpAtCursor = math.sampleAt(params.level, params.dewpoint, [pToPx.invert(yPointer)])[0];
     }
 
     return (
@@ -80,8 +80,8 @@ export class SkewT extends PureComponent {
 
         <g
           class="chart skewt"
-          onPointerLeave={() => this.setState({ yCursor: null })}
-          onPointerMove={(e) => this.setState({ yCursor: e.offsetY })}
+          onPointerLeave={() => setYPointer(null)}
+          onPointerMove={(e) => setYPointer(e.offsetY)}
         >
           <rect width={width} height={height} fill="white" opacity="0.1" />
           <g class="axis">
@@ -130,7 +130,7 @@ export class SkewT extends PureComponent {
           <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
           <path class="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
           <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
-          {yCursor != null && yCursor < sfcPx ? (
+          {yPointer != null && yPointer < sfcPx ? (
             <g>
               <text
                 class="tick"
@@ -138,17 +138,17 @@ export class SkewT extends PureComponent {
                 style="fill: black;"
                 dominant-baseline="hanging"
                 x={width - 7}
-                y={yCursor + 4}
+                y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
-                {Math.round(pAxisToPx.invert(yCursor) / 100) * 100}
+                {Math.round(pAxisToPx.invert(yPointer) / 100) * 100}
               </text>
               <text
                 class="tick"
                 style="fill: red;"
                 dominant-baseline="hanging"
-                x={tAxisToPx(tAtCursor - 273.15) + skew * (height - yCursor) + 10}
-                y={yCursor + 4}
+                x={tAxisToPx(tAtCursor - 273.15) + skew * (height - yPointer) + 10}
+                y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
                 {formatTemp(tAtCursor)}
@@ -157,13 +157,13 @@ export class SkewT extends PureComponent {
                 class="tick"
                 style="fill: steelblue;"
                 dominant-baseline="hanging"
-                x={tAxisToPx(dpAtCursor - 273.15) + skew * (height - yCursor) + 10}
-                y={yCursor + 4}
+                x={tAxisToPx(dpAtCursor - 273.15) + skew * (height - yPointer) + 10}
+                y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
                 {formatTemp(dpAtCursor)}
               </text>
-              <line y1={yCursor} y2={yCursor} x2={width} class="boundary" />
+              <line y1={yPointer} y2={yPointer} x2={width} class="boundary" />
             </g>
           ) : null}
           <rect class="border" height={height} width={width} />

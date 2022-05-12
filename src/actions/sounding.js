@@ -17,6 +17,7 @@ export const SET_METRIC_TEMP = "SDG.SET_METRIC_TEMP";
 export const SET_METRIC_ALTITUDE = "SDG.SET_METRIC_ALTITUDE";
 export const SET_METRIC_SPEED = "SDG.SET_METRIC_SPEED";
 export const SET_FAVORITES = "SDG.SET_FAVORITES";
+export const SET_Y_POINTER = "SDG.SET_Y_POINTER";
 export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
 export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
@@ -33,6 +34,11 @@ export const toggleZoom = () => ({
 export const setFavorites = (favorites) => ({
   type: SET_FAVORITES,
   payload: favorites,
+});
+
+export const setYPointer = (y) => ({
+  type: SET_Y_POINTER,
+  payload: y,
 });
 
 export const setMetricTemp = (metric) => ({

@@ -2,7 +2,7 @@ import * as skewTSel from "../selectors/skewt";
 import * as soundingSel from "../selectors/sounding";
 import * as windSel from "../selectors/wind";
 
-import { setLocation, toggleZoom } from "../actions/sounding";
+import { setLocation, setYPointer, toggleZoom } from "../actions/sounding";
 
 import { Favorites } from "../components/favorites";
 // eslint-disable-next-line no-unused-vars
@@ -15,6 +15,12 @@ import { h } from "preact";
 import { parcelTrajectory } from "../atmosphere";
 
 const windyRootScope = W.require("rootScope");
+
+const statePointerDispatch = (dispatch) => ({
+  setYPointer: (y) => {
+    dispatch(setYPointer(y));
+  },
+});
 
 function stateToSkewTProp(state) {
   if (soundingSel.isLoading(state)) {
@@ -57,10 +63,11 @@ function stateToSkewTProp(state) {
     ghAxisStep: skewTSel.ghAxisStep(state),
     zoom: soundingSel.zoom(state),
     skew: skewTSel.skew(state),
+    yPointer: soundingSel.yPointer(state)
   };
 }
 
-const ConnectedSkewT = connect(stateToSkewTProp)(SkewT);
+const ConnectedSkewT = connect(stateToSkewTProp, statePointerDispatch)(SkewT);
 
 const stateToWindProp = (state) => {
   return soundingSel.isLoading(state)
@@ -78,10 +85,11 @@ const stateToWindProp = (state) => {
         speedToPx: windSel.speedToPx(state),
         line: windSel.line(state),
         zoom: soundingSel.zoom(state),
+        yPointer: soundingSel.yPointer(state),
       };
 };
 
-const ConnectedWindgram = connect(stateToWindProp)(WindGram);
+const ConnectedWindgram = connect(stateToWindProp, statePointerDispatch)(WindGram);
 
 const stateToFavProp = (state) => ({
   favorites: soundingSel.favorites(state),

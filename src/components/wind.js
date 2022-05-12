@@ -8,7 +8,6 @@ import { sampleAt } from "../math";
 export class WindGram extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { yCursor: null };
   }
 
   render(
@@ -25,8 +24,9 @@ export class WindGram extends PureComponent {
       speedToPx,
       line,
       zoom,
-    },
-    { yCursor }
+      yPointer,
+      setYPointer,
+    }
   ) {
     if (isLoading) {
       return;
@@ -34,15 +34,15 @@ export class WindGram extends PureComponent {
     const sfcPx = pToPx(pSfc);
 
     let windAtCursor = 0;
-    if (yCursor != null) {
-      windAtCursor = sampleAt(params.level, params.windSpeed, [pToPx.invert(yCursor)])[0];
+    if (yPointer != null) {
+      windAtCursor = sampleAt(params.level, params.windSpeed, [pToPx.invert(yPointer)])[0];
     }
 
     return (
       <g
         class="chart wind"
-        onPointerLeave={() => this.setState({ yCursor: null })}
-        onPointerMove={(e) => this.setState({ yCursor: e.offsetY })}
+        onPointerLeave={() => setYPointer(null)}
+        onPointerMove={(e) => setYPointer(e.offsetY)}
       >
         <defs>
           <filter id="whiteOutlineEffect" color-interpolation-filters="sRGB">
@@ -73,19 +73,19 @@ export class WindGram extends PureComponent {
           )}
         </g>
         <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
-        {yCursor != null && yCursor < sfcPx ? (
+        {yPointer != null && yPointer < sfcPx ? (
           <g>
             <text
               class="tick"
               text-anchor="end"
-              style="fill: black;"
+              dominant-baseline="hanging"
               x={width - 5}
-              y={yCursor - 5}
+              y={yPointer + 4}
               filter="url(#whiteOutlineEffect)"
             >
               {format(windAtCursor)}
             </text>
-            <line id="wind-hint-line" y1={yCursor} y2={yCursor} x2={width} class="boundary" />
+            <line id="wind-hint-line" y1={yPointer} y2={yPointer} x2={width} class="boundary" />
           </g>
         ) : null}
         <rect class="border" height={height} width={width} />

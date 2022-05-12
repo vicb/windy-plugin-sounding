@@ -32,6 +32,7 @@ export const height = (state) => state.plugin.height;
 // excluding the bottom area use to draw the ticks.
 export const graphHeight = (state) => state.plugin.height - GRAPH_BOTTOM_MARGIN_PX;
 export const zoom = (state) => state.plugin.zoom;
+export const yPointer = (state) => state.plugin.yPointer;
 
 // Format parameters
 
