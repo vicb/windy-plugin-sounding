@@ -3,15 +3,14 @@ import babel from "@rollup/plugin-babel";
 import cjs from "@rollup/plugin-commonjs";
 import html from "rollup-plugin-html";
 import less from "rollup-plugin-less-modules";
-import pkg from "./package.json";
+import pkg from "./package.json" assert {type: 'json'};
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 import serve from "rollup-plugin-serve";
 import stripCode from "rollup-plugin-strip-code";
-import { terser } from 'rollup-plugin-terser';
-import visualizer from 'rollup-plugin-visualizer';
-const fs = require('fs');
-const path = require('path');
+import terser from '@rollup/plugin-terser';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const prod = !process.env.ROLLUP_WATCH;
 
@@ -42,21 +41,12 @@ export default {
       minify: prod,
       sourcemap: false,
     }),
-    html({
-      include: "src/*.html",
-      htmlMinifierOptions: {
-        collapseWhitespace: true,
-        collapseBooleanAttributes: true,
-        conservativeCollapse: false,
-        minifyJS: true,
-      },
-    }),
+    html(),
     resolve(),
     alias({
       entries: {
-        react: path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
-        'react-dom': path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
-        'react-is': path.resolve(__dirname, 'node_modules/preact/compat/src/index.js'),
+        react: path.resolve('node_modules/preact/compat/src/index.js'),
+        'react-dom': path.resolve('node_modules/preact/compat/src/index.js'),
       }
     }),    
     cjs({
@@ -83,7 +73,6 @@ export default {
       plugins: [["@babel/plugin-transform-react-jsx", { pragma: "h" }]],
       babelHelpers: 'bundled',
     }),
-    visualizer(),
     prod && terser({ output: { comments: false } }),
   ],
 };
