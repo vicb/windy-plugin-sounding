@@ -10,24 +10,22 @@ export class WindGram extends PureComponent {
     super(props);
   }
 
-  render(
-    {
-      isLoading,
-      params,
-      width,
-      height,
-      windSpeedMax,
-      metric,
-      format,
-      pSfc,
-      pToPx,
-      speedToPx,
-      line,
-      zoom,
-      yPointer,
-      setYPointer,
-    }
-  ) {
+  render({
+    isLoading,
+    params,
+    width,
+    height,
+    windSpeedMax,
+    metric,
+    format,
+    pSfc,
+    pToPx,
+    speedToPx,
+    line,
+    zoom,
+    yPointer,
+    setYPointer,
+  }) {
     if (isLoading) {
       return;
     }

@@ -63,7 +63,7 @@ function stateToSkewTProp(state) {
     ghAxisStep: skewTSel.ghAxisStep(state),
     zoom: soundingSel.zoom(state),
     skew: skewTSel.skew(state),
-    yPointer: soundingSel.yPointer(state)
+    yPointer: soundingSel.yPointer(state),
   };
 }
 

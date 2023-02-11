@@ -13,32 +13,30 @@ export class SkewT extends PureComponent {
     super(props);
   }
 
-  render(
-    {
-      isLoading,
-      params,
-      pMax,
-      width,
-      height,
-      cloudCover,
-      pSfc,
-      parcel,
-      formatAltitude,
-      formatTemp,
-      tAxisToPx,
-      pToPx,
-      pAxisToPx,
-      line,
-      tMetric,
-      tAxisStep,
-      ghMetric,
-      ghAxisStep,
-      zoom,
-      skew,
-      yPointer, 
-      setYPointer
-    }
-  ) {
+  render({
+    isLoading,
+    params,
+    pMax,
+    width,
+    height,
+    cloudCover,
+    pSfc,
+    parcel,
+    formatAltitude,
+    formatTemp,
+    tAxisToPx,
+    pToPx,
+    pAxisToPx,
+    line,
+    tMetric,
+    tAxisStep,
+    ghMetric,
+    ghAxisStep,
+    zoom,
+    skew,
+    yPointer,
+    setYPointer,
+  }) {
     if (isLoading) {
       return;
     }

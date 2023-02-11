@@ -97,7 +97,6 @@ function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action
     }
     case SET_Y_POINTER: {
       return { ...state, yPointer: action.payload };
-
     }
     case TOGGLE_ZOOM:
       return { ...state, zoom: !state.zoom };

@@ -28,7 +28,9 @@ export class Favorites extends PureComponent {
       const models = windyStore
         .get("visibleProducts")
         .filter((p) =>
-          SUPPORTED_MODEL_PREFIXES.some((prefix) => p.startsWith(prefix) && !p.endsWith("Waves") && !p.endsWith("Analysis"))
+          SUPPORTED_MODEL_PREFIXES.some(
+            (prefix) => p.startsWith(prefix) && !p.endsWith("Waves") && !p.endsWith("Analysis")
+          )
         );
       models.sort();
 
