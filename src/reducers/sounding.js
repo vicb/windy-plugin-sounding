@@ -26,9 +26,8 @@ import { skewt } from "./skewt";
 import { windgram } from "./wind";
 
 const windyUtils = W.require("utils");
-// TODO: Cleanup after TS release
-const windyMap = W.require("map").map || W.require("map");
-const pulsatingIcon = windyMap?.myMarkers?.pulsatingIcon || W.require("map").markers.pulsatingIcon;
+const windyMap = W.require("map").map;
+const pulsatingIcon = W.require("map").markers.pulsatingIcon;
 const windyProducts = W.require("products");
 const windySubscription = W.require("subscription");
 

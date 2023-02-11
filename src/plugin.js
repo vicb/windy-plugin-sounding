@@ -20,8 +20,7 @@ import { Provider } from "react-redux";
 import pluginCss from "./plugin.less";
 import pluginHtml from "./plugin.html";
 
-// TODO: Cleanup after TS release
-const windyMap = W.require("map").map || W.require("map");
+const windyMap = W.require("map").map;
 const windyRootScope = W.require("rootScope");
 const windyUtils = W.require("utils");
 const windyFavs = W.require("favs");
@@ -50,8 +49,7 @@ W.loadPlugin(
     ? pluginCss + "#plugins #plugin-dev {left: 70%}"
     : pluginCss,
   function () {
-    // TODO: remove `W.require("$")` after the TS windy API is released.
-    const $ = W.require("utils").$ || W.require("$");
+    const $ = W.require("utils").$;
     const windyPicker = W.require("picker");
     const windyStore = W.require("store");
 
