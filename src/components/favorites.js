@@ -7,6 +7,7 @@ import { h } from "preact";
 
 const windyUtils = W.require("utils");
 const windyStore = W.require("store");
+const windyModels = W.require("models");
 
 function label(favorite) {
   return favorite.title || favorite.name;
@@ -25,13 +26,10 @@ export class Favorites extends PureComponent {
 
     if (isMobile) {
       const currentModel = windyStore.get("product");
-      const models = windyStore
-        .get("visibleProducts")
-        .filter((p) =>
-          SUPPORTED_MODEL_PREFIXES.some(
-            (prefix) => p.startsWith(prefix) && !p.endsWith("Waves") && !p.endsWith("Analysis")
-          )
-        );
+      const models = windyModels
+        .getAllPointProducts(windyUtils.str2latLon(location))
+        .filter((model) => SUPPORTED_MODEL_PREFIXES.some((prefix) => model.startsWith(prefix)));
+
       models.sort();
 
       return (
