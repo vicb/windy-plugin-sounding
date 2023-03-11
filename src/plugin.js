@@ -122,15 +122,23 @@ W.loadPlugin(
         });
         store.dispatch(addSubscription(() => windyStore.off(productChanged)));
 
-        const pickerOpened = windyPicker.on("pickerOpened", ({ lat, lon }) => {
-          store.dispatch(setLocation(lat, lon));
-        });
-        store.dispatch(addSubscription(() => windyPicker.off(pickerOpened)));
+        // Can not use the picker on mobile as it is fixed at the top of the screen
+        if (windyRootScope.isMobileOrTablet) {
+          const center = ({ latlng }) => store.dispatch(setLocation(latlng.lat, latlng.lng));
 
-        const pickerMoved = windyPicker.on("pickerMoved", ({ lat, lon }) => {
-          store.dispatch(setLocation(lat, lon));
-        });
-        store.dispatch(addSubscription(() => windyPicker.off(pickerMoved)));
+          windyMap.on("click", center);
+          store.dispatch(addSubscription(() => windyMap.off("click", center)));
+        } else {
+          const pickerOpened = windyPicker.on("pickerOpened", ({ lat, lon }) => {
+            store.dispatch(setLocation(lat, lon));
+          });
+          store.dispatch(addSubscription(() => windyPicker.off(pickerOpened)));
+
+          const pickerMoved = windyPicker.on("pickerMoved", ({ lat, lon }) => {
+            store.dispatch(setLocation(lat, lon));
+          });
+          store.dispatch(addSubscription(() => windyPicker.off(pickerMoved)));
+        }
 
         const favsChanged = windyFavs.on("favsChanged", () => {
           store.dispatch(setFavorites(windyFavs.getArray()));
