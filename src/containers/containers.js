@@ -54,6 +54,7 @@ function stateToSkewTProp(state) {
     formatAltitude: soundingSel.formatAltitude(state),
     formatTemp: soundingSel.formatTemp(state),
     tAxisToPx: skewTSel.tAxisToPx(state),
+    tToPx: skewTSel.tToPx(state),
     pToPx: skewTSel.pToPx(state),
     pAxisToPx: skewTSel.pAxisToPx(state),
     line: skewTSel.line(state),

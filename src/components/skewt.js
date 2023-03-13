@@ -25,6 +25,7 @@ export class SkewT extends PureComponent {
     formatAltitude,
     formatTemp,
     tAxisToPx,
+    tToPx,
     pToPx,
     pAxisToPx,
     line,
@@ -145,7 +146,7 @@ export class SkewT extends PureComponent {
                 class="tick"
                 style="fill: red;"
                 dominant-baseline="hanging"
-                x={tAxisToPx(tAtCursor - 273.15) + skew * (height - yPointer) + 10}
+                x={tToPx(tAtCursor) + skew * (height - yPointer) + 10}
                 y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
@@ -155,7 +156,7 @@ export class SkewT extends PureComponent {
                 class="tick"
                 style="fill: steelblue;"
                 dominant-baseline="hanging"
-                x={tAxisToPx(dpAtCursor - 273.15) + skew * (height - yPointer) + 10}
+                x={tToPx(dpAtCursor) + skew * (height - yPointer) + 10}
                 y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
