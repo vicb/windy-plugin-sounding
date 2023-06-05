@@ -1,35 +1,48 @@
 import alias from '@rollup/plugin-alias';
 import babel from "@rollup/plugin-babel";
 import cjs from "@rollup/plugin-commonjs";
-import html from "rollup-plugin-html";
-import less from "rollup-plugin-less-modules";
 import pkg from "./package.json" assert {type: 'json'};
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 import serve from "rollup-plugin-serve";
 import stripCode from "rollup-plugin-strip-code";
-import terser from '@rollup/plugin-terser';
+// import terser from '@rollup/plugin-terser';
 import fs from 'node:fs';
 import path from 'node:path';
+import { buildPluginsHtml, buildPluginsCss, transformToPlugin } from './rollup-plugins.mjs';
+import terser from '@rollup/plugin-terser';
 
 const prod = !process.env.ROLLUP_WATCH;
+
+const meta = {
+    name: pkg.name,
+    version: pkg.version,
+    author: pkg.author,
+    repository: {
+      type: pkg.repository.type,
+      url: pkg.repository.url,
+    },
+    description: pkg.description,
+    displayName: "Better Sounding",
+    hook: "contextmenu",
+    className: "plugin-lhpane",
+    classNameMobile: "window",
+    exclusive: "lhpane",
+    attachPointMobile: "#plugins",
+};
 
 export default {
   input: "src/plugin.js",
   output: {
     file: prod ? "dist/plugin.js" : "dev/plugin.js",
-    format: "iife",
+    name: "plugin.js",
+    format: "es",
   },
+  external: moduleId => moduleId.startsWith('@windy/') || moduleId.startsWith('@plugins/'),
   plugins: [
     replace({
       values: {
         "process.env.NODE_ENV": JSON.stringify(prod ? "production" : "development"),
-        PKG_NAME: JSON.stringify(pkg.name),
-        PKG_VERSION: JSON.stringify(pkg.version),
-        PKG_AUTHOR: JSON.stringify(pkg.author),
-        PKG_DESCRIPTION: JSON.stringify(pkg.description),
-        PKG_REPO_TYPE: JSON.stringify(pkg.repository.type),
-        PKG_REPO_URL: JSON.stringify(pkg.repository.url),
       },
       preventAssignment: true,
     }),
@@ -37,11 +50,8 @@ export default {
       start_comment: 'strip-from-prod',
       end_comment: 'end-strip-from-prod'
     }),
-    less({
-      minify: prod,
-      sourcemap: false,
-    }),
-    html(),
+            buildPluginsHtml(),
+            buildPluginsCss(),
     resolve(),
     alias({
       entries: {
@@ -61,6 +71,7 @@ export default {
           cert: fs.readFileSync('certificate.pem'),
         }
       }),
+      transformToPlugin(meta),
     babel({
       presets: [
         [

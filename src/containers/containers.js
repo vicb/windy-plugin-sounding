@@ -14,7 +14,7 @@ import { connect } from "react-redux";
 import { h } from "preact";
 import { parcelTrajectory } from "../atmosphere";
 
-const windyRootScope = W.require("rootScope");
+import * as windyRootScope from "@windy/rootScope";
 
 const statePointerDispatch = (dispatch) => ({
   setYPointer: (y) => {

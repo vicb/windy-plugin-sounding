@@ -4,10 +4,9 @@ import { PureComponent } from "./pure";
 import { getStore } from "../store";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
-
-const windyUtils = W.require("utils");
-const windyStore = W.require("store");
-const windyModels = W.require("models");
+import windyStore from "@windy/store";
+import windyUtils from "@windy/utils";
+import windyModels from "@windy/models";
 
 function label(favorite) {
   return favorite.title || favorite.name;

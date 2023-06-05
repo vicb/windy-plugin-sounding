@@ -25,11 +25,12 @@ import { combineReducers } from "redux";
 import { skewt } from "./skewt";
 import { windgram } from "./wind";
 
-const windyUtils = W.require("utils");
-const windyMap = W.require("map").map;
-const pulsatingIcon = W.require("map").markers.pulsatingIcon;
-const windyProducts = W.require("products");
-const windySubscription = W.require("subscription");
+import { map as windyMap, markers } from "@windy/map";
+import windyUtils from "@windy/utils";
+import windyProducts from "@windy/products";
+import windySubscription from "@windy/subscription";
+
+const pulsatingIcon = markers.pulsatingIcon;
 
 function metrics(state = {}, action) {
   switch (action.type) {

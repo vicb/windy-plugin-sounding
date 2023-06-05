@@ -17,7 +17,7 @@ import {
 
 import { createSelector } from "reselect";
 
-const windyUtils = W.require("utils");
+import windyUtils from "@windy/utils";
 
 export const width = (state) =>
   Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT / 100) - GRAPH_GAP_PX);
