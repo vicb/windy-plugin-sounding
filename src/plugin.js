@@ -69,23 +69,23 @@ export const onopen = (params) => {
   let lat;
   let lon;
 
-  // Get location from:
-  // - the opening location,
-  // - the query location,
-  // - the map center.
-  if (params.query) {
-    if (q.lat == null || q.lon == null) {
-      const c = windyMap.getCenter();
-      lat = c.lat;
-      lon = c.lng;
-    } else {
-      lat = Number(query.lat);
-      lon = Number(query.lon);
-    }
+  if (params.query) {    
+    lat = params.query.lat;
+    lon = params.query.lon;
   } else {
     lat = params.lat;
     lon = params.lon;
   }
+
+  if (lat == null || lon == null) {
+      const c = windyMap.getCenter();
+      lat = c.lat;
+      lon = c.lng;
+  }
+
+  // Strings when retrieved from the query string.
+  lat = Number(lat);
+  lon = Number(lon);
 
   if (!store.getState().plugin.active) {
     // The plugin was previously closed
