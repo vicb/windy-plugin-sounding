@@ -33,7 +33,7 @@ export class Favorites extends PureComponent {
 
       return (
         <div style="display: flex; justify-content: space-between; margin-bottom: 3px">
-          <select id="wsp-select-fav" onChange={(e) => handleSelectChanged(e, onSelected)}>
+          <select id="wsp-select-fav" onChange={(e) => handleSelectChanged(e, onSelected)} style="max-width: 60%">
             <option>Pick a favorite</option>
             {favorites.map((f) => {
               return (
@@ -46,6 +46,7 @@ export class Favorites extends PureComponent {
           <select
             id="wsp-select-model"
             onChange={(e) => getStore().dispatch(setModelName(e.target.value))}
+            style="max-width: 35%"
           >
             {models.map((p) => {
               return (
