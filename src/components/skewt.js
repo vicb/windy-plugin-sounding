@@ -108,7 +108,7 @@ export class SkewT extends PureComponent {
             {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40].map((t) => (
               <IsoTherm temp={t + 273.15} {...{ height, pToPx, line }} />
             ))}
-            {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude, params }} />}
+            {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude, rain: params.rain }} />}
             <TemperatureAxis
               width={width}
               height={height}

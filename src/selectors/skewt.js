@@ -62,11 +62,10 @@ export const params = createSelector(forecasts, timestamp, pMin, (forecasts, tim
   params.snow = false;
   params.rain = false;
   const nextfc = forecasts.forecast.data.ts.findIndex((t) => t >= timestamp);
-  if (next != -1) {
+  if (nextfc != -1) {
     const previousfc = Math.max(0, next - 1);
     const nearestfc = forecasts.forecast.data.ts[nextfc] - timestamp > timestamp - forecasts.forecast.data.ts[previousfc] ? previousfc : nextfc;
     params.rain = forecasts.forecast.data.rain[nearestfc] > 0;
-    params.snow = forecasts.forecast.data.snow[nearestfc] > 0;
   }
 
   const wind = params.wind_u.map((u, index) => {

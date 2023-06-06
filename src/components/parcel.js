@@ -2,7 +2,7 @@ import { PureComponent } from "./pure";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 
-export function Parcel({ parcel, width, line, pToPx, formatAltitude, params }) {
+export function Parcel({ parcel, width, line, pToPx, formatAltitude, rain }) {
   const { trajectory, isohume, elevThermalTop, pThermalTop, pCloudTop } = parcel;
   const parts = [];
   if (trajectory) {
@@ -14,7 +14,7 @@ export function Parcel({ parcel, width, line, pToPx, formatAltitude, params }) {
         <Cumulus x={width} y={thtY} />,
         <line class="boundary" y1={ctY} y2={ctY} x2={width} />
       );
-      if (params.rain) {
+      if (rain) {
         parts.push(<RainDrop x={width} y={thtY} />);
       }
     }
