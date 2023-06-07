@@ -4,11 +4,11 @@ import { cloudsToCanvas, computeClouds, hrAlt } from "../clouds";
 
 import { createSelector } from "reselect";
 
-const windyMetrics = W.require("metrics");
-const windyUtils = W.require("utils");
-const windyMap = W.require("map").map;
-const windyStore = W.require("store");
-const windyRootScope = W.require("rootScope");
+import windyStore from "@windy/store";
+import windyUtils from "@windy/utils";
+import windyMetrics from "@windy/metrics";
+import { map as windyMap } from "@windy/map";
+import * as windyRootScope from "@windy/rootScope";
 
 // Extra space at the bottom to draw the ticks.
 export const GRAPH_BOTTOM_MARGIN_PX = 20;

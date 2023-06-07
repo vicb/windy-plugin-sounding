@@ -6,12 +6,12 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { rootReducer } from "./reducers/sounding";
 import thunk from "redux-thunk";
 
-const $ = W.require("utils").$;
-const windyStore = W.require("store");
+import {$} from '@windy/utils';
+import windyStore from '@windy/store';
 
 let store;
 
-export function getStore() {
+export function getStore(container) {
   if (store) {
     return store;
   }
@@ -20,9 +20,9 @@ export function getStore() {
   const composeEnhancers =
     (process.env.NODE_ENV == "development" ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) ||
     compose;
+    // todo: check deprecated
   store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
 
-  const container = $("#bsounding-chart");
   const graphWith = container.clientWidth - 10;
   const graphHeight = Math.min(graphWith, window.innerHeight * 0.7);
   store.dispatch(soundingAct.setWidth(graphWith));

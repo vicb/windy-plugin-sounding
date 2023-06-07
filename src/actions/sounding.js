@@ -1,6 +1,6 @@
-const windyUtils = W.require("utils");
-const windyUrls = W.require("urls");
-const windyHttp = W.require("http");
+import windyUtils from "@windy/utils";
+import windyUrls from "@windy/urls";
+import windyHttp from "@windy/http";
 
 // plugin
 export const SET_LOCATION = "SDG.SET_LOCATION";

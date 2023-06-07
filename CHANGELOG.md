@@ -1,3 +1,7 @@
+## 2.0.0 - Jun 5, 2023
+
+- Update to windy v39
+
 ## 1.4.3 - Jan 16, 2021
 
 - Add support for mobiles & tablets

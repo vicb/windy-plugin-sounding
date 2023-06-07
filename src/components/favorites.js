@@ -4,10 +4,9 @@ import { PureComponent } from "./pure";
 import { getStore } from "../store";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
-
-const windyUtils = W.require("utils");
-const windyStore = W.require("store");
-const windyModels = W.require("models");
+import windyStore from "@windy/store";
+import windyUtils from "@windy/utils";
+import windyModels from "@windy/models";
 
 function label(favorite) {
   return favorite.title || favorite.name;
@@ -34,7 +33,7 @@ export class Favorites extends PureComponent {
 
       return (
         <div style="display: flex; justify-content: space-between; margin-bottom: 3px">
-          <select id="wsp-select-fav" onChange={(e) => handleSelectChanged(e, onSelected)}>
+          <select id="wsp-select-fav" onChange={(e) => handleSelectChanged(e, onSelected)} style="max-width: 60%">
             <option>Pick a favorite</option>
             {favorites.map((f) => {
               return (
@@ -47,6 +46,7 @@ export class Favorites extends PureComponent {
           <select
             id="wsp-select-model"
             onChange={(e) => getStore().dispatch(setModelName(e.target.value))}
+            style="max-width: 35%"
           >
             {models.map((p) => {
               return (
