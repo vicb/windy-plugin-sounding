@@ -44,7 +44,6 @@ export const onmount = (node_) => {
   if (windyRootScope.isMobileOrTablet) {
     // Tablets use the className instead of classNameMobile.
     const el = document.querySelector("#windy-plugin-sounding");
-    console.log(`## pg element`, el);
     const classes = el.classList;
     classes.remove("plugin-lhpane");
     classes.add("window");
