@@ -12,11 +12,16 @@ function label(favorite) {
   return favorite.title || favorite.name;
 }
 
-function handleSelectChanged(e, onSelected) {
+function handleFavoriteChanged(e, onSelected) {
   if (e.target.value) {
     const [lat, lon] = e.target.value.split("#").map((str) => Number(str));
     onSelected({ lat, lon }, e);
   }
+}
+
+function handleModelChanged(name) {
+  getStore().dispatch(setModelName(name));
+  windyStore.set("product", name);
 }
 
 export class Favorites extends PureComponent {
@@ -33,7 +38,11 @@ export class Favorites extends PureComponent {
 
       return (
         <div style="display: flex; justify-content: space-between; margin-bottom: 3px">
-          <select id="wsp-select-fav" onChange={(e) => handleSelectChanged(e, onSelected)} style="max-width: 60%">
+          <select
+            id="wsp-select-fav"
+            onChange={(e) => handleFavoriteChanged(e, onSelected)}
+            style="max-width: 60%"
+          >
             <option>Pick a favorite</option>
             {favorites.map((f) => {
               return (
@@ -45,7 +54,7 @@ export class Favorites extends PureComponent {
           </select>
           <select
             id="wsp-select-model"
-            onChange={(e) => getStore().dispatch(setModelName(e.target.value))}
+            onChange={(e) => handleModelChanged(e.target.value)}
             style="max-width: 35%"
           >
             {models.map((p) => {

@@ -68,7 +68,7 @@ export const onopen = (params) => {
   let lat;
   let lon;
 
-  if (params.query) {    
+  if (params.query) {
     lat = params.query.lat;
     lon = params.query.lon;
   } else {
@@ -77,9 +77,9 @@ export const onopen = (params) => {
   }
 
   if (lat == null || lon == null) {
-      const c = windyMap.getCenter();
-      lat = c.lat;
-      lon = c.lng;
+    const c = windyMap.getCenter();
+    lat = c.lat;
+    lon = c.lng;
   }
 
   // Strings when retrieved from the query string.

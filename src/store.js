@@ -6,8 +6,8 @@ import { applyMiddleware, compose, createStore } from "redux";
 import { rootReducer } from "./reducers/sounding";
 import thunk from "redux-thunk";
 
-import {$} from '@windy/utils';
-import windyStore from '@windy/store';
+import { $ } from "@windy/utils";
+import windyStore from "@windy/store";
 
 let store;
 
@@ -20,7 +20,7 @@ export function getStore(container) {
   const composeEnhancers =
     (process.env.NODE_ENV == "development" ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) ||
     compose;
-    // todo: check deprecated
+  // todo: check deprecated
   store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
 
   const graphWith = container.clientWidth - 10;
