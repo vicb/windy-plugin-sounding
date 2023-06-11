@@ -65,6 +65,7 @@ export const onmount = (node_) => {
 
 // Called when the plugin is opened
 export const onopen = (params) => {
+  params ??= {};
   let lat;
   let lon;
 
