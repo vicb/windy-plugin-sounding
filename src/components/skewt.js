@@ -3,7 +3,7 @@ import * as math from "../math";
 
 import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding";
 // eslint-disable-next-line no-unused-vars
-import { Parcel } from "../components/parcel";
+import { Parcel, RainDrop } from "../components/parcel";
 import { PureComponent } from "./pure";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
@@ -108,7 +108,7 @@ export class SkewT extends PureComponent {
             {[-70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40].map((t) => (
               <IsoTherm temp={t + 273.15} {...{ height, pToPx, line }} />
             ))}
-            {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude }} />}
+            {parcel && <Parcel {...{ parcel, width, height, line, pToPx, formatAltitude, rain: params.rain }} />}
             <TemperatureAxis
               width={width}
               height={height}
@@ -124,6 +124,7 @@ export class SkewT extends PureComponent {
               pSfc={pSfc}
               highClouds={zoom}
             />
+            {params.rain && !parcel && <RainDrop x={width+9} y={26} />}
             <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
           </g>
           <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
@@ -276,7 +277,7 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
       <text
         class="tick"
         y={30 - 5}
-        x={width - 5}
+        x={width - 15}
         text-anchor="end"
         filter="url(#whiteOutlineEffect)"
       >
