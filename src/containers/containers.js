@@ -33,15 +33,17 @@ function stateToSkewTProp(state) {
   if (soundingSel.isThermalHours(state)) {
     const thermalT = skewTSel.tSfc(state) + 3;
     const dpSfc = skewTSel.dewpointSfc(state);
-    const { dry, moist, isohume, elevThermalTop, pThermalTop, pCloudTop } =
-      parcelTrajectory(parameters, 40, thermalT, pSfc, dpSfc) || {};
-    parcel = {
-      trajectory: dry.concat(moist || []),
-      isohume,
-      elevThermalTop,
-      pThermalTop,
-      pCloudTop,
-    };
+    const trajectory = parcelTrajectory(parameters, 40, thermalT, pSfc, dpSfc);
+    if (trajectory) {
+      const { dry, moist, isohume, elevThermalTop, pThermalTop, pCloudTop } = trajectory;
+      parcel = {
+        trajectory: dry.concat(moist || []),
+        isohume,
+        elevThermalTop,
+        pThermalTop,
+        pCloudTop,
+      };
+    }
   }
 
   return {

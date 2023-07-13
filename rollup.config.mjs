@@ -69,7 +69,10 @@ export default {
         https: {
           key: fs.readFileSync('key.pem'),
           cert: fs.readFileSync('certificate.pem'),
-        }
+        },
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },        
       }),
       transformToPlugin(meta),
     babel({

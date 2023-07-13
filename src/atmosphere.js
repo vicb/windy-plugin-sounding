@@ -96,7 +96,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
     return null;
   }
 
-  if (cloudBase[0] < thermalTop[0]) {
+  if (cloudBase && cloudBase[0] < thermalTop[0]) {
     thermalTop = cloudBase;
 
     const pCloudBase = pToEl.invert(cloudBase[0]);
