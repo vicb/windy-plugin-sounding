@@ -155,10 +155,10 @@ export function maybeFetchParams() {
     ) {
       dispatch(fetchParams(lat, lon, modelName));
       const step = 3;
-      const forecastUrl = windyUrls.getPointForecast(modelName, { lat, lon, step }, "detail");
-      const meteogramUrl = windyUrls.getMeteogramForecast(modelName, { lat, lon, step });
+      const pAirData = windyUrls.getMeteogramForecast(modelName, { lat, lon, step });
+      const pForecast = windyUrls.getPointForecast(modelName, { lat, lon, step }, "detail");
 
-      Promise.all([windyHttp.get(meteogramUrl), windyHttp.get(forecastUrl)]).then(
+      Promise.all([pAirData, pForecast]).then(
         ([airData, forecast]) => {
           dispatch(receiveParams(lat, lon, modelName, airData.data, forecast.data));
         }
