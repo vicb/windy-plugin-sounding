@@ -158,11 +158,9 @@ export function maybeFetchParams() {
       const pAirData = windyUrls.getMeteogramForecast(modelName, { lat, lon, step });
       const pForecast = windyUrls.getPointForecast(modelName, { lat, lon, step }, "detail");
 
-      Promise.all([pAirData, pForecast]).then(
-        ([airData, forecast]) => {
-          dispatch(receiveParams(lat, lon, modelName, airData.data, forecast.data));
-        }
-      );
+      Promise.all([pAirData, pForecast]).then(([airData, forecast]) => {
+        dispatch(receiveParams(lat, lon, modelName, airData.data, forecast.data));
+      });
     }
   };
 }

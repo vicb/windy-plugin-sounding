@@ -122,21 +122,24 @@ function formatTimestamp(ts) {
   });
 }
 
-const SoundingTitle = connect(stateToTitleProps)(
-  ({ isLoading, modelName, updated, nextUpdate }) => {
-    if (isLoading) {
-      return;
-    }
-    const updateStr = formatTimestamp(updated);
-    const nextStr = formatTimestamp(nextUpdate);
-
-    return (
-      <p class="model">
-        Model <strong>{modelName.toUpperCase()}</strong> ({updateStr}). Next update on {nextStr}.
-      </p>
-    );
+const SoundingTitle = connect(stateToTitleProps)(({
+  isLoading,
+  modelName,
+  updated,
+  nextUpdate,
+}) => {
+  if (isLoading) {
+    return;
   }
-);
+  const updateStr = formatTimestamp(updated);
+  const nextStr = formatTimestamp(nextUpdate);
+
+  return (
+    <p class="model">
+      Model <strong>{modelName.toUpperCase()}</strong> ({updateStr}). Next update on {nextStr}.
+    </p>
+  );
+});
 
 const stateToAppProps = (state) => {
   const width = soundingSel.width(state);
@@ -205,40 +208,38 @@ const stateToAppDispatch = (dispatch) => ({
 export const App = connect(
   stateToAppProps,
   stateToAppDispatch
-)(
-  ({
-    title,
-    chart,
-    centerMap,
-    onFavSelected,
-    wheelHandler,
-    width,
-    height,
-    zoom,
-    onZoomClick,
-    graphHeight,
-    skewTWidth,
-    windgramWidth,
-  }) => {
-    return (
-      <div>
-        {title()}
-        <img
-          class="wsp-abs"
-          src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel"
-          width="1"
-          height="1"
-        />
-        <div style="position:relative">
-          <svg {...{ width, height }} onWheel={wheelHandler}>
-            {chart({ height: graphHeight, skewTWidth, windgramWidth })}
-          </svg>
-          <div id="wsp-zoom" class="iconfont clickable-size" onClick={onZoomClick}>
-            {zoom ? "\uE03D" : "\uE03B"}
-          </div>
+)(({
+  title,
+  chart,
+  centerMap,
+  onFavSelected,
+  wheelHandler,
+  width,
+  height,
+  zoom,
+  onZoomClick,
+  graphHeight,
+  skewTWidth,
+  windgramWidth,
+}) => {
+  return (
+    <div>
+      {title()}
+      <img
+        class="wsp-abs"
+        src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel"
+        width="1"
+        height="1"
+      />
+      <div style="position:relative">
+        <svg {...{ width, height }} onWheel={wheelHandler}>
+          {chart({ height: graphHeight, skewTWidth, windgramWidth })}
+        </svg>
+        <div id="wsp-zoom" class="iconfont clickable-size" onClick={onZoomClick}>
+          {zoom ? "\uE03D" : "\uE03B"}
         </div>
-        <ConnectedFavorites onSelected={onFavSelected(centerMap)} />
       </div>
-    );
-  }
-);
+      <ConnectedFavorites onSelected={onFavSelected(centerMap)} />
+    </div>
+  );
+});
