@@ -1,12 +1,12 @@
 {
   "name": "windy-plugin-sounding",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "windy-plugin-sounding",
-      "version": "2.0.7",
+      "version": "2.0.8",
       "license": "MIT",
       "dependencies": {
         "preact": "^10.13.1",
