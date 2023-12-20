@@ -1,5 +1,5 @@
 import windyUtils from "@windy/utils";
-import windyUrls from "@windy/urls";
+import windyFetch from "@windy/fetch";
 import windyHttp from "@windy/http";
 
 // plugin
@@ -155,8 +155,8 @@ export function maybeFetchParams() {
     ) {
       dispatch(fetchParams(lat, lon, modelName));
       const step = 3;
-      const pAirData = windyUrls.getMeteogramForecast(modelName, { lat, lon, step });
-      const pForecast = windyUrls.getPointForecast(modelName, { lat, lon, step }, "detail");
+      const pAirData = windyFetch.getMeteogramForecastData(modelName, { lat, lon, step });
+      const pForecast = windyFetch.getPointForecastData(modelName, { lat, lon, step }, "detail");
 
       Promise.all([pAirData, pForecast]).then(([airData, forecast]) => {
         dispatch(receiveParams(lat, lon, modelName, airData.data, forecast.data));
