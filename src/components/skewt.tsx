@@ -1,10 +1,10 @@
-import * as atm from "../atmosphere";
-import * as math from "../math";
+import * as atm from "../util/atmosphere.js";
+import * as math from "../util/math.js";
 
-import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding";
+import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding.js";
 // eslint-disable-next-line no-unused-vars
-import { Parcel } from "../components/parcel";
-import { PureComponent } from "./pure";
+import { Parcel } from "./parcel.js";
+import { PureComponent } from "./pure.js";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 
@@ -60,9 +60,9 @@ export class SkewT extends PureComponent {
             patternTransform="rotate(45 2 2)"
           >
             <rect width="8" height="8" fill="#f8f8f8" opacity="0.7" />
-            <path d="M 0,-1 L 0,11" stroke="gray" stroke-width="1" />
+            <path d="M 0,-1 L 0,11" stroke="gray" strokeWidth="1" />
           </pattern>
-          <filter id="whiteOutlineEffect" color-interpolation-filters="sRGB">
+          <filter id="whiteOutlineEffect" colorInterpolationFilters="sRGB">
             <feMorphology in="SourceAlpha" result="MORPH" operator="dilate" radius="2" />
             <feColorMatrix
               in="MORPH"
@@ -78,12 +78,12 @@ export class SkewT extends PureComponent {
         </defs>
 
         <g
-          class="chart skewt"
+          className="chart skewt"
           onPointerLeave={() => setYPointer(null)}
           onPointerMove={(e) => setYPointer(e.offsetY)}
         >
-          <rect width={width} height={height} fill="white" opacity="0.1" />
-          <g class="axis">
+          <rect width={width} height={height} fill="white" opacity="1" />
+          <g className="axis">
             {[-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80].map((t) => (
               <DryAdiabat
                 temp={t + 273.15}
@@ -126,16 +126,16 @@ export class SkewT extends PureComponent {
             />
             <AltitudeAxis width={width} pAxisToPx={pAxisToPx} step={ghAxisStep} metric={ghMetric} />
           </g>
-          <path class="line temperature" d={line(math.zip(params.temp, params.level))} />
-          <path class="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
-          <rect class="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
+          <path className="line temperature" d={line(math.zip(params.temp, params.level))} />
+          <path className="line dewpoint" d={line(math.zip(params.dewpoint, params.level))} />
+          <rect className="surface" y={sfcPx} width={width} height={height - sfcPx + 1} />
           {yPointer != null && yPointer < sfcPx ? (
             <g>
               <text
-                class="tick"
-                text-anchor="end"
+                className="tick"
+                textAnchor="end"
                 style="fill: black;"
-                dominant-baseline="hanging"
+                dominantBaseline="hanging"
                 x={width - 7}
                 y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
@@ -143,9 +143,9 @@ export class SkewT extends PureComponent {
                 {Math.round(pAxisToPx.invert(yPointer) / 100) * 100}
               </text>
               <text
-                class="tick"
+                className="tick"
                 style="fill: red;"
-                dominant-baseline="hanging"
+                dominantBaseline="hanging"
                 x={tToPx(tAtCursor) + skew * (height - yPointer) + 10}
                 y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
@@ -153,19 +153,19 @@ export class SkewT extends PureComponent {
                 {formatTemp(tAtCursor)}
               </text>
               <text
-                class="tick"
+                className="tick"
                 style="fill: steelblue;"
-                dominant-baseline="hanging"
+                dominantBaseline="hanging"
                 x={tToPx(dpAtCursor) + skew * (height - yPointer) + 10}
                 y={yPointer + 4}
                 filter="url(#whiteOutlineEffect)"
               >
                 {formatTemp(dpAtCursor)}
               </text>
-              <line y1={yPointer} y2={yPointer} x2={width} class="boundary" />
+              <line y1={yPointer} y2={yPointer} x2={width} className="boundary" />
             </g>
           ) : null}
-          <rect class="border" height={height} width={width} />
+          <rect className="border" height={height} width={width} />
         </g>
       </svg>
     );
@@ -182,7 +182,7 @@ class DryAdiabat extends PureComponent {
       points.push([t, p]);
     }
 
-    return <path class="dry" d={line(points)} />;
+    return <path className="dry" d={line(points)} />;
   }
 }
 
@@ -198,7 +198,7 @@ class MoistAdiabat extends PureComponent {
       points.push([temp, p]);
     }
 
-    return <path class="moist" d={line(points)} />;
+    return <path className="moist" d={line(points)} />;
   }
 }
 
@@ -212,7 +212,7 @@ class IsoHume extends PureComponent {
       const t = atm.dewpoint(atm.vaporPressure(p, mixingRatio));
       points.push([t, p]);
     }
-    return <path class="isohume" d={line(points)} />;
+    return <path className="isohume" d={line(points)} />;
   }
 }
 
@@ -223,7 +223,7 @@ class IsoTherm extends PureComponent {
       [temp, pToPx.invert(0)],
     ];
     const classname = `isotherm ${Math.round(temp) == 273 ? "zero" : ""}`;
-    return <path class={classname} d={line(points)} />;
+    return <path className={classname} d={line(points)} />;
   }
 }
 
@@ -235,7 +235,7 @@ class TemperatureAxis extends PureComponent {
       const x = tAxisToPx(temp);
       isLast = tAxisToPx(temp + step) > width;
       ticks.push(
-        <text class="tick" text-anchor="middle" dominant-baseline="hanging" y={height + 5} x={x}>
+        <text className="tick temp" textAnchor="middle" dominantBaseline="hanging" y={height + 5} x={x}>
           {temp + (isLast ? " " + metric : "")}
         </text>
       );
@@ -251,8 +251,8 @@ const AltitudeAxis = ({ pAxisToPx, width, metric, step }) => {
     const yPx = pAxisToPx(alti);
     isLast = pAxisToPx(alti + step) < 20;
     children.push(
-      <line y1={yPx} x2={width} y2={yPx} class="light" />,
-      <text class="tick" y={yPx - 5} x={5} filter="url(#whiteOutlineEffect)">
+      <line y1={yPx} x2={width} y2={yPx} className="light" />,
+      <text className="tick" y={yPx - 5} x={5} filter="url(#whiteOutlineEffect)">
         {alti + " " + (isLast ? " " + metric : "")}
       </text>
     );
@@ -274,16 +274,16 @@ const Clouds = ({ width, cloudCover, pToPx, pSfc, highClouds }) => {
     rects.push(
       <Cloud y="0" width={width} height="30" cover={upperCover} />,
       <text
-        class="tick"
+        className="tick"
         y={30 - 5}
         x={width - 5}
-        text-anchor="end"
+        textAnchor="end"
         filter="url(#whiteOutlineEffect)"
       >
         upper clouds
       </text>,
 
-      <line y1="30" y2="30" x2={width} class="boundary" />
+      <line y1="30" y2="30" x2={width} className="boundary" />
     );
   }
 

@@ -1,0 +1,17 @@
+Plugin config:
+- mobile UI
+- Select model / location, see native sounding
+
+todo
+
+Commented code (mobile)
+
+console.log 
+
+mobile
+
+Resize when viewport changes
+
+Add NX / eslint 
+
+rollup.build.css path

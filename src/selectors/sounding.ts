@@ -1,6 +1,4 @@
-import * as math from "../math";
 
-import { cloudsToCanvas, computeClouds, hrAlt } from "../clouds";
 
 import { createSelector } from "reselect";
 
@@ -9,6 +7,8 @@ import windyUtils from "@windy/utils";
 import windyMetrics from "@windy/metrics";
 import { map as windyMap } from "@windy/map";
 import * as windyRootScope from "@windy/rootScope";
+import { cloudsToCanvas, computeClouds, hrAlt } from "../util/clouds";
+import * as math from "../util/math";
 
 // Extra space at the bottom to draw the ticks.
 export const GRAPH_BOTTOM_MARGIN_PX = 20;
@@ -180,7 +180,8 @@ export const centerMap = createSelector(width, (width) => (lat, lon) => {
   const bounds = windyMap.getBounds();
 
   if (windyRootScope.isMobileOrTablet) {
-    const pluginContent = document.querySelector("#windy-plugin-sounding .plugin-content");
+    // TODO: improve
+    const pluginContent = document.querySelector("#plugin-windy-plugin-sounding") as HTMLDivElement;
     if (!pluginContent) {
       console.error("plugin div not found");
       return;
@@ -189,13 +190,10 @@ export const centerMap = createSelector(width, (width) => (lat, lon) => {
     const pluginHeight = pluginContent.offsetHeight;
     const mapHeight = windyMap.getSize().y;
     const deltaLat = bounds.getSouth() - bounds.getNorth();
-    const centerLat = lat - ((deltaLat / mapHeight) * pluginHeight) / 2;
+    const centerLat = lat + ((deltaLat / mapHeight) * pluginHeight) / 2;
     windyMap.panTo({ lng: lon, lat: centerLat });
   } else {
-    const deltaLng = bounds.getEast() - bounds.getWest();
-    const mapWidth = windyMap.getSize().x;
-    const centerLon = lon - ((deltaLng / mapWidth) * width) / 2;
-    windyMap.panTo({ lng: centerLon, lat });
+    windyMap.panTo({ lng: lon, lat });
   }
 });
 

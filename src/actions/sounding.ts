@@ -1,5 +1,8 @@
-import windyUtils from "@windy/utils";
 import windyFetch from "@windy/fetch";
+import { setUrl } from '@windy/location';
+import windyUtils from "@windy/utils";
+import { Dispatch } from "redux";
+import config from "src/pluginConfig";
 
 // plugin
 export const SET_LOCATION = "SDG.SET_LOCATION";
@@ -24,7 +27,8 @@ export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "hrrr", "ukv"];
 const DEFAULT_MODEL = "ecmwf";
 
-export const toggleZoom = () => ({
+export const toggleZoom = (   ) => (
+  {
   type: TOGGLE_ZOOM,
 });
 
@@ -53,16 +57,17 @@ export const setMetricSpeed = (metric) => ({
   payload: metric,
 });
 
-export const setLocation = (lat, lon) => (dispatch) => {
+export const setLocation = (lat: number, lon: number) => (dispatch: Dispatch) => {
   dispatch({
     type: SET_LOCATION,
     payload: { lat, lon },
   });
   dispatch(moveMarker(lat, lon));
   dispatch(maybeFetchParams());
+  setUrl(config.name, { lat, lon });
 };
 
-export const setModelName = (modelName) => (dispatch) => {
+export const setModelName = (modelName: string) => (dispatch) => {
   const model = SUPPORTED_MODEL_PREFIXES.some((prefix) => modelName.startsWith(prefix))
     ? modelName
     : DEFAULT_MODEL;
@@ -98,12 +103,12 @@ export const cancelSubscriptions = () => (dispatch, getState) => {
   });
 };
 
-export const setActive = (active) => ({
+export const setActive = (active: boolean) => ({
   type: SET_ACTIVE,
   payload: active,
 });
 
-export const moveMarker = (lat, lon) => ({
+export const moveMarker = (lat: number, lon: number) => ({
   type: MOVE_MARKER,
   payload: { lat, lon },
 });
@@ -112,19 +117,19 @@ export const removeMarker = () => ({
   type: REMOVE_MARKER,
 });
 
-export const setWidth = (width) => ({
+export const setWidth = (width: number) => ({
   type: SET_WIDTH,
   payload: width,
 });
 
-export const setHeight = (height) => ({
+export const setHeight = (height: number) => ({
   type: SET_HEIGHT,
   payload: height,
 });
 
 // params
 
-function shouldFetchForecasts(model, lat, lon) {
+function shouldFetchForecasts(model, lat: number, lon: number) {
   if (!model) {
     return true;
   }
@@ -164,7 +169,7 @@ export function maybeFetchParams() {
   };
 }
 
-const fetchParams = (lat, lon, modelName) => ({
+const fetchParams = (lat: number, lon: number, modelName: string) => ({
   type: FETCH_PARAMS,
   payload: { lat, lon, modelName },
 });

@@ -1,7 +1,7 @@
 import { SUPPORTED_MODEL_PREFIXES, setModelName } from "../actions/sounding";
 
-import { PureComponent } from "./pure";
-import { getStore } from "../store";
+import { PureComponent } from "./pure.js";
+import { getStore } from "../util/store.js";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
 import windyStore from "@windy/store";
@@ -71,18 +71,18 @@ export class Favorites extends PureComponent {
 
     if (favorites.length == 0) {
       return (
-        <div id="fly-to" class="size-s">
+        <div id="fly-to" className="size-s">
           <span data-icon="m">Add favorites to enable fly to.</span>
         </div>
       );
     }
 
     return (
-      <div id="fly-to" class="size-s">
+      <div id="fly-to" className="size-s">
         {favorites.map((f) => {
           return (
             <span
-              class={"location" + (windyUtils.latLon2str(f) == location ? " selected" : "")}
+              className={"location" + (windyUtils.latLon2str(f) == location ? " selected" : "")}
               onClick={(e) => onSelected(f, e)}
             >
               {label(f)}

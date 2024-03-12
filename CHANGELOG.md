@@ -1,3 +1,7 @@
+## 3.0.0 - Apr 11, 2024
+
+- Update for windy v42
+
 ## 2.0.0 - Jun 5, 2023
 
 - Update to windy v39

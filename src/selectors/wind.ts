@@ -1,9 +1,9 @@
-import * as math from "../math";
+import { createSelector } from "reselect";
+import * as math from "../util/math";
 
 import { GRAPH_WINDGRAM_WIDTH_PERCENT, width as totalWidth, zoom } from "./sounding";
 import { pToPx, params } from "./skewt";
 
-import { createSelector } from "reselect";
 
 export const width = (state) =>
   Math.floor((totalWidth(state) * GRAPH_WINDGRAM_WIDTH_PERCENT) / 100);

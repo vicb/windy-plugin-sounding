@@ -1,4 +1,6 @@
-import * as math from "../math";
+import { createSelector } from "reselect";
+import windyUtils from "@windy/utils";
+import * as math from "../util/math";
 
 import {
   GRAPH_GAP_PX,
@@ -15,9 +17,7 @@ import {
   zoom,
 } from "./sounding";
 
-import { createSelector } from "reselect";
 
-import windyUtils from "@windy/utils";
 
 export const width = (state) =>
   Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT / 100) - GRAPH_GAP_PX);

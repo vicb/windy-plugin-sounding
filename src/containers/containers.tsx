@@ -1,18 +1,18 @@
-import * as skewTSel from "../selectors/skewt";
-import * as soundingSel from "../selectors/sounding";
-import * as windSel from "../selectors/wind";
+import * as skewTSel from "../selectors/skewt.js";
+import * as soundingSel from "../selectors/sounding.js";
+import * as windSel from "../selectors/wind.js";
 
-import { setLocation, setYPointer, toggleZoom } from "../actions/sounding";
+import { setLocation, setYPointer, toggleZoom } from "../actions/sounding.js";
 
-import { Favorites } from "../components/favorites";
+import { Favorites } from "../components/favorites.js";
 // eslint-disable-next-line no-unused-vars
-import { LoadingIndicator } from "../components/loading";
-import { SkewT } from "../components/skewt";
-import { WindGram } from "../components/wind";
+import { LoadingIndicator } from "../components/loading.js";
+import { SkewT } from "../components/skewt.js";
+import { WindGram } from "../components/wind.js";
 import { connect } from "react-redux";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
-import { parcelTrajectory } from "../atmosphere";
+import { parcelTrajectory } from "../util/atmosphere.js";
 
 import * as windyRootScope from "@windy/rootScope";
 
@@ -135,7 +135,7 @@ const SoundingTitle = connect(stateToTitleProps)(({
   const nextStr = formatTimestamp(nextUpdate);
 
   return (
-    <p class="model">
+    <p className="model desktop-only">
       Model <strong>{modelName.toUpperCase()}</strong> ({updateStr}). Next update on {nextStr}.
     </p>
   );
@@ -148,7 +148,7 @@ const stateToAppProps = (state) => {
   const props = {
     centerMap: soundingSel.centerMap(state),
     wheelHandler: () => null,
-    title: () => <p class="model">Loading...</p>,
+    title: () => <p className="model">Loading...</p>,
     chart: () => <LoadingIndicator cx={width / 2} cy={height / 2} />,
     width,
     height,
@@ -169,9 +169,9 @@ const stateToAppProps = (state) => {
   if (!params) {
     return {
       ...props,
-      title: () => <p class="model">Forecast not available</p>,
+      title: () => <p className="model">Forecast not available</p>,
       chart: () => (
-        <text x="50%" y="50%" text-anchor="middle">
+        <text x="50%" y="50%" textAnchor="middle">
           Forecast not available
         </text>
       ),
@@ -226,7 +226,7 @@ export const App = connect(
     <div>
       {title()}
       <img
-        class="wsp-abs"
+        className="wsp-abs"
         src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel"
         width="1"
         height="1"
@@ -235,7 +235,7 @@ export const App = connect(
         <svg {...{ width, height }} onWheel={wheelHandler}>
           {chart({ height: graphHeight, skewTWidth, windgramWidth })}
         </svg>
-        <div id="wsp-zoom" class="iconfont clickable-size" onClick={onZoomClick}>
+        <div id="wsp-zoom" className="iconfont clickable-size" onClick={onZoomClick}>
           {zoom ? "\uE03D" : "\uE03B"}
         </div>
       </div>

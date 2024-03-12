@@ -1,3 +1,11 @@
-node_modules
-dev/
 stats.html
+
+# TODO: move to dist
+rollup.build.css
+
+/node_modules
+/.rollup.cache
+/.vscode
+
+/dist
+/dev

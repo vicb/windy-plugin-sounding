@@ -1,5 +1,13 @@
-import * as atm from "../atmosphere";
 
+
+import { combineReducers } from "redux";
+
+import { map as windyMap, markers } from "@windy/map";
+import windyUtils from "@windy/utils";
+import windyProducts from "@windy/products";
+import windySubscription from "@windy/subscription";
+import { windgram } from "./wind";
+import { skewt } from "./skewt";
 import {
   ADD_SUBSCRIPTION,
   DELETE_SUBSCRIPTION,
@@ -20,15 +28,7 @@ import {
   SET_Y_POINTER,
   TOGGLE_ZOOM,
 } from "../actions/sounding";
-
-import { combineReducers } from "redux";
-import { skewt } from "./skewt";
-import { windgram } from "./wind";
-
-import { map as windyMap, markers } from "@windy/map";
-import windyUtils from "@windy/utils";
-import windyProducts from "@windy/products";
-import windySubscription from "@windy/subscription";
+import * as atm from "../util/atmosphere";
 
 const pulsatingIcon = markers.pulsatingIcon;
 
@@ -122,7 +122,7 @@ function extractAirDataParam(airData, param, levels, tsIndex) {
 function extractLevels(airData) {
   const levels = [];
 
-  for (let name in airData.data) {
+  for (const name in airData.data) {
     const m = name.match(/temp-(\d+)h$/);
     if (m) {
       levels.push(Number(m[1]));

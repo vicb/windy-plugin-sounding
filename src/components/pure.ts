@@ -2,12 +2,12 @@ import { Component } from "preact";
 
 // Shallow diff
 function diff(a, b) {
-  for (let i in a) {
+  for (const i in a) {
     if (!(i in b)) {
       return true;
     }
   }
-  for (let i in b) {
+  for (const i in b) {
     if (a[i] !== b[i]) {
       return true;
     }
