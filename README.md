@@ -50,3 +50,11 @@ Credits:
 - Icons by [Yannick](https://www.flaticon.com/authors/yannick),
 - [Loading Indicator](https://github.com/SamHerbert/SVG-Loaders) by Sam Herbert,
 - and also [d3](https://d3js.org/), [Babel](https://babeljs.io/), [ESLint](https://eslint.org/), [SVGOMG](https://jakearchibald.github.io/svgomg/), ...
+
+## Support the development
+
+You can support the development of this plugin via the Buy me a Coffee platform
+
+<a href="https://www.buymeacoffee.com/vic.b" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+Any contribution is greatly appreciated!
