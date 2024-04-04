@@ -1,6 +1,5 @@
 import windyUtils from "@windy/utils";
 import windyFetch from "@windy/fetch";
-import windyHttp from "@windy/http";
 
 // plugin
 export const SET_LOCATION = "SDG.SET_LOCATION";
