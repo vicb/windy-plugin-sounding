@@ -4,9 +4,8 @@ import * as soundingAct from "./actions/sounding";
 import { applyMiddleware, compose, createStore } from "redux";
 
 import { rootReducer } from "./reducers/sounding";
-import thunk from "redux-thunk";
+import { thunk } from "redux-thunk";
 
-import { $ } from "@windy/utils";
 import windyStore from "@windy/store";
 
 let store;
