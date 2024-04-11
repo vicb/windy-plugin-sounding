@@ -6,7 +6,7 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 const config: ExternalPluginConfig = {
     author: "Victor Berchet",
     name: "windy-plugin-sounding",
-    version: "3.0.0",
+    version: "3.0.1",
     description: "TODO",
     repository: "TODO",
     title: 'Better Soundings',
