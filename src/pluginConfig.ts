@@ -2,13 +2,12 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 // TODO: import pkg
 //import pkg from '../package.json';
 
-
 const config: ExternalPluginConfig = {
     author: "Victor Berchet",
     name: "windy-plugin-sounding",
-    version: "3.0.1",
-    description: "TODO",
-    repository: "TODO",
+    version: "3.0.2",
+    description: "Soundings for paraglider pilots",
+    repository: "git+https://github.com/vicb/windy-plugin-sounding",
     title: 'Better Soundings',
     icon: '⛅️',
     desktopUI: 'rhpane',

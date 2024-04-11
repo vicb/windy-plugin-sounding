@@ -48,7 +48,7 @@ export default {
     external: id => id.startsWith('@windy/'),
     watch: {
         include: ['src/**', 'src/styles.less'],
-        //exclude: 'node_modules/**',
+        exclude: 'node_modules/**',
         clearScreen: false,
     },
     plugins: [

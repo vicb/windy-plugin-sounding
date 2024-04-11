@@ -225,12 +225,6 @@ export const App = connect(
   return (
     <div>
       {title()}
-      <img
-        className="wsp-abs"
-        src="https://logs-01.loggly.com/inputs/8298f665-7a6e-44e6-926f-4795243b5e4b.gif?source=pixel"
-        width="1"
-        height="1"
-      />
       <div style="position:relative">
         <svg {...{ width, height }} onWheel={wheelHandler}>
           {chart({ height: graphHeight, skewTWidth, windgramWidth })}
