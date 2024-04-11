@@ -76,8 +76,8 @@ export const openPlugin = (ll?: LatLon) => {
     lat = c.lat;
     lon = c.lng;    
   } else {
-    lat = ll.lat;
-    lon = ll.lon;
+    lat = Number(ll.lat);
+    lon = Number(ll.lon);
   }
 
   if (!store.getState().plugin.active) {
