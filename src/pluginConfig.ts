@@ -5,7 +5,7 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 const config: ExternalPluginConfig = {
     author: "Victor Berchet",
     name: "windy-plugin-sounding",
-    version: "3.0.3",
+    version: "3.0.4",
     description: "Soundings for paraglider pilots",
     repository: "git+https://github.com/vicb/windy-plugin-sounding",
     title: 'Better Soundings',
