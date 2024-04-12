@@ -30,13 +30,13 @@ import config from './pluginConfig';
 
 import './styles.less';
 import { LatLon } from "@windycom/plugin-devtools/types/interfaces.js";
-import { updateTime } from "./selectors/sounding.js";
+import { centerMap, updateTime } from "./selectors/sounding.js";
 
-let node: HTMLDivElement;
+declare const SwipeListener: any;
+
 let store: Store;
 
 export const mountPlugin = (container: HTMLDivElement) => {
-  node = container;
   store = getStore(container);
 
   render(
@@ -96,19 +96,19 @@ export const openPlugin = (ll?: LatLon) => {
     store.dispatch(addSubscription(() => windyStore.off(productChangedEventId)));
 
     const singleClickIdEventId =singleclick.on(config.name, (ll: LatLon) => {
-      centerMap(ll);
+      setCurrentLocation(ll);
     });
     store.dispatch(addSubscription(() => singleclick.off(singleClickIdEventId)));
 
     // USe the picker events on desktop.
     if (!windyRootScope.isMobileOrTablet) {
       const pickerOpenedEventId = windyPicker.on("pickerOpened", (ll: LatLon) => {
-        centerMap(ll);
+        setCurrentLocation(ll);
       });
       store.dispatch(addSubscription(() => windyPicker.off(pickerOpenedEventId)));
 
       const pickerMovedEventId = windyPicker.on("pickerMoved", (ll: LatLon) => {
-        centerMap(ll);
+        setCurrentLocation(ll);
       });
       store.dispatch(addSubscription(() => windyPicker.off(pickerMovedEventId)));
     }
@@ -119,12 +119,12 @@ export const openPlugin = (ll?: LatLon) => {
 
     store.dispatch(addSubscription(() => favs.off(favsChangedEventId)));
     store.dispatch(setFavorites(favs.getArray()));
-
     store.dispatch(setActive(true));
   }
 
   updateMetrics(store);
-  centerMap({lat, lon});
+  centerMap(store.getState())(lat, lon);
+  setCurrentLocation({lat, lon});
   store.dispatch(setModelName(windyStore.get("product")));
   store.dispatch(setTime(windyStore.get("timestamp")));
 };
@@ -136,7 +136,7 @@ export const destroyPlugin = () => {
   store.dispatch(setActive(false));
 };
 
-const centerMap = (ll: LatLon) => {
+const setCurrentLocation = (ll: LatLon) => {
   const {lat, 
     lon} = ll;
   store.dispatch(setLocation(lat, lon));
