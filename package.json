@@ -1,6 +1,6 @@
 {
   "name": "windy-plugin-sounding",
-  "version": "3.0.0",
+  "version": "3.0.5",
   "description": "Better Soundings for paraglider pilots",
   "main": "dist/plugin.js",
   "files": [
