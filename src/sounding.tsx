@@ -8,7 +8,7 @@ import {
   setModelName,
   setTime,
 } from "./actions/sounding.js";
-import { getStore, updateMetrics } from "./util/store.js";
+import { getStore, updateMetrics, AppStore } from "./util/store.js";
 // eslint-disable-next-line no-unused-vars
 import { h, render } from "preact";
 
@@ -22,7 +22,6 @@ import windyStore from "@windy/store";
 import windyUtils from "@windy/utils";
 import { map as windyMap } from "@windy/map";
 import { emitter as windyPicker } from "@windy/picker";
-import { Store } from "redux";
 
 import favs from '@windy/userFavs';
 import { singleclick } from '@windy/singleclick';
@@ -34,7 +33,7 @@ import { centerMap, updateTime } from "./selectors/sounding.js";
 
 declare const SwipeListener: any;
 
-let store: Store;
+let store: AppStore;
 
 export const mountPlugin = (container: HTMLDivElement) => {
   store = getStore(container);
@@ -74,7 +73,7 @@ export const openPlugin = (ll?: LatLon) => {
   if (!ll) {
     const c = windyMap.getCenter();
     lat = c.lat;
-    lon = c.lng;    
+    lon = c.lng;
   } else {
     lat = Number(ll.lat);
     lon = Number(ll.lon);
@@ -137,7 +136,6 @@ export const destroyPlugin = () => {
 };
 
 const setCurrentLocation = (ll: LatLon) => {
-  const {lat, 
-    lon} = ll;
+  const {lat, lon} = ll;
   store.dispatch(setLocation(lat, lon));
 };
