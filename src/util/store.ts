@@ -1,26 +1,23 @@
-import { Store, applyMiddleware, compose, createStore } from "redux";
-import { thunk } from "redux-thunk";
+import { configureStore, EnhancedStore } from '@reduxjs/toolkit';
 import windyStore from "@windy/store";
 import * as skewTAct from "../actions/skewt";
 import * as soundingAct from "../actions/sounding";
-
-
 import { rootReducer } from "../reducers/sounding";
 
+export type AppStore = EnhancedStore<typeof rootReducer>;
 
-let store: Store;
+let store: AppStore;
 
-export function getStore(container: HTMLDivElement) {
+export function getStore(container: HTMLDivElement): AppStore {
   if (store) {
     return store;
   }
 
-  const middlewares = [thunk];
-  const composeEnhancers =
-    (process.env.NODE_ENV == "development" ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null) ||
-    compose;
-    // TODO: check deprecated
-  store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middlewares)));
+  // Automatically adds thunk and Redux DevTools
+  store = configureStore({
+    reducer: rootReducer,
+    devTools: process.env.NODE_ENV !== 'production'
+  });
 
   // TODO: mobile dimension
   const graphWith = container.clientWidth;
@@ -36,7 +33,7 @@ export function getStore(container: HTMLDivElement) {
   return store;
 }
 
-export function updateMetrics(store: Store) {
+export function updateMetrics(store: AppStore) {
   if (store) {
     store.dispatch(soundingAct.setMetricTemp(windyStore.get("metric_temp")));
     store.dispatch(soundingAct.setMetricAltitude(windyStore.get("metric_altitude")));
