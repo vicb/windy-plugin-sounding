@@ -34,7 +34,7 @@ const tsRules = {
             readonly: 'generic',
         },
     ],
-    '@typescript-eslint/no-fallthrough': ['warn', { commentPattern: 'break[\\s\\w]*omitted' }],
+    'no-fallthrough': ['warn', { commentPattern: 'break[\\s\\w]*omitted' }],
     '@typescript-eslint/ban-types': [
         'error',
         {

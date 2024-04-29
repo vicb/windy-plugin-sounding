@@ -20,10 +20,10 @@ export function getStore(container: HTMLDivElement): AppStore {
   });
 
   // TODO: mobile dimension
-  const graphWith = container.clientWidth;
-  const graphHeight = Math.min(graphWith, window.innerHeight * 0.7);
+  const graphWidth = container.clientWidth;
+  const graphHeight = Math.min(graphWidth, window.innerHeight * 0.7);
 
-  store.dispatch(soundingAct.setWidth(graphWith));
+  store.dispatch(soundingAct.setWidth(graphWidth));
   store.dispatch(soundingAct.setHeight(graphHeight));
 
   updateMetrics(store);
