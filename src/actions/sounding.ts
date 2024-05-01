@@ -68,7 +68,6 @@ export const setLocation = (lat: number, lon: number) => (dispatch: Dispatch) =>
 };
 
 export const setModelName = (modelName: string) => (dispatch) => {
-  console.log(modelName);
   const model = SUPPORTED_MODEL_PREFIXES.some((prefix) => modelName.startsWith(prefix))
     ? modelName
     : DEFAULT_MODEL;
