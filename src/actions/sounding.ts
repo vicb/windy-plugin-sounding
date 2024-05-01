@@ -24,7 +24,7 @@ export const FETCH_PARAMS = "SDG.FETCH_PARAMS";
 export const RECEIVE_PARAMS = "SDG.RECEIVE_PARAMS";
 export const TOGGLE_ZOOM = "SDG.TOGGLE_ZOOM";
 
-export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "hrrr", "ukv"];
+export const SUPPORTED_MODEL_PREFIXES = ["ecmwf", "gfs", "nam", "icon", "hrrr", "ukv", "aromeReunion", "aromeAntilles"];
 const DEFAULT_MODEL = "ecmwf";
 
 export const toggleZoom = (   ) => (
@@ -68,6 +68,7 @@ export const setLocation = (lat: number, lon: number) => (dispatch: Dispatch) =>
 };
 
 export const setModelName = (modelName: string) => (dispatch) => {
+  console.log(modelName);
   const model = SUPPORTED_MODEL_PREFIXES.some((prefix) => modelName.startsWith(prefix))
     ? modelName
     : DEFAULT_MODEL;

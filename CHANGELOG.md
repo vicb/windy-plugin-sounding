@@ -1,3 +1,7 @@
+## 3.0.6 - May 1, 2024
+
+- Added support for aromeReunion and aromeAntilles
+
 ## 3.0.0 - Apr 11, 2024
 
 - Update for windy v42
