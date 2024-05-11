@@ -71,7 +71,7 @@ export const openPlugin = (ll?: LatLon) => {
   let lat: number;
   let lon: number;
 
-  if (!ll) {
+  if (!ll || ll.lat == null || ll.lon == null) {
     const c = windyMap.getCenter();
     lat = c.lat;
     lon = c.lng;    
