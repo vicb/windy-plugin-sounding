@@ -83,7 +83,7 @@ const cloudSlice = createSelector(
   forecasts,
   (cloudsData, timestamp, forecasts) => {
     const { clouds, width, height } = cloudsData;
-    const times = forecasts.times;
+    const {times} = forecasts;
     const next = times.findIndex((t) => t >= timestamp);
     if (next == -1) {
       return null;
@@ -115,7 +115,7 @@ const cloudSlice = createSelector(
 );
 
 export const cloudCover = createSelector(cloudSlice, (slice) => {
-  const length = slice.length;
+  const {length} = slice;
   const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
   // lower indexes correspond to lower pressures
   const indexes = hrAlt.map((p) => (length - 1) * (1 - p / 100));

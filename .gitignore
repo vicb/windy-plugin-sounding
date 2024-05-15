@@ -9,3 +9,5 @@ rollup.build.css
 
 /dist
 /dev
+
+/.nx

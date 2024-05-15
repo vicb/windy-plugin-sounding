@@ -1,6 +1,7 @@
 import windyFetch from "@windy/fetch";
 import { setUrl } from '@windy/location';
 import windyUtils from "@windy/utils";
+import { DataHash, MeteogramDataPayload, WeatherDataPayload } from "@windycom/plugin-devtools/types/interfaces";
 import { Dispatch } from "redux";
 import config from "src/pluginConfig";
 
@@ -174,7 +175,7 @@ const fetchParams = (lat: number, lon: number, modelName: string) => ({
   payload: { lat, lon, modelName },
 });
 
-const receiveParams = (lat, lon, modelName, airData, forecast) => ({
+const receiveParams = (lat, lon, modelName, airData: MeteogramDataPayload, forecast: WeatherDataPayload<DataHash>) => ({
   type: RECEIVE_PARAMS,
   payload: { lat, lon, modelName, airData, forecast },
 });

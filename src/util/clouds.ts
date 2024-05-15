@@ -109,9 +109,7 @@ export function computeClouds(airData) {
       previousX = currentX;
       currentX += sliceWidth;
 
-      if (currentX > width) {
-        currentX = width;
-      }
+      currentX = Math.min(currentX, width);
     }
   }
 

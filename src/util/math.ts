@@ -34,7 +34,7 @@ export function sampleAt(xs, ys, targetXs) {
 export function firstIntersection(x1s, y1s, x2s, y2s) {
   // Find all the points in the intersection of the 2 x ranges
   const min = Math.max(x1s[0], x2s[0]);
-  const max = Math.min(x1s[x1s.length - 1], x2s[x2s.length - 1]);
+  const max = Math.min(x1s.at(-1), x2s.at(-1));
   const xs = Array.from(new Set([...x1s, ...x2s]))
     .filter((x) => x >= min && x <= max)
     .sort((a, b) => (Number(a) > Number(b) ? 1 : -1));

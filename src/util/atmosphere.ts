@@ -76,7 +76,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
 
   const pToEl = math.scaleLog(params.level, params.gh);
   const minEl = pToEl(sfcP);
-  const maxEl = Math.max(minEl, params.gh[params.gh.length - 1]);
+  const maxEl = Math.max(minEl, params.gh.at(-1));
   const stepEl = (maxEl - minEl) / steps;
 
   for (let elevation = minEl; elevation <= maxEl; elevation += stepEl) {
@@ -107,7 +107,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
     let previousP = pCloudBase;
     for (let elevation = cloudBase[0]; elevation < maxEl + stepEl; elevation += stepEl) {
       const p = pToEl.invert(elevation);
-      t = t + (p - previousP) * moistGradientT(p, t);
+      t += (p - previousP) * moistGradientT(p, t);
       previousP = p;
       moistGhs.push(elevation);
       moistPressures.push(p);
@@ -120,7 +120,7 @@ export function parcelTrajectory(params, steps, sfcT, sfcP, sfcDewpoint) {
     let moist = math.zip(moistTemps, moistPressures);
     const equilibrium = math.firstIntersection(moistGhs, moistTemps, params.gh, params.temp);
 
-    parcel.pCloudTop = params.level[params.level.length - 1];
+    parcel.pCloudTop = params.level.at(-1);
     if (equilibrium) {
       const pCloudTop = pToEl.invert(equilibrium[0]);
       moist = moist.filter((pt) => pt[1] >= pCloudTop);

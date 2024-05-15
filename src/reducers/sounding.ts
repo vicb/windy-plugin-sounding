@@ -30,7 +30,7 @@ import {
 } from "../actions/sounding";
 import * as atm from "../util/atmosphere";
 
-const pulsatingIcon = markers.pulsatingIcon;
+const {pulsatingIcon} = markers;
 
 function metrics(state = {}, action) {
   switch (action.type) {
@@ -50,7 +50,7 @@ function metrics(state = {}, action) {
 
 // plugin
 
-function plugin(state = { subscriptions: [], favorites: [], zoom: true }, action) {
+function plugin(state = { subscriptions: [], favorites: [], zoom: true, marker: undefined }, action) {
   switch (action.type) {
     case SET_LOCATION:
       return { ...state, ...action.payload };
@@ -165,7 +165,7 @@ function computeForecasts(modelName, airData, forecast) {
     levels,
     tMax,
     tMin,
-    pMax: levels[levels.length - 1],
+    pMax: levels.at(-1),
     pMin: levels[0],
     nextUpdate,
   };
