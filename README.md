@@ -7,29 +7,45 @@ You can load the plugin on mobiles and tablets by visiting [https://www.windy.co
 
 ![Example Sounding](docs/sounding.png)
 
-## How to use the plugin
+## How to install the plugin on a computer
 
-1) Click on the hamburger menu at the top left of windy.com:
+Open the menu (top-right) and click on "Install Windy Plugin"
 
-![Hamburger menu](docs/1_menu.png)
+![Install](docs/1-install.png)
 
-2) Click on "Install Windy Plugin":
+Find the "Better Soundings" plugin and click on the "install" button
 
-![Install plugins](docs/2_install.png)
+![Better Soundings](docs/2-sdg.png)
 
-3) Load the "Sounding" plugin:
+Installed plugins persist across visits so you only have to install them once per computer!
 
-![Load windy-plugin-sounding](docs/3_sounding.jpg)
+## How to install the plugin on a mobiler phone
 
-4) Right-click anywhere on the map and select "Better Sounding" to display the sounding forecast:
+First open "https://www.windy.com/plugins" from **a browser** on your phone.
 
-![Context menu](docs/4_menu.png)
+**Clicking on a link does not work, you have to type or copy paste the URL in a browser**
 
-The sounding appears on the left side of screen:
+Find the "Better Soundings" plugin and click on "Install" and "Open"
 
-![Context menu](docs/5_skewt.png)
+![Install](docs/1-mob-install.png)
 
-A few notes:
+Once the plugin is installed on your phone you can navigate to "https://www.windy.com/plugin/sdg" to open the plugin the next time (it's a good idea to bookmark the URL).
+
+![Better Soundings](docs/2-mob-sdg.png)
+
+The windy team is working on improving the user experience on mobiles. They will also add plugin support in the native apps - you soon won't have to open windy.com in a browser to see the plugin.
+
+## Updating the plugin
+
+Windy plugins do not auto-update for now.
+
+You have to manually delete the plugin and re-install it to update to the latest available version.
+
+
+
+
+## Notes:
+
 - On desktop, you can scroll (mouse wheel) on the sounding diagram to go forward/backward in time - (pressing ctrl or shift will jump to the next/previous day),
 - On touch devices, swiping left or right on the plugin will go backward or forward in time,
 - The blue line shows the dewpoint,
