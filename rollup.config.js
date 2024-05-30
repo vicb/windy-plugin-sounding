@@ -74,7 +74,7 @@ export default {
       inlineSources: false,
     }),
     rollupSwc({
-      include: ["**/*.ts", "**/*.svelte"],
+      include: ["**/*.ts", "**/*.tsx", "**/*.svelte"],
       sourceMaps: useSourceMaps,
     }),
     rollupSvelte({
