@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "rollup -c --watch",
-    "build": "rm -rf dist && mkdir dist && SERVE=false rollup -c && cp package.json dist/",
+    "build": "rm -rf dist && rm -rf .rollup.cache && mkdir dist && SERVE=false rollup -c && cp package.json dist/",
     "format": "npx eslint src/**/*.{js,ts,jsx,tsx,less,html} --fix"
   },
   "repository": {
