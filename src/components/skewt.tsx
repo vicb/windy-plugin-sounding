@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
+import { GRAPH_BOTTOM_MARGIN_PX } from "src/features/plugin/pluginSelector";
 import * as atm from "../util/atmosphere.js";
 import * as math from "../util/math.js";
 
-import { GRAPH_BOTTOM_MARGIN_PX } from "../selectors/sounding.js";
 // eslint-disable-next-line no-unused-vars
 import { Parcel } from "./parcel.js";
 import { PureComponent } from "./pure.js";

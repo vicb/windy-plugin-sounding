@@ -1,3 +1,4 @@
+import { MeteogramDataPayload } from "@windycom/plugin-devtools/types/interfaces";
 import { lerp } from "./math";
 
 export const hrAlt = [0, 5, 11, 16.7, 25, 33.4, 50, 58.4, 66.7, 75, 83.3, 92, 98, 100];
@@ -13,11 +14,11 @@ for (let i = 0; i < 160; i++) {
 // Output an object:
 // - clouds: the clouds cover,
 // - width & height: dimension of the cover data.
-export function computeClouds(airData) {
+export function computeClouds(airData: MeteogramDataPayload) {
   // Compute clouds data.
-  const numX = airData["rh-1000h"].length;
+  const numX = airData["rh-1000h"].length as number;
   const numY = hrAltPressure.length;
-  const rawClouds = new Array(numX * numY);
+  const rawClouds: number[] = new Array(numX * numY);
 
   for (let y = 0, index = 0; y < numY; ++y) {
     if (hrAltPressure[y] == null) {
@@ -44,13 +45,13 @@ export function computeClouds(airData) {
   const sliceWidth = 10;
   const width = sliceWidth * numX;
   const height = 300;
-  const clouds = new Array(width * height);
+  const clouds: number[] = new Array(width * height);
   const kh = (height - 1) * 0.01;
   const dx2 = (sliceWidth + 1) >> 1;
   let heightLookupIndex = 2 * height;
-  const heightLookup = new Array(heightLookupIndex);
-  const buffer = new Array(16);
-  let previousY;
+  const heightLookup: number[] = new Array(heightLookupIndex);
+  const buffer: number[] = new Array(16);
+  let previousY: number;
   let currentY = height;
 
   for (let j = 0; j < numY - 1; ++j) {
@@ -116,22 +117,22 @@ export function computeClouds(airData) {
   return { clouds, width, height };
 }
 
-function clampIndex(index, size) {
+function clampIndex(index: number, size: number) {
   return index < 0 ? 0 : index > size - 1 ? size - 1 : index;
 }
 
-function step(x) {
+function step(x: number) {
   return lookup[Math.floor(clampIndex(x, 160))];
 }
 
-function cubicInterpolate(y0, y1, y2, y3, m) {
+function cubicInterpolate<T extends number>(y0: T, y1: T, y2: T, y3: T, m: T) {
   const a0 = -y0 * 0.5 + 3.0 * y1 * 0.5 - 3.0 * y2 * 0.5 + y3 * 0.5;
   const a1 = y0 - 5.0 * y1 * 0.5 + 2.0 * y2 - y3 * 0.5;
   const a2 = -y0 * 0.5 + y2 * 0.5;
   return a0 * m ** 3 + a1 * m ** 2 + a2 * m + y1;
 }
 
-function bicubicFiltering(m, s, t) {
+function bicubicFiltering(m: number[], s: number, t: number) {
   return cubicInterpolate(
     cubicInterpolate(m[0], m[1], m[2], m[3], s),
     cubicInterpolate(m[4], m[5], m[6], m[7], s),
@@ -143,7 +144,14 @@ function bicubicFiltering(m, s, t) {
 
 // Draw the clouds on a canvas.
 // This function is useful for debugging.
-export function cloudsToCanvas({ clouds, width, height, canvas }) {
+type CloudCanvas = {
+  clouds: number[];
+  width: number;
+  height: number;
+  canvas: HTMLCanvasElement | null;
+};
+
+export function cloudsToCanvas({ clouds, width, height, canvas }: CloudCanvas) {
   if (canvas == null) {
     canvas = document.createElement("canvas");
   }

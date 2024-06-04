@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import windyUtils from "@windy/utils";
-import * as math from "../util/math";
+import * as math from "src/util/math";
 
 import {
   GRAPH_GAP_PX,
@@ -15,9 +15,7 @@ import {
   timestamp,
   width as totalWidth,
   zoom,
-} from "./sounding";
-
-
+} from "src/features/plugin/pluginSelector";
 
 export const width = (state) =>
   Math.floor(totalWidth(state) * (1 - GRAPH_WINDGRAM_WIDTH_PERCENT / 100) - GRAPH_GAP_PX);
@@ -45,30 +43,39 @@ export const params = createSelector(forecasts, timestamp, pMin, (forecasts, tim
   }
   const levels = forecasts.levels.slice(0, topLevelIndex + 1);
 
-  const params = {};
+  const paramsObj: {
+    dewpoint?: number[];
+    gh?: number[];
+    level?: number[];
+    temp?: number[];
+    windDir?: number[];
+    windSpeed?: number[];
+    wind_u?: number[];
+    wind_v?: number[];
+  } = {};
 
   Object.getOwnPropertyNames(values[previous]).forEach((name) => {
-    params[name] = math.linearInterpolate(
+    paramsObj[name] = math.linearInterpolate(
       times[previous],
       values[previous][name],
       times[next],
       values[next][name],
       timestamp
-    );
-    params[name].splice(topLevelIndex + 1);
+    ) as number[];
+    paramsObj[name].splice(topLevelIndex + 1);
   });
 
-  params.level = levels;
+  paramsObj.level = levels;
 
-  const wind = params.wind_u.map((u, index) => {
-    const v = params.wind_v[index];
+  const wind = paramsObj.wind_u.map((u, index) => {
+    const v = paramsObj.wind_v[index];
     return windyUtils.wind2obj([u, v]);
   });
 
-  params.windSpeed = wind.map((w) => w.wind);
-  params.windDir = wind.map((w) => w.dir);
+  paramsObj.windSpeed = wind.map((w) => w.wind);
+  paramsObj.windDir = wind.map((w) => w.dir);
 
-  return params;
+  return paramsObj;
 });
 
 export const tMax = createSelector(forecasts, (f) => f.tMax + 8);

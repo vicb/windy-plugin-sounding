@@ -1,33 +1,51 @@
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
+import { pluginSel, skewTSel, windSel } from "src/features";
 import * as math from "../util/math";
-
 import { PureComponent } from "./pure";
 import { sampleAt } from "../util/math";
 
-export class WindGram extends PureComponent {
-  constructor(props) {
+type WindGramProps = {
+  isLoading?: boolean;
+  params?: ReturnType<typeof skewTSel.params>;
+  windSpeedMax?: ReturnType<typeof windSel.windSpeedMax>;
+  width?: number;
+  height?: number;
+  format?: ReturnType<typeof pluginSel.formatSpeed>;
+  metric?: ReturnType<typeof pluginSel.speedMetric>;
+  pSfc?: ReturnType<typeof skewTSel.pSfc>;
+  pToPx?: ReturnType<typeof skewTSel.pToPx>;
+  speedToPx?: ReturnType<typeof windSel.speedToPx>;
+  line?: ReturnType<typeof windSel.line>;
+  zoom?: ReturnType<typeof pluginSel.zoom>;
+  yPointer?: ReturnType<typeof pluginSel.yPointer>;
+  setYPointer?: (y: WindGramProps["yPointer"]) => void;
+};
+
+export class WindGram extends PureComponent<WindGramProps> {
+  constructor(props: WindGramProps) {
     super(props);
   }
+  render() {
+    const {
+      isLoading,
+      params,
+      width,
+      height,
+      windSpeedMax,
+      metric,
+      format,
+      pSfc,
+      pToPx,
+      speedToPx,
+      line,
+      zoom,
+      yPointer,
+      setYPointer,
+    } = this.props;
 
-  render({
-    isLoading,
-    params,
-    width,
-    height,
-    windSpeedMax,
-    metric,
-    format,
-    pSfc,
-    pToPx,
-    speedToPx,
-    line,
-    zoom,
-    yPointer,
-    setYPointer,
-  }) {
     if (isLoading) {
-      return;
+      return null;
     }
     const sfcPx = pToPx(pSfc);
 
@@ -63,6 +81,7 @@ export class WindGram extends PureComponent {
           {params.level.map((level, i) =>
             level <= pSfc ? (
               <WindArrow
+                key={pToPx(level)}
                 direction={params.windDir[i]}
                 speed={params.windSpeed[i]}
                 y={pToPx(level)}
@@ -92,7 +111,7 @@ export class WindGram extends PureComponent {
   }
 }
 
-const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) => {
+function WindAxis({ height, width, metric, format, speedToPx, maxSpeed, zoom }) {
   if (zoom) {
     const x30 = speedToPx(30 / 3.6);
     const x15 = x30 / 2;
@@ -155,9 +174,9 @@ const WindAxis = ({ height, width, metric, format, speedToPx, maxSpeed, zoom }) 
       </text>
     </g>
   );
-};
+}
 
-const WindArrow = ({ direction, y, speed }) => {
+function WindArrow({ direction, y, speed }) {
   return speed > 1 ? (
     <g transform={`translate(0,${y}) rotate(${direction})`} stroke="black" fill="none">
       <line y2="-30" />
@@ -169,4 +188,4 @@ const WindArrow = ({ direction, y, speed }) => {
       <circle r="1" />
     </g>
   );
-};
+}

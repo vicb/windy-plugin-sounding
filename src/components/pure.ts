@@ -1,7 +1,7 @@
 import { Component } from "preact";
 
 // Shallow diff
-function diff(a, b) {
+function diff<I extends object>(a: I, b: I) {
   for (const i in a) {
     if (!(i in b)) {
       return true;
@@ -15,8 +15,11 @@ function diff(a, b) {
   return false;
 }
 
-export class PureComponent extends Component {
-  shouldComponentUpdate(props, state) {
-    return diff(this.props, props) || diff(this.state, state);
+export class PureComponent<P extends object = Record<string, never>, S extends object = Record<string, never>> extends Component<P, S> {
+  shouldComponentUpdate(nextProps: P, nextState: S) {
+    return diff(this.props, nextProps) || diff(this.state, nextState);
+  }
+  render() {
+    return null;
   }
 }

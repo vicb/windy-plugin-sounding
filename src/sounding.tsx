@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-unused-vars
+import { h, render } from "preact";
 import {
   addSubscription,
   cancelSubscriptions,
@@ -5,38 +7,36 @@ import {
   setActive,
   setFavorites,
   setLocation,
-  setModelName,
   setTime,
-} from "./actions/sounding.js";
-import { getStore, updateMetrics, AppStore } from "./util/store.js";
+  setModelName,
+  updateMetrics
+} from "src/features";
+import store, { updateStore } from "src/util/store";
 // eslint-disable-next-line no-unused-vars
-import { h, render } from "preact";
-
-// eslint-disable-next-line no-unused-vars
-import { App } from "./containers/containers.js";
+import { App } from "src/containers/containers";
 // eslint-disable-next-line no-unused-vars
 import { Provider } from "react-redux";
-
 import * as windyRootScope from "@windy/rootScope";
 import windyStore from "@windy/store";
 import windyUtils from "@windy/utils";
 import { map as windyMap } from "@windy/map";
 import { emitter as windyPicker } from "@windy/picker";
-
 import favs from "@windy/userFavs";
 import { singleclick } from "@windy/singleclick";
-import config from "src/pluginConfig";
-
 import "./styles.less";
 import { LatLon } from "@windycom/plugin-devtools/types/interfaces.js";
-import { centerMap, updateTime } from "./selectors/sounding.js";
+import { centerMap, updateTime } from "src/features/plugin/pluginSelector";
+import config from "src/pluginConfig";
 
-declare const SwipeListener: any;
+declare const SwipeListener;
 
-let store: AppStore;
+const setCurrentLocation = (ll: LatLon) => {
+  const { lat, lon } = ll;
+  store.dispatch(setLocation(lat, lon));
+};
 
 export const mountPlugin = (container: HTMLDivElement) => {
-  store = getStore(container);
+  updateStore(container);
 
   render(
     <Provider store={store}>
@@ -58,7 +58,7 @@ export const mountPlugin = (container: HTMLDivElement) => {
         el.addEventListener("swipe", (e: CustomEvent) => {
           const { right, left } = e.detail.directions;
           const direction = left ? -1 : right ? 1 : 0;
-          updateTime(getStore(el).getState())({ direction, changeDay: true });
+          updateTime(updateStore(el).getState())({ direction, changeDay: true });
         });
       })
       .catch((e) => console.error(e));
@@ -94,21 +94,18 @@ export const openPlugin = (ll?: LatLon) => {
     });
     store.dispatch(addSubscription(() => windyStore.off(productChangedEventId)));
 
-    const singleClickIdEventId =singleclick.on(config.name, (ll: LatLon) => {
-      setCurrentLocation(ll);
-    });
+    const singleClickIdEventId = singleclick.on(config.name, setCurrentLocation);
+
     store.dispatch(addSubscription(() => singleclick.off(singleClickIdEventId)));
 
     // USe the picker events on desktop.
     if (!windyRootScope.isMobileOrTablet) {
-      const pickerOpenedEventId = windyPicker.on("pickerOpened", (ll: LatLon) => {
-        setCurrentLocation(ll);
-      });
+      const pickerOpenedEventId = windyPicker.on("pickerOpened", setCurrentLocation);
+
       store.dispatch(addSubscription(() => windyPicker.off(pickerOpenedEventId)));
 
-      const pickerMovedEventId = windyPicker.on("pickerMoved", (ll: LatLon) => {
-        setCurrentLocation(ll);
-      });
+      const pickerMovedEventId = windyPicker.on("pickerMoved", setCurrentLocation);
+
       store.dispatch(addSubscription(() => windyPicker.off(pickerMovedEventId)));
     }
 
@@ -121,9 +118,9 @@ export const openPlugin = (ll?: LatLon) => {
     store.dispatch(setActive(true));
   }
 
-  updateMetrics(store);
+  store.dispatch(updateMetrics());
   centerMap(store.getState())(lat, lon);
-  setCurrentLocation({lat, lon});
+  setCurrentLocation({ lat, lon });
   store.dispatch(setModelName(windyStore.get("product")));
   store.dispatch(setTime(windyStore.get("timestamp")));
 };
@@ -133,9 +130,4 @@ export const destroyPlugin = () => {
   store.dispatch(cancelSubscriptions());
   store.dispatch(removeMarker());
   store.dispatch(setActive(false));
-};
-
-const setCurrentLocation = (ll: LatLon) => {
-  const {lat, lon} = ll;
-  store.dispatch(setLocation(lat, lon));
 };
