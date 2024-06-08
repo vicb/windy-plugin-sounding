@@ -9,9 +9,6 @@ import { Favorites } from "../components/favorites.js";
 import { LoadingIndicator } from "../components/loading.js";
 import { SkewT } from "../components/skewt.js";
 import { WindGram } from "../components/wind.js";
-import { connect } from "react-redux";
-// eslint-disable-next-line no-unused-vars
-import { h } from "preact";
 import { parcelTrajectory } from "../util/atmosphere.js";
 
 import * as windyRootScope from "@windy/rootScope";

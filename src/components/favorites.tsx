@@ -1,12 +1,12 @@
-import { SUPPORTED_MODEL_PREFIXES, setModelName } from "../actions/sounding";
-
-import { PureComponent } from "./pure.js";
-import { getStore } from "../util/store.js";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
+import { SUPPORTED_MODEL_PREFIXES, setModelName } from "src/features";
+
+import store from "src/util/store";
 import windyStore from "@windy/store";
 import windyUtils from "@windy/utils";
 import windyModels from "@windy/models";
+import { PureComponent } from "./pure";
 
 function label(favorite) {
   return favorite.title || favorite.name;

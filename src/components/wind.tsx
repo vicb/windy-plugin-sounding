@@ -1,8 +1,8 @@
+// eslint-disable-next-line no-unused-vars
+import { h } from "preact";
 import * as math from "../util/math";
 
 import { PureComponent } from "./pure";
-// eslint-disable-next-line no-unused-vars
-import { h } from "preact";
 import { sampleAt } from "../util/math";
 
 export class WindGram extends PureComponent {

@@ -23,11 +23,11 @@ import windyUtils from "@windy/utils";
 import { map as windyMap } from "@windy/map";
 import { emitter as windyPicker } from "@windy/picker";
 
-import favs from '@windy/userFavs';
-import { singleclick } from '@windy/singleclick';
-import config from './pluginConfig';
+import favs from "@windy/userFavs";
+import { singleclick } from "@windy/singleclick";
+import config from "src/pluginConfig";
 
-import './styles.less';
+import "./styles.less";
 import { LatLon } from "@windycom/plugin-devtools/types/interfaces.js";
 import { centerMap, updateTime } from "./selectors/sounding.js";
 
@@ -42,7 +42,7 @@ export const mountPlugin = (container: HTMLDivElement) => {
     <Provider store={store}>
       <App />
     </Provider>,
-    container
+    container,
   );
 
   // todo(vicb)
