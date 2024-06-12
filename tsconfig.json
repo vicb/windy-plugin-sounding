@@ -1,42 +1,47 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "module": "esnext",
-        "lib": ["es2022", "DOM"],
-        "removeComments": true,
-        "outDir": "dist",
-        "target": "es2022",
-        "typeRoots": [ "./node_modules/@types/"],
-        "resolveJsonModule": true,
-        "sourceMap": false,
-        "incremental": true,
-        "noEmit": true,
-        "esModuleInterop": true,
-        "noUnusedLocals": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "noFallthroughCasesInSwitch": true,
-        "moduleResolution": "node",
-        // todo -> true
-        "noImplicitAny": false,
-        "alwaysStrict": false,
-        "strictNullChecks": false,
-        "strictBindCallApply": false,
-        // 
-        "forceConsistentCasingInFileNames": true,
-        "isolatedModules": true,
-        "jsx": "react",
-        "jsxFactory": "h",
-        "paths": {
-            "@windy/*": [
-                "./node_modules/@windycom/plugin-devtools/types/*",
-                "./node_modules/@windycom/plugin-devtools/types/client/*",
-            ],
-        }
-    },
-    "include": [
-        "src/*.ts",
-        "src/*.tsx",
-        "src/*.svelte",
-    ]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "esnext",
+    "lib": [
+      "es2022",
+      "DOM"
+    ],
+    "removeComments": true,
+    "outDir": "dist",
+    "target": "es2022",
+    "typeRoots": [
+      "./node_modules/@types/"
+    ],
+    "resolveJsonModule": true,
+    "sourceMap": false,
+    "incremental": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    // todo -> true
+    "noImplicitAny": false,
+    "alwaysStrict": false,
+    "strictNullChecks": false,
+    "strictBindCallApply": false,
+    //
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "paths": {
+      "@windy/*": [
+        "./node_modules/@windycom/plugin-devtools/types/*",
+        "./node_modules/@windycom/plugin-devtools/types/client/*",
+      ],
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.svelte",
+  ]
 }

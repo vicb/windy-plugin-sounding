@@ -1,9 +1,12 @@
-import { PureComponent } from "./pure";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
+import { PureComponent } from "./pure";
 
-export class LoadingIndicator extends PureComponent {
-  render({ cx, cy }) {
+type Props = {cx: number; cy: number};
+
+export class LoadingIndicator extends PureComponent<Props, object> {
+  render() {
+    const { cx, cy } = this.props;
     return (
       <svg width="60" height="60" viewBox="0 0 38 38" x={cx - 30} y={cy - 30}>
         <g transform="translate(1 1)" strokeWidth="2" fill="none" fillRule="evenodd">
