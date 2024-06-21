@@ -1,6 +1,6 @@
-import { PureComponent } from "./pure";
 // eslint-disable-next-line no-unused-vars
 import { h } from "preact";
+import { PureComponent } from "src/components/pure";
 
 export function Parcel({ parcel, width, line, pToPx, formatAltitude }) {
   const { trajectory, isohume, elevThermalTop, pThermalTop, pCloudTop } = parcel;

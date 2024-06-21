@@ -1,14 +1,12 @@
-
-
-import { createSelector } from "reselect";
-
+import { createSelector } from "@reduxjs/toolkit";
 import windyStore from "@windy/store";
 import windyUtils from "@windy/utils";
 import windyMetrics from "@windy/metrics";
 import { map as windyMap } from "@windy/map";
 import * as windyRootScope from "@windy/rootScope";
-import { cloudsToCanvas, computeClouds, hrAlt } from "../util/clouds";
-import * as math from "../util/math";
+import { cloudsToCanvas, computeClouds, hrAlt } from "src/util/clouds";
+import * as math from "src/util/math";
+import { RootState } from "src/util/store";
 
 // Extra space at the bottom to draw the ticks.
 export const GRAPH_BOTTOM_MARGIN_PX = 20;
@@ -16,22 +14,22 @@ export const GRAPH_WINDGRAM_WIDTH_PERCENT = 17;
 // Gap between the skewT and the windgram.
 export const GRAPH_GAP_PX = 5;
 
-export const lat = (state) => state.plugin.lat;
-export const lon = (state) => state.plugin.lon;
-export const modelName = (state) => state.plugin.modelName;
-export const timestamp = (state) => state.plugin.timestamp;
-export const tMetric = (state) => state.metrics.temp;
-export const pMetric = (state) => state.metrics.pressure;
-export const altiMetric = (state) => state.metrics.altitude;
-export const speedMetric = (state) => state.metrics.speed;
-export const favorites = (state) => state.plugin.favorites;
+export const lat = (state: RootState) => state.plugin.lat;
+export const lon = (state: RootState) => state.plugin.lon;
+export const modelName = (state: RootState) => state.model.modelName;
+export const timestamp = (state: RootState) => state.plugin.timestamp;
+export const tMetric = (state: RootState) => state.metric.temp;
+export const pMetric = (state: RootState) => state.metric.pressure;
+export const altiMetric = (state: RootState) => state.metric.altitude;
+export const speedMetric = (state: RootState) => state.metric.speed;
+export const favorites = (state: RootState) => state.plugin.favorites;
 // width * height of the graphs (skewT and windgram).
-export const width = (state) => state.plugin.width;
-export const height = (state) => state.plugin.height;
+export const width = (state: RootState) => state.plugin.width;
+export const height = (state: RootState) => state.plugin.height;
 // excluding the bottom area use to draw the ticks.
-export const graphHeight = (state) => state.plugin.height - GRAPH_BOTTOM_MARGIN_PX;
-export const zoom = (state) => state.plugin.zoom;
-export const yPointer = (state) => state.plugin.yPointer;
+export const graphHeight = (state: RootState) => state.plugin.height - GRAPH_BOTTOM_MARGIN_PX;
+export const zoom = (state: RootState) => state.plugin.zoom;
+export const yPointer = (state: RootState) => state.plugin.yPointer;
 
 // Format parameters
 
@@ -60,7 +58,7 @@ export const locationKey = createSelector(lat, lon, (lat, lon) =>
 );
 
 // Forecasts
-const models = (state) => state.models;
+const models = (state) => state.model;
 
 export const forecasts = createSelector(
   locationKey,
@@ -74,7 +72,7 @@ export const forecasts = createSelector(
 const clouds = createSelector(forecasts, (forecasts) => computeClouds(forecasts.airData.data));
 
 // Set to true to debug the cloud cover.
-const debugClouds = false;
+const debugClouds: boolean = false;
 let canvas = null;
 
 const cloudSlice = createSelector(
@@ -83,7 +81,7 @@ const cloudSlice = createSelector(
   forecasts,
   (cloudsData, timestamp, forecasts) => {
     const { clouds, width, height } = cloudsData;
-    const {times} = forecasts;
+    const { times } = forecasts;
     const next = times.findIndex((t) => t >= timestamp);
     if (next == -1) {
       return null;
@@ -92,12 +90,12 @@ const cloudSlice = createSelector(
     const stepX = width / times.length;
     const nextX = stepX / 2 + next * stepX;
     const prevX = stepX / 2 + prev * stepX;
-    const x = Math.round(math.linearInterpolate(times[prev], prevX, times[next], nextX, timestamp));
+    const x = Math.round(math.linearInterpolate(times[prev], prevX, times[next], nextX, timestamp) as number);
     const cover = [];
     for (let y = 0; y < height; y++) {
       cover.push(clouds[x + y * width]);
     }
-    if (debugClouds == true) {
+    if (debugClouds) {
       canvas = cloudsToCanvas({ canvas, clouds, width, height });
       document.body.append(canvas);
       canvas.style.position = "fixed";
@@ -115,7 +113,7 @@ const cloudSlice = createSelector(
 );
 
 export const cloudCover = createSelector(cloudSlice, (slice) => {
-  const {length} = slice;
+  const { length } = slice;
   const levels = [1000, 950, 925, 900, 850, 800, 700, 600, 500, 400, 300, 200, 150, 100];
   // lower indexes correspond to lower pressures
   const indexes = hrAlt.map((p) => (length - 1) * (1 - p / 100));
