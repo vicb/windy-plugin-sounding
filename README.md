@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This repository has been moved to the [flyXC monorepo](https://github.com/vicb/flyxc)
+
 # windy-plugin-sounding
 
 Sounding forecast for paraglider pilots.
